@@ -7,6 +7,12 @@ import collections
 LOGS_BUFFER = collections.deque(maxlen=300)
 YT_EVENTS_BUFFER = collections.deque(maxlen=100)
 
+# Cache of per-channel metadata refreshed by the poller.
+# Shape: { yt_channel_id: {"title": str, "subscriber_count": int, "hidden_subs": bool,
+#                           "live_url": str|None, "live_title": str|None,
+#                           "url": str} }
+YT_CHANNEL_CACHE: dict = {}
+
 PRESENCE_ROTATION_ENABLED = True
 CUSTOM_PRESENCE_STATUS = "online"
 CUSTOM_PRESENCE_ACTIVITY = "watching"
