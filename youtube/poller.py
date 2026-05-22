@@ -57,6 +57,8 @@ def setup_poller(client: discord.Client):
 
         state.YT_CHANNEL_CACHE[channel_id] = {
             "title": info["title"],
+            "description": info.get("description", ""),
+            "thumbnail": info.get("thumbnail"),
             "subscriber_count": info["subscriber_count"],
             "view_count": info.get("view_count", 0),
             "video_count": info.get("video_count", 0),

@@ -46,7 +46,7 @@ def stats():
         bot_user = {
             "name": bot.user.name,
             "discriminator": bot.user.discriminator,
-            "avatar": bot.user.display_avatar.url if bot.user.avatar else None,
+            "avatar": bot.user.display_avatar.url,
         }
 
     return jsonify({
