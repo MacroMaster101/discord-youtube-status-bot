@@ -1,35 +1,37 @@
-"""Info slash commands: stats, userinfo, avatar, servericon, ping, uptime, help."""
+"""Info commands: stats, userinfo, avatar, servericon, ping, uptime, help."""
 import datetime
 import discord
-from discord import app_commands
 from discord.ext import commands
 from core import state, storage
+from config import Config
 
 
 class Info(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @app_commands.command(name="ping", description="Show bot latency")
-    async def ping(self, inter: discord.Interaction):
+    @commands.command(name="ping", help="Show bot latency")
+    async def ping(self, ctx: commands.Context):
         latency = round(self.bot.latency * 1000)
         embed = discord.Embed(title="🏓 Pong!", color=0x5865F2)
         embed.add_field(name="Latency", value=f"`{latency}ms`")
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="uptime", description="How long the bot has been online")
-    async def uptime(self, inter: discord.Interaction):
+    @commands.command(name="uptime", help="How long the bot has been online")
+    async def uptime(self, ctx: commands.Context):
         secs = state.uptime_seconds()
         h, r = divmod(secs, 3600)
         m, s = divmod(r, 60)
         d, h = divmod(h, 24)
         embed = discord.Embed(title="⏱️ Bot Uptime", color=0x57F287,
                               description=f"**{d}d {h}h {m}m {s}s**")
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="stats", description="Show server statistics")
-    async def stats(self, inter: discord.Interaction):
-        guild = inter.guild
+    @commands.command(name="stats", help="Show server statistics")
+    async def stats(self, ctx: commands.Context):
+        guild = ctx.guild
+        if not guild:
+            return await ctx.send("❌ This command can only be used in a server.")
         total_members = guild.member_count
         online = sum(1 for m in guild.members if m.status != discord.Status.offline and not m.bot)
         bots = sum(1 for m in guild.members if m.bot)
@@ -48,12 +50,12 @@ class Info(commands.Cog):
         embed.add_field(name="📺 YouTube tracked", value=str(yt_count), inline=True)
         embed.add_field(name="👑 Owner", value=str(guild.owner), inline=True)
         embed.add_field(name="📅 Created", value=guild.created_at.strftime("%b %d, %Y"), inline=True)
-        embed.set_footer(text=f"Requested by {inter.user}", icon_url=inter.user.display_avatar.url)
-        await inter.response.send_message(embed=embed)
+        embed.set_footer(text=f"Requested by {ctx.author}", icon_url=ctx.author.display_avatar.url)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="userinfo", description="Show info about a user")
-    async def userinfo(self, inter: discord.Interaction, member: discord.Member = None):
-        member = member or inter.user
+    @commands.command(name="userinfo", help="Show info about a user")
+    async def userinfo(self, ctx: commands.Context, member: discord.Member = None):
+        member = member or ctx.author
         roles = [r.mention for r in member.roles if r.name != "@everyone"]
         embed = discord.Embed(title=f"👤 {member}", color=member.color or 0x5865F2,
                               timestamp=datetime.datetime.utcnow())
@@ -69,36 +71,36 @@ class Info(commands.Cog):
                         inline=True)
         embed.add_field(name=f"Roles ({len(roles)})",
                         value=", ".join(roles[:10]) or "None", inline=False)
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="avatar", description="Show a user's avatar")
-    async def avatar(self, inter: discord.Interaction, member: discord.Member = None):
-        user = member or inter.user
+    @commands.command(name="avatar", help="Show a user's avatar")
+    async def avatar(self, ctx: commands.Context, member: discord.Member = None):
+        user = member or ctx.author
         embed = discord.Embed(title=f"🖼️ {user.name}'s Avatar", color=0x5865F2)
         embed.set_image(url=user.display_avatar.with_size(1024).url)
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="servericon", description="Show the server's icon")
-    async def servericon(self, inter: discord.Interaction):
-        guild = inter.guild
+    @commands.command(name="servericon", help="Show the server's icon")
+    async def servericon(self, ctx: commands.Context):
+        guild = ctx.guild
+        if not guild:
+            return await ctx.send("❌ This command can only be used in a server.")
         if not guild.icon:
-            return await inter.response.send_message("This server has no icon.", ephemeral=True)
+            return await ctx.send("❌ This server has no icon.")
         embed = discord.Embed(title=f"🖼️ {guild.name}", color=0x5865F2)
         embed.set_image(url=guild.icon.with_size(1024).url)
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)
 
-    @app_commands.command(name="help", description="List all bot commands")
-    async def help(self, inter: discord.Interaction):
+    @commands.command(name="help", help="List all bot commands")
+    async def help(self, ctx: commands.Context):
+        p = Config.PREFIX
         embed = discord.Embed(title="📖 Bot Commands", color=0xFF0000,
                               timestamp=datetime.datetime.utcnow())
         embed.add_field(name="📺 YouTube", value=(
-            "`/yt stats` — Show subscriber & view counts for any channel\n"
-            "`/yt link` — Get the direct link of the primary YouTube channel"
+            f"`{p}yt stats` — Show subscriber & view counts for any channel\n"
+            f"`{p}yt link` — Get the direct link of the primary YouTube channel"
         ), inline=False)
         embed.add_field(name="📊 Info", value=(
-            "`/stats` `/userinfo` `/avatar` `/servericon` `/ping` `/uptime`"
+            f"`{p}stats` `{p}userinfo` `{p}avatar` `{p}servericon` `{p}ping` `{p}uptime`"
         ), inline=False)
-        embed.add_field(name="🎮 Fun", value=(
-            "`/roll` `/flip` `/8ball` `/rps` `/poll`"
-        ), inline=False)
-        await inter.response.send_message(embed=embed)
+        await ctx.send(embed=embed)

@@ -1,6 +1,5 @@
-"""YouTube slash command group: /yt stats, link."""
+"""YouTube commands group: yt stats, link."""
 import discord
-from discord import app_commands
 from discord.ext import commands
 from core import state
 from youtube import api as yt_api
@@ -11,27 +10,32 @@ class YouTubeCog(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    yt = app_commands.Group(name="yt", description="YouTube channel tracking & stats")
+    @commands.group(name="yt", invoke_without_command=True)
+    async def yt(self, ctx: commands.Context):
+        p = Config.PREFIX
+        embed = discord.Embed(title="📺 YouTube Commands", color=0xFF0000)
+        embed.add_field(name="Commands", value=(
+            f"`{p}yt stats [channel]` — Show subscriber & view counts for a channel\n"
+            f"`{p}yt link` — Get the direct link of the primary YouTube channel"
+        ))
+        await ctx.send(embed=embed)
 
-    @yt.command(name="stats", description="Show subscriber & view counts for a YouTube channel")
-    @app_commands.describe(channel="YouTube channel URL, @handle, or channel ID (optional, defaults to primary channel)")
-    async def stats(self, inter: discord.Interaction, channel: str = None):
-        await inter.response.defer()
-        
+    @yt.command(name="stats")
+    async def stats(self, ctx: commands.Context, *, channel: str = None):
         target_channel = (channel or "").strip()
         if not target_channel:
             target_channel = Config.YOUTUBE_CHANNEL_ID
             
         if not target_channel:
-            return await inter.followup.send("❌ No primary YouTube channel ID configured. Please specify a channel or configure it in the dashboard.", ephemeral=True)
+            return await ctx.send("❌ No primary YouTube channel ID configured. Please specify a channel or configure it in the dashboard.")
 
         try:
             info = await yt_api.resolve_channel(target_channel)
         except yt_api.YouTubeError as e:
-            return await inter.followup.send(f"❌ YouTube error: {e}", ephemeral=True)
+            return await ctx.send(f"❌ YouTube error: {e}")
             
         if not info:
-            return await inter.followup.send("❌ Could not find that channel.", ephemeral=True)
+            return await ctx.send("❌ Could not find that channel.")
             
         try:
             latest = await yt_api.latest_video(info["id"])
@@ -56,11 +60,11 @@ class YouTubeCog(commands.Cog):
                 value=f"[{latest['title']}]({latest['url']})",
                 inline=False,
             )
-        await inter.followup.send(embed=embed)
+        await ctx.send(embed=embed)
 
-    @yt.command(name="link", description="Get the direct link of the primary YouTube channel")
-    async def link(self, inter: discord.Interaction):
+    @yt.command(name="link")
+    async def link(self, ctx: commands.Context):
         if not Config.YOUTUBE_CHANNEL_ID:
-            return await inter.response.send_message("❌ No primary YouTube channel configured. Set it in the dashboard.", ephemeral=True)
+            return await ctx.send("❌ No primary YouTube channel configured. Set it in the dashboard.")
         url = f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}"
-        await inter.response.send_message(f"📺 **Direct Link to YouTube Channel:** <{url}>")
+        await ctx.send(f"📺 **Direct Link to YouTube Channel:** <{url}>")

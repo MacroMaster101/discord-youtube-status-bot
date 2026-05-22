@@ -7,7 +7,6 @@ from youtube.poller import setup_poller
 from discord_bot import events
 from discord_bot.presence import start_presence
 from discord_bot.cogs.info import Info
-from discord_bot.cogs.fun import Fun
 from discord_bot.cogs.youtube_cog import YouTubeCog
 
 
@@ -17,18 +16,18 @@ def build_bot() -> commands.Bot:
     intents.members = True
     intents.presences = True
 
-    bot = commands.Bot(command_prefix=Config.PREFIX, intents=intents, help_command=None)
+    def get_prefix(bot_instance, message):
+        return Config.PREFIX
+
+    bot = commands.Bot(command_prefix=get_prefix, intents=intents, help_command=None)
 
     @bot.event
     async def on_ready():
         state.set_start_time()
         state.add_log(f"Logged in as {bot.user} (ID: {bot.user.id})", "success")
         state.add_log(f"Serving {len(bot.guilds)} server(s)", "info")
-        try:
-            synced = await bot.tree.sync()
-            state.add_log(f"Synced {len(synced)} slash commands", "success")
-        except Exception as e:
-            state.add_log(f"Slash sync failed: {e}", "error")
+        # Prefix commands do not need slash tree syncing
+        state.add_log("Prefix commands active", "success")
         # Eagerly fetch default channel stats on startup if configured
         if Config.YOUTUBE_CHANNEL_ID and Config.YOUTUBE_API_KEY:
             async def resolve_default():
@@ -105,5 +104,4 @@ def build_bot() -> commands.Bot:
 
 async def setup_cogs(bot: commands.Bot):
     await bot.add_cog(Info(bot))
-    await bot.add_cog(Fun(bot))
     await bot.add_cog(YouTubeCog(bot))

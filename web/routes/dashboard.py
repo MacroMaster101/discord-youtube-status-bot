@@ -66,6 +66,7 @@ def stats():
             "api_configured": bool(Config.YOUTUBE_API_KEY),
         },
         "system": {"threads": threading.active_count()},
+        "prefix": Config.PREFIX,
     })
 
 
