@@ -1852,6 +1852,13 @@ function api(path, opts = {}) {
 function bootApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
+  
+  // Restore previously active tab from hash or localStorage
+  const savedTab = window.location.hash.slice(1) || localStorage.getItem('activeTab') || 'dashboard';
+  const validTabs = ['dashboard', 'youtube', 'broadcast', 'presence', 'config', 'logs'];
+  const activeTab = validTabs.includes(savedTab) ? savedTab : 'dashboard';
+  switchTab(activeTab);
+
   refreshAll();
   loadConfig();
   loadYouTube(); // Pre-load YouTube channel variables for templates
@@ -1862,6 +1869,9 @@ function bootApp() {
 /* ===== TAB NAVIGATION ===== */
 function switchTab(tab) {
   CURRENT_TAB = tab;
+  window.location.hash = tab;
+  localStorage.setItem('activeTab', tab);
+  
   document.querySelectorAll('.nav-btn[data-tab]').forEach(el =>
     el.classList.toggle('active', el.dataset.tab === tab)
   );
