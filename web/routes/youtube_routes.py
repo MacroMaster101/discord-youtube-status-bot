@@ -66,6 +66,19 @@ def subscribe():
     added = storage.yt_add(guild_id, channel_id, info["id"], info["title"])
     if not added:
         return jsonify({"message": "Already subscribed"}), 409
+
+    # Enrich cache immediately so presence updates without waiting
+    state.YT_CHANNEL_CACHE[info["id"]] = {
+        "title": info["title"],
+        "subscriber_count": info["subscriber_count"],
+        "view_count": info.get("view_count", 0),
+        "video_count": info.get("video_count", 0),
+        "hidden_subs": info.get("hidden_subs", False),
+        "url": f"https://www.youtube.com/channel/{info['id']}",
+        "live_url": None,
+        "live_title": None,
+    }
+
     state.add_log(f"YT subscribe (dashboard): {info['title']}", "success")
     return jsonify({"status": "success", "channel": info})
 
@@ -82,6 +95,18 @@ def unsubscribe():
     removed = storage.yt_remove(guild_id, channel_id, yt_channel_id)
     if not removed:
         return jsonify({"message": "Subscription not found"}), 404
+
+    # Clean up cache if no other guild/channel is tracking this YouTube channel
+    all_subs = storage.yt_list_all()
+    in_use = False
+    for g_id, guild_subs in all_subs.items():
+        for s in guild_subs:
+            if s["yt_channel_id"] == yt_channel_id:
+                in_use = True
+                break
+    if not in_use:
+        state.YT_CHANNEL_CACHE.pop(yt_channel_id, None)
+
     state.add_log(f"YT unsubscribe (dashboard): {yt_channel_id}", "info")
     return jsonify({"status": "success"})
 

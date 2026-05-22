@@ -80,10 +80,18 @@ def set_config():
         return jsonify({"message": str(e)}), 500
 
 
-@bp.route("/presence", methods=["POST"])
+@bp.route("/presence", methods=["GET", "POST"])
 @require_auth
 def presence():
     bot = _bot()
+    if request.method == "GET":
+        return jsonify({
+            "status": state.CUSTOM_PRESENCE_STATUS,
+            "activity": state.CUSTOM_PRESENCE_ACTIVITY,
+            "text": state.CUSTOM_PRESENCE_TEXT,
+            "rotation": state.PRESENCE_ROTATION_ENABLED
+        })
+
     data = request.get_json() or {}
     status = data.get("status", "online")
     activity = data.get("activity", "watching")

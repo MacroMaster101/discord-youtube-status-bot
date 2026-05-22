@@ -1260,7 +1260,17 @@ async function sendBroadcast() {
 
 /* ===== PRESENCE ===== */
 async function loadPresenceTab() {
-  await Promise.all([refreshPresenceLive(), loadPresenceEntries()]);
+  await Promise.all([refreshPresenceLive(), loadPresenceEntries(), loadPresenceSettings()]);
+}
+
+async function loadPresenceSettings() {
+  try {
+    const p = await api('/presence');
+    document.getElementById('pStatus').value = p.status || 'online';
+    document.getElementById('pActivity').value = p.activity || 'watching';
+    document.getElementById('pText').value = p.text || '';
+    document.getElementById('pRotation').checked = p.rotation;
+  } catch (e) { console.error(e); }
 }
 
 async function refreshPresenceLive() {

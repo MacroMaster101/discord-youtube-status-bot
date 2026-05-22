@@ -33,6 +33,8 @@ def setup_poller(client: discord.Client):
             state.YT_CHANNEL_CACHE[yt_id] = {
                 "title": info["title"],
                 "subscriber_count": info["subscriber_count"],
+                "view_count": info.get("view_count", 0),
+                "video_count": info.get("video_count", 0),
                 "hidden_subs": info.get("hidden_subs", False),
                 "url": f"https://www.youtube.com/channel/{yt_id}",
                 "live_url": live["url"] if live else None,

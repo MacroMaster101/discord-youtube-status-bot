@@ -32,6 +32,17 @@ class YouTubeCog(commands.Cog):
         if not added:
             return await inter.followup.send(
                 f"ℹ️ Already subscribed to **{info['title']}** in {target.mention}.", ephemeral=True)
+        # Enrich cache immediately so presence updates without waiting
+        state.YT_CHANNEL_CACHE[info["id"]] = {
+            "title": info["title"],
+            "subscriber_count": info["subscriber_count"],
+            "view_count": info.get("view_count", 0),
+            "video_count": info.get("video_count", 0),
+            "hidden_subs": info.get("hidden_subs", False),
+            "url": f"https://www.youtube.com/channel/{info['id']}",
+            "live_url": None,
+            "live_title": None,
+        }
         embed = discord.Embed(
             title=f"📺 Now tracking {info['title']}",
             description=f"New uploads will be posted in {target.mention}.",
@@ -61,6 +72,17 @@ class YouTubeCog(commands.Cog):
             return await inter.followup.send("❌ Could not find that channel.", ephemeral=True)
         removed = storage.yt_remove(inter.guild.id, target.id, info["id"])
         if removed:
+            # Clean up cache if no other guild/channel is tracking this YouTube channel
+            all_subs = storage.yt_list_all()
+            in_use = False
+            for g_id, guild_subs in all_subs.items():
+                for s in guild_subs:
+                    if s["yt_channel_id"] == info["id"]:
+                        in_use = True
+                        break
+            if not in_use:
+                state.YT_CHANNEL_CACHE.pop(info["id"], None)
+
             await inter.followup.send(f"✅ Unsubscribed from **{info['title']}** in {target.mention}.")
             state.add_log(f"YT unsubscribe: {info['title']} from #{target.name}", "info")
         else:
