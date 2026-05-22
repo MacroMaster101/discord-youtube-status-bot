@@ -14,38 +14,54 @@ def setup_poller(client: discord.Client):
             return
 
         # 1. Refresh metadata for the rotating presence
+        # Auto-resolve handle or URL to raw channel ID
+        channel_id = Config.YOUTUBE_CHANNEL_ID.strip()
+        if not (channel_id.startswith("UC") and len(channel_id) == 24):
+            try:
+                resolved = await yt_api.resolve_channel(channel_id)
+                if resolved and resolved.get("id"):
+                    channel_id = resolved["id"]
+                    Config.update_env("YOUTUBE_CHANNEL_ID", channel_id)
+                    state.add_log(f"Poller resolved handle/URL to channel ID: {channel_id}", "success")
+                else:
+                    state.add_log(f"Poller could not resolve handle/URL for: {channel_id}", "error")
+                    return
+            except Exception as e:
+                state.add_log(f"Poller auto-resolve failed for '{channel_id}': {e}", "error")
+                return
+
         info, live, upcoming, latest = None, None, None, None
         try:
-            info = await yt_api.resolve_channel(Config.YOUTUBE_CHANNEL_ID)
+            info = await yt_api.resolve_channel(channel_id)
         except Exception as e:
-            state.add_log(f"YT cache resolve channel failed: {e}", "error")
+            state.add_log(f"YT cache resolve channel failed for '{channel_id}': {e}", "error")
             return
 
         if not info:
             return
 
         try:
-            live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
+            live = await yt_api.live_stream(channel_id)
         except Exception as e:
             state.add_log(f"YT cache check live failed: {e}", "warning")
 
         try:
-            upcoming = await yt_api.upcoming_stream(Config.YOUTUBE_CHANNEL_ID)
+            upcoming = await yt_api.upcoming_stream(channel_id)
         except Exception as e:
             state.add_log(f"YT cache check upcoming failed: {e}", "warning")
 
         try:
-            latest = await yt_api.latest_video(Config.YOUTUBE_CHANNEL_ID)
+            latest = await yt_api.latest_video(channel_id)
         except Exception as e:
             state.add_log(f"YT cache check latest failed: {e}", "warning")
 
-        state.YT_CHANNEL_CACHE[Config.YOUTUBE_CHANNEL_ID] = {
+        state.YT_CHANNEL_CACHE[channel_id] = {
             "title": info["title"],
             "subscriber_count": info["subscriber_count"],
             "view_count": info.get("view_count", 0),
             "video_count": info.get("video_count", 0),
             "hidden_subs": info.get("hidden_subs", False),
-            "url": f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}",
+            "url": f"https://www.youtube.com/channel/{channel_id}",
             "live_url": live["url"] if live else None,
             "live_title": live["title"] if live else None,
             "upcoming_title": upcoming["title"] if upcoming else None,

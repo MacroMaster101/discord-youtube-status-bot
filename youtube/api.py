@@ -56,7 +56,8 @@ async def resolve_channel(query: str) -> Optional[dict]:
     async with aiohttp.ClientSession() as session:
         if channel_id is None:
             if handle:
-                data = await _get(session, "channels", {"part": "id", "forHandle": handle})
+                api_handle = handle if handle.startswith("@") else f"@{handle}"
+                data = await _get(session, "channels", {"part": "id", "forHandle": api_handle})
                 items = data.get("items", [])
                 if items:
                     channel_id = items[0]["id"]
@@ -66,7 +67,7 @@ async def resolve_channel(query: str) -> Optional[dict]:
                 items = data.get("items", [])
                 if not items:
                     return None
-                channel_id = items[0]["snippet"]["channelId"]
+                channel_id = items[0].get("id", {}).get("channelId") or items[0].get("snippet", {}).get("channelId")
 
         data = await _get(session, "channels", {"part": "snippet,statistics", "id": channel_id})
         items = data.get("items", [])

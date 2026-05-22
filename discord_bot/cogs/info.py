@@ -92,10 +92,8 @@ class Info(commands.Cog):
         embed = discord.Embed(title="📖 Bot Commands", color=0xFF0000,
                               timestamp=datetime.datetime.utcnow())
         embed.add_field(name="📺 YouTube", value=(
-            "`/yt subscribe` — Get pinged when a channel uploads\n"
-            "`/yt unsubscribe` — Remove a subscription\n"
-            "`/yt list` — Show this server's tracked channels\n"
-            "`/yt stats` — Show subscriber/view counts for any channel"
+            "`/yt stats` — Show subscriber & view counts for any channel\n"
+            "`/yt link` — Get the direct link of the primary YouTube channel"
         ), inline=False)
         embed.add_field(name="📊 Info", value=(
             "`/stats` `/userinfo` `/avatar` `/servericon` `/ping` `/uptime`"
