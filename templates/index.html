@@ -2560,22 +2560,32 @@ async function loadLogs() {
   try {
     const logs = await api('/logs');
     const list = document.getElementById('logList');
+    if (!Array.isArray(logs)) {
+      list.innerHTML = `<div class="log-row info"><span class="msg">No logs available.</span></div>`;
+      return;
+    }
     list.innerHTML = logs.slice().reverse().map(l => {
-      let displayTime = l.timestamp;
-      try {
-        if (l.timestamp.includes('T') || l.timestamp.includes('Z')) {
-          const date = new Date(l.timestamp);
-          if (!isNaN(date.getTime())) {
-            displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+      if (!l) return '';
+      let displayTime = '';
+      if (l.timestamp) {
+        displayTime = String(l.timestamp);
+        try {
+          if (displayTime.includes('T') || displayTime.includes('Z')) {
+            const date = new Date(displayTime);
+            if (!isNaN(date.getTime())) {
+              displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+            }
           }
+        } catch (e) {
+          console.error("Failed to parse log timestamp:", e);
         }
-      } catch (e) {
-        console.error("Failed to parse log timestamp:", e);
       }
-      return `<div class="log-row ${l.level}">
+      const level = l.level || 'info';
+      const msg = l.message || '';
+      return `<div class="log-row ${level}">
         <span class="ts">${displayTime}</span>
-        <span class="lvl">${l.level}</span>
-        <span class="msg">${escapeHtml(l.message)}</span>
+        <span class="lvl">${level}</span>
+        <span class="msg">${escapeHtml(msg)}</span>
       </div>`;
     }).join('');
   } catch (e) { toast(e.message, 'error'); }
