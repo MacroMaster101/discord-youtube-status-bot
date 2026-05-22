@@ -936,6 +936,146 @@ a:hover { color: var(--brand); }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ===== PREMIUM INPUT GROUPS WITH ICONS ===== */
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.input-icon-wrap i.prefix-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  font-size: 15px;
+  pointer-events: none;
+  transition: color var(--transition);
+}
+.input-icon-wrap input {
+  padding-left: 42px !important;
+  width: 100%;
+}
+.input-icon-wrap input:focus + i.prefix-icon {
+  color: var(--brand-light);
+}
+.yt-icon-wrap input:focus + i.prefix-icon {
+  color: var(--yt-light);
+}
+.discord-icon-wrap input:focus + i.prefix-icon {
+  color: var(--brand-light);
+}
+
+/* ===== CONFIG OVERVIEW DOCK ===== */
+.config-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.config-overview-card {
+  background: rgba(13, 17, 28, 0.35);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all var(--transition);
+}
+.config-overview-card:hover {
+  background: rgba(13, 17, 28, 0.45);
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+}
+.config-overview-card .ico {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 18px;
+}
+.config-overview-card.co-yt .ico { background: rgba(255, 0, 51, 0.1); color: var(--yt-light); }
+.config-overview-card.co-discord .ico { background: rgba(88, 101, 242, 0.1); color: var(--brand-light); }
+.config-overview-card.co-system .ico { background: rgba(139, 92, 246, 0.1); color: var(--neon-purple); }
+.config-overview-card .details { flex: 1; }
+.config-overview-card .label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.config-overview-card .status-val { font-size: 14px; font-weight: 700; margin-top: 3px; }
+
+/* Custom panel glowing variants for config */
+.panel.panel-glow-yt { border-color: rgba(255, 0, 51, 0.12); }
+.panel.panel-glow-yt:hover { border-color: rgba(255, 0, 51, 0.28); box-shadow: 0 12px 32px rgba(255, 0, 51, 0.04); }
+.panel.panel-glow-discord { border-color: rgba(88, 101, 242, 0.12); }
+.panel.panel-glow-discord:hover { border-color: rgba(88, 101, 242, 0.28); box-shadow: 0 12px 32px rgba(88, 101, 242, 0.04); }
+
+/* ===== EYE ICON PASSWORD SHOW/HIDE ===== */
+.input-icon-wrap .eye-icon {
+  position: absolute;
+  right: 14px;
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+  transition: color var(--transition), transform var(--transition);
+  z-index: 5;
+}
+.input-icon-wrap .eye-icon:hover {
+  color: var(--text-primary);
+  transform: scale(1.1);
+}
+.input-icon-wrap input.secret-input {
+  padding-right: 44px !important;
+}
+
+/* Custom glowing panel for security */
+.panel.panel-glow-security { border-color: rgba(139, 92, 246, 0.12); }
+.panel.panel-glow-security:hover { border-color: rgba(139, 92, 246, 0.28); box-shadow: 0 12px 32px rgba(139, 92, 246, 0.04); }
+
+/* Glowing badges inside configuration panels */
+.panel-header h3 span.badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.panel-header h3 span.badge-yt {
+  background: rgba(255, 0, 51, 0.12);
+  color: var(--yt-light);
+  border: 1px solid rgba(255, 0, 51, 0.2);
+}
+.panel-header h3 span.badge-discord {
+  background: rgba(88, 101, 242, 0.12);
+  color: var(--brand-light);
+  border: 1px solid rgba(88, 101, 242, 0.2);
+}
+.panel-header h3 span.badge-security {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--neon-purple);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Enhancements for config inputs */
+.field input:focus {
+  transform: translateY(-1px);
+}
+.config-overview-card {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+.config-overview-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.01), transparent 70%);
+  pointer-events: none;
+}
+.config-overview-card.co-yt { border-color: rgba(255, 0, 51, 0.12); }
+.config-overview-card.co-yt:hover { border-color: rgba(255, 0, 51, 0.3); box-shadow: 0 8px 24px rgba(255, 0, 51, 0.08); }
+.config-overview-card.co-discord { border-color: rgba(88, 101, 242, 0.12); }
+.config-overview-card.co-discord:hover { border-color: rgba(88, 101, 242, 0.3); box-shadow: 0 8px 24px rgba(88, 101, 242, 0.08); }
+.config-overview-card.co-system { border-color: rgba(139, 92, 246, 0.12); }
+.config-overview-card.co-system:hover { border-color: rgba(139, 92, 246, 0.3); box-shadow: 0 8px 24px rgba(139, 92, 246, 0.08); }
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1200px) {
   .g-4 { grid-template-columns: repeat(2, 1fr); }
@@ -1294,78 +1434,172 @@ a:hover { color: var(--brand); }
     <!-- ===== CONFIGURATION TAB ===== -->
     <section class="tab hidden" id="tab-config">
 
-      <!-- Prominent key box -->
-      <div class="api-key-box">
-        <h3><i class="fab fa-youtube"></i> Google YouTube Data v3 API Key</h3>
-        <p class="api-desc">
-          Required for polling live views, subscribers, video uploads, and schedules. Enter your credential below and test it before saving.
-          <span id="apiKeyStatusWrap"></span>
-        </p>
-        <div class="field-row">
-          <div class="field" style="flex:2">
-            <label for="cfgYtKey">Data v3 API Key</label>
-            <input id="cfgYtKey" type="password" placeholder="AIzaSy..." autocomplete="off" />
-            <div class="hint">Leave blank to retain currently saved API key.</div>
-          </div>
-          <div class="field auto-w">
-            <label>&nbsp;</label>
-            <button class="btn btn-ghost" onclick="testApiKey()" id="btnTestKey">
-              <span class="spinner"></span>
-              <i class="fas fa-flask-vial"></i> Verify Key
-            </button>
+      <!-- CONFIGURATION OVERVIEW CARDS -->
+      <div class="config-overview-grid">
+        <div class="config-overview-card co-yt">
+          <div class="ico"><i class="fab fa-youtube"></i></div>
+          <div class="details">
+            <div class="label">YouTube Data v3</div>
+            <div class="status-val" id="ov-yt-status" style="color:var(--text-muted)">Standby</div>
           </div>
         </div>
-        <div id="apiTestResult" class="test-result"></div>
+        <div class="config-overview-card co-discord">
+          <div class="ico"><i class="fab fa-discord"></i></div>
+          <div class="details">
+            <div class="label">Discord Connection</div>
+            <div class="status-val" id="ov-discord-status" style="color:var(--text-muted)">Awaiting token</div>
+          </div>
+        </div>
+        <div class="config-overview-card co-system">
+          <div class="ico"><i class="fas fa-terminal"></i></div>
+          <div class="details">
+            <div class="label">System Commands</div>
+            <div class="status-val" id="ov-system-status" style="color:var(--brand-light)">Prefix: $</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Settings panel -->
-      <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-gear"></i> Control Panel Configurations</h3></div>
+      <div class="grid g-2" style="align-items: start;">
+        
+        <!-- YOUTUBE CONFIGURATION PANEL -->
+        <div class="panel panel-glow-yt">
+          <div class="panel-header" style="border-bottom-color: rgba(255,0,51,0.08); display: flex; justify-content: space-between; align-items: center;">
+            <h3>
+              <i class="fab fa-youtube" style="color: var(--yt); margin-right: 8px;"></i> YouTube Feed Integration
+              <span class="badge badge-yt" style="margin-left: 8px;"><i class="fas fa-satellite-dish"></i> Engine</span>
+            </h3>
+            <span id="apiKeyStatusWrap"></span>
+          </div>
+          <div class="panel-body">
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+              Configure your primary channel data poller and link your Google Developer Console YouTube API key.
+            </p>
+            
+            <div class="field">
+              <label for="cfgYtChannel">YouTube Channel ID / Handle</label>
+              <div class="input-icon-wrap yt-icon-wrap">
+                <input id="cfgYtChannel" placeholder="e.g. @JustForFun-BoYs" autocomplete="off" />
+                <i class="fab fa-youtube prefix-icon"></i>
+              </div>
+              <div class="hint">Provide your channel handle (with @) or raw channel ID (starts with UC).</div>
+            </div>
+            
+            <div class="field" style="margin-top: 24px;">
+              <label for="cfgYtKey">Google API Key</label>
+              <div class="field-row" style="gap: 12px; align-items: center; margin-top: 4px;">
+                <div class="input-icon-wrap yt-icon-wrap" style="flex: 1;">
+                  <input id="cfgYtKey" type="password" class="secret-input" placeholder="AIzaSy..." autocomplete="off" />
+                  <i class="fas fa-key prefix-icon"></i>
+                  <i class="fas fa-eye eye-icon" onclick="togglePasswordVisibility('cfgYtKey', this)" title="Toggle Visibility"></i>
+                </div>
+                <button class="btn btn-ghost" onclick="testApiKey()" id="btnTestKey" style="padding: 11px 18px; font-size: 13.5px;">
+                  <span class="spinner"></span>
+                  <i class="fas fa-flask-vial" style="color: var(--yt-light)"></i> Verify
+                </button>
+              </div>
+              <div class="hint">Leave blank to retain currently saved API key.</div>
+            </div>
+            
+            <div id="apiTestResult" class="test-result" style="margin-top: 14px;"></div>
+          </div>
+        </div>
+
+        <!-- DISCORD CONNECTION PANEL -->
+        <div class="panel panel-glow-discord">
+          <div class="panel-header" style="border-bottom-color: rgba(88,101,242,0.08); display: flex; justify-content: space-between; align-items: center;">
+            <h3>
+              <i class="fab fa-discord" style="color: var(--brand); margin-right: 8px;"></i> Discord Bot Gateway
+              <span class="badge badge-discord" style="margin-left: 8px;"><i class="fab fa-discord"></i> Gateway</span>
+            </h3>
+          </div>
+          <div class="panel-body">
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+              Manage active Discord bot token parameters and map announcement channels for community broadcasts.
+            </p>
+            
+            <div class="field">
+              <label for="cfgDiscordToken">Discord Bot Secret Token</label>
+              <div class="input-icon-wrap discord-icon-wrap">
+                <input id="cfgDiscordToken" type="password" class="secret-input" placeholder="••••••••••••••••" autocomplete="off" />
+                <i class="fab fa-discord prefix-icon"></i>
+                <i class="fas fa-eye eye-icon" onclick="togglePasswordVisibility('cfgDiscordToken', this)" title="Toggle Visibility"></i>
+              </div>
+              <div id="cfgDiscordTokenHint" class="hint">Leave blank to keep the current token.</div>
+            </div>
+            
+            <div class="field" style="margin-top: 24px;">
+              <label for="cfgYtNotifyChannel">Discord Announcement Channel ID</label>
+              <div class="input-icon-wrap discord-icon-wrap">
+                <input id="cfgYtNotifyChannel" placeholder="e.g. 1122334455667788" autocomplete="off" />
+                <i class="fas fa-bullhorn prefix-icon"></i>
+              </div>
+              <div class="hint">The target channel where new uploads are automatically broadcasted.</div>
+            </div>
+
+            <div class="field" style="margin-top: 24px;">
+              <label for="cfgWelcome">Welcome Discord Channel ID</label>
+              <div class="input-icon-wrap discord-icon-wrap">
+                <input id="cfgWelcome" placeholder="e.g. 1122334455667788" autocomplete="off" />
+                <i class="fas fa-door-open prefix-icon"></i>
+              </div>
+              <div class="hint">Optional channel ID to send welcome/leave notifications.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECURITY & GENERAL PANEL -->
+      <div class="panel panel-glow-security" style="margin-top: 28px;">
+        <div class="panel-header" style="border-bottom-color: rgba(139,92,246,0.08); display: flex; justify-content: space-between; align-items: center;">
+          <h3>
+            <i class="fas fa-shield-halved" style="color: var(--neon-purple); margin-right: 8px;"></i> Security & Global Settings
+            <span class="badge badge-security" style="margin-left: 8px;"><i class="fas fa-lock"></i> Active Security</span>
+          </h3>
+        </div>
         <div class="panel-body">
           <div class="grid g-2">
             <div class="field">
-              <label for="cfgPrefix">Command Prefix</label>
-              <input id="cfgPrefix" placeholder="$" />
+              <label for="cfgPrefix">Command Trigger Prefix</label>
+              <div class="input-icon-wrap">
+                <input id="cfgPrefix" placeholder="$" autocomplete="off" />
+                <i class="fas fa-terminal prefix-icon"></i>
+              </div>
+              <div class="hint">The prefix required to trigger bot commands (e.g. $stats).</div>
             </div>
+            
             <div class="field">
-              <label for="cfgWelcome">Welcome Discord Channel ID</label>
-              <input id="cfgWelcome" placeholder="e.g. 1122334455667788" />
-            </div>
-            <div class="field">
-              <label for="cfgYtChannel">YouTube Channel ID / Handle</label>
-              <input id="cfgYtChannel" placeholder="e.g. @JustForFun-BoYs" />
-              <div class="hint">Required. Provide handle or full channel ID.</div>
-            </div>
-            <div class="field">
-              <label for="cfgYtNotifyChannel">Discord Announcement Channel ID</label>
-              <input id="cfgYtNotifyChannel" placeholder="e.g. 1122334455667788" />
-              <div class="hint">The target channel where new uploads are automatically broadcasted.</div>
+              <label for="cfgPassword">Dashboard Access Password</label>
+              <div class="input-icon-wrap">
+                <input id="cfgPassword" type="password" class="secret-input" placeholder="Leave blank to retain current password" autocomplete="new-password" />
+                <i class="fas fa-shield-halved prefix-icon"></i>
+                <i class="fas fa-eye eye-icon" onclick="togglePasswordVisibility('cfgPassword', this)" title="Toggle Visibility"></i>
+              </div>
+              <div class="hint">Required. Changes your web control center login credential password.</div>
             </div>
           </div>
-          <hr class="divider" />
-          <div class="grid g-2" style="margin-bottom: 20px;">
-            <div class="field">
-              <label for="cfgDiscordToken">Discord Bot Token</label>
-              <input id="cfgDiscordToken" type="password" placeholder="••••••••••••••••" autocomplete="off" />
-              <div id="cfgDiscordTokenHint" class="hint">Leave blank to keep the current token.</div>
-            </div>
-            <div class="field">
-              <label for="cfgPassword">Change Admin Password</label>
-              <input id="cfgPassword" type="password" placeholder="Leave blank to retain current password" autocomplete="new-password" />
-              <div class="hint">Leave blank to keep the current password.</div>
-            </div>
+        </div>
+      </div>
+
+      <!-- CONTROL CENTER ACTION DOCK -->
+      <div class="panel" style="margin-top: 28px; background: rgba(8, 10, 16, 0.4); border-color: rgba(255,255,255,0.04);">
+        <div class="panel-body" style="padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 240px;">
+            <h4 style="font-family:'Outfit',sans-serif; font-size:14.5px; font-weight:700; color:#fff;">Save & Sync Settings</h4>
+            <p style="font-size:12px; color:var(--text-muted); margin-top: 2px;">Ensure you restart the polling daemon after updating critical secret values to boot up clean.</p>
           </div>
-          <div class="btn-group">
-            <button class="btn btn-primary btn-lg" onclick="saveConfig()" id="btnSaveConfig">
+          <div class="btn-group" style="margin: 0; display: flex; gap: 14px;">
+            <button class="btn btn-primary btn-lg" onclick="saveConfig()" id="btnSaveConfig" style="box-shadow: 0 4px 20px rgba(255,0,51,0.2);">
               <span class="spinner"></span>
-              <i class="fas fa-floppy-disk"></i> Save Configurations
+              <i class="fas fa-floppy-disk"></i> Commit Configurations
             </button>
-            <button class="btn btn-danger btn-lg" onclick="restartBot()" id="btnRestart">
-              <i class="fas fa-power-off"></i> Restart Polling Daemon
+            <button class="btn btn-danger btn-lg" onclick="restartBot()" id="btnRestart" style="background: linear-gradient(135deg, var(--neon-red), #cc2040); box-shadow: 0 4px 20px rgba(239,68,68,0.2);">
+              <i class="fas fa-power-off"></i> Reboot Daemon
             </button>
           </div>
         </div>
       </div>
+
     </section>
 
     <!-- ===== LIVE LOGS TAB ===== -->
@@ -1390,6 +1624,23 @@ let SERVERS = [];
 let CURRENT_TAB = 'dashboard';
 let pollTimer = null;
 let YT_CHANNEL_DATA = null;
+
+/* ===== VISIBILITY TOGGLE ===== */
+function togglePasswordVisibility(inputId, iconEl) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    iconEl.classList.remove('fa-eye');
+    iconEl.classList.add('fa-eye-slash');
+    iconEl.style.color = 'var(--brand-light)';
+  } else {
+    input.type = 'password';
+    iconEl.classList.remove('fa-eye-slash');
+    iconEl.classList.add('fa-eye');
+    iconEl.style.color = 'var(--text-muted)';
+  }
+}
 
 /* ===== BOOTSTRAPPING ===== */
 window.addEventListener('DOMContentLoaded', () => {
@@ -1519,6 +1770,19 @@ function renderStats(s) {
   if (s.bot_user) {
     document.getElementById('botName').textContent = s.bot_user.name;
     document.getElementById('botAvatar').src = s.bot_user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+  }
+
+  // Update real-time overview statuses on the configuration tab
+  const ovYt = document.getElementById('ov-yt-status');
+  if (ovYt) {
+    ovYt.textContent = s.youtube.api_configured ? 'Active (API Ok ✓)' : 'Key Missing ✗';
+    ovYt.style.color = s.youtube.api_configured ? 'var(--neon-green)' : 'var(--neon-red)';
+  }
+  const ovDiscord = document.getElementById('ov-discord-status');
+  if (ovDiscord) {
+    const isBotActive = !!(s.bot_user && s.bot_user.name);
+    ovDiscord.textContent = isBotActive ? 'Connected Gateway ✓' : 'Awaiting Token ✗';
+    ovDiscord.style.color = isBotActive ? 'var(--neon-green)' : 'var(--neon-red)';
   }
 }
 
@@ -1958,6 +2222,12 @@ async function loadConfig() {
       tokEl.placeholder = 'Token not configured';
       tokHint.textContent = 'Missing token! Add one to connect the bot.';
       tokHint.style.color = 'var(--neon-red)';
+    }
+
+    // Update real-time overview system prefix card
+    const ovSys = document.getElementById('ov-system-status');
+    if (ovSys) {
+      ovSys.textContent = `Prefix: ${c.PREFIX || '$'}`;
     }
   } catch (e) { console.error(e); }
 }
