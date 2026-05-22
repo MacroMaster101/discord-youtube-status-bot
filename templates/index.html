@@ -3,159 +3,422 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YT Bot — Control Panel</title>
-<meta name="description" content="Discord YouTube Status Bot — Admin Dashboard" />
+<title>YT Bot — Premium Control Center</title>
+<meta name="description" content="Discord YouTube Status Bot — Professional Glassmorphic Dashboard" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-/* ===== DESIGN TOKENS ===== */
+/* ===== DESIGN SYSTEM & TOKENS ===== */
 :root {
-  --bg-base: #050608;
-  --bg-1: #090a0f;
-  --bg-2: #0e111a;
-  --bg-3: #141824;
-  --surface: rgba(22, 28, 45, 0.45);
-  --surface-2: rgba(30, 38, 60, 0.55);
-  --surface-3: rgba(38, 48, 76, 0.65);
-  --border: rgba(255, 255, 255, 0.06);
+  --bg-base: #030407;
+  --bg-gradient: radial-gradient(ellipse at top left, rgba(88, 101, 242, 0.06), transparent 45%),
+                  radial-gradient(ellipse at bottom right, rgba(255, 0, 51, 0.05), transparent 45%),
+                  #030407;
+  --surface: rgba(13, 17, 28, 0.45);
+  --surface-hover: rgba(20, 26, 42, 0.55);
+  --surface-active: rgba(28, 36, 58, 0.65);
+  --border: rgba(255, 255, 255, 0.05);
   --border-hover: rgba(255, 255, 255, 0.12);
-  --border-active: rgba(255, 255, 255, 0.2);
+  --border-glow: rgba(88, 101, 242, 0.35);
 
-  --text: #eef0f6;
-  --text-2: #a0a8be;
-  --text-3: #6b7590;
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
 
   --brand: #5865F2;
   --brand-light: #7289DA;
-  --brand-glow: rgba(88,101,242,0.25);
+  --brand-glow: rgba(88,101,242,0.3);
 
   --yt: #FF0033;
   --yt-light: #ff3d5c;
-  --yt-glow: rgba(255,0,51,0.2);
+  --yt-glow: rgba(255,0,51,0.25);
 
-  --ok: #23d160;
-  --ok-bg: rgba(35,209,96,0.12);
-  --warn: #ffb020;
-  --warn-bg: rgba(255,176,32,0.12);
-  --err: #ff3860;
-  --err-bg: rgba(255,56,96,0.12);
+  --neon-green: #10b981;
+  --neon-green-glow: rgba(16, 185, 129, 0.25);
+  --neon-purple: #8b5cf6;
+  --neon-purple-glow: rgba(139, 92, 246, 0.25);
+  --neon-red: #ef4444;
+  --neon-red-glow: rgba(239, 68, 68, 0.25);
+  --neon-yellow: #f59e0b;
 
-  --r-xl: 16px;
-  --r-lg: 12px;
-  --r-md: 8px;
-  --r-sm: 6px;
-  --r-xs: 4px;
+  --r-xl: 18px;
+  --r-lg: 14px;
+  --r-md: 10px;
+  --r-sm: 8px;
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
-  --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
-  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
-  --shadow-glow-yt: 0 4px 20px rgba(255,0,51,0.35);
-  --shadow-glow-brand: 0 4px 20px rgba(88,101,242,0.35);
-
-  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 12px 32px rgba(0,0,0,0.45);
+  --shadow-lg: 0 24px 64px rgba(0,0,0,0.6);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===== RESET ===== */
+/* ===== RESET & SCROLLBAR ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: 100%; }
+html { height: 100%; scroll-behavior: smooth; }
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: var(--bg-base);
-  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   line-height: 1.5;
+  overflow-x: hidden;
 }
 button, input, select, textarea { font: inherit; color: inherit; }
 a { color: var(--brand-light); text-decoration: none; transition: color var(--transition); }
 a:hover { color: var(--brand); }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 
-/* ===== UTILITY ===== */
+/* ===== UTILITIES ===== */
 .hidden { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.text-glow-yt { text-shadow: 0 0 15px rgba(255,0,51,0.5); }
+.text-glow-brand { text-shadow: 0 0 15px rgba(88,101,242,0.5); }
 
-/* ===== LOGIN ===== */
+/* ===== DYNAMIC GLASS ANIMATIONS ===== */
+@keyframes spin-glow-green {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4), inset 0 0 10px rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), inset 0 0 15px rgba(16, 185, 129, 0.4);
+    border-color: rgba(16, 185, 129, 0.9);
+  }
+}
+@keyframes pulse-glow-purple {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3), inset 0 0 8px rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(139, 92, 246, 0.7), inset 0 0 14px rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.7);
+  }
+}
+@keyframes breathing-red {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.2), inset 0 0 6px rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.6), inset 0 0 12px rgba(239, 68, 68, 0.3);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+}
+
+.glow-ring-live { animation: spin-glow-green 2.5s ease-in-out infinite; }
+.glow-ring-upcoming { animation: pulse-glow-purple 2.5s ease-in-out infinite; }
+.glow-ring-offline { animation: breathing-red 3.5s ease-in-out infinite; }
+
+/* ===== LOGIN SCREEN ===== */
 .login-wrap {
   display: flex; align-items: center; justify-content: center;
   min-height: 100vh; padding: 24px;
-  background:
-    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(255,0,51,0.06), transparent),
-    radial-gradient(ellipse 60% 50% at 70% 80%, rgba(88,101,242,0.04), transparent);
 }
 .login-card {
-  width: 100%; max-width: 400px;
-  background: linear-gradient(145deg, var(--surface), var(--bg-2));
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
   border: 1px solid var(--border);
   border-radius: var(--r-xl);
-  padding: 36px 32px;
+  padding: 40px 36px;
   box-shadow: var(--shadow-lg);
   position: relative; overflow: hidden;
+  transition: border-color var(--transition);
 }
+.login-card:hover { border-color: rgba(255, 255, 255, 0.1); }
 .login-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
   background: linear-gradient(90deg, var(--yt), var(--brand));
 }
 .login-card h1 {
-  font-size: 24px; font-weight: 700; margin-bottom: 4px;
-  display: flex; align-items: center; gap: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px; font-weight: 800; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(135deg, var(--text-primary), #a5b4fc);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-.login-card .subtitle { color: var(--text-2); font-size: 14px; margin-bottom: 28px; }
+.login-card .subtitle { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
 .login-card .logo-icon {
-  width: 40px; height: 40px; border-radius: 10px;
+  width: 44px; height: 44px; border-radius: 12px;
   display: grid; place-items: center;
   background: linear-gradient(135deg, var(--yt), #cc0029);
-  color: #fff; font-size: 18px; font-weight: 700;
+  color: #fff; font-size: 20px; font-weight: 700;
   box-shadow: var(--shadow-glow-yt);
+  -webkit-text-fill-color: #fff;
 }
 
-/* ===== FORM FIELDS ===== */
-.field { display: flex; flex-direction: column; gap: 6px; }
-.field + .field { margin-top: 16px; }
+/* ===== APP GLASS LAYOUT ===== */
+.app {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: rgba(8, 10, 16, 0.65);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border-right: 1px solid var(--border);
+  padding: 24px 16px;
+  display: flex; flex-direction: column; gap: 4px;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+}
+.brand-block {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 12px 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.brand-block .logo {
+  width: 40px; height: 40px; border-radius: 12px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--yt), #cc0029);
+  color: #fff; font-size: 18px;
+  box-shadow: var(--shadow-glow-yt);
+  flex-shrink: 0;
+}
+.brand-block .info .name { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 16px; letter-spacing: -0.2px; }
+.brand-block .info .sub { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+
+.nav-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px; font-weight: 600;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+  position: relative;
+}
+.nav-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+.nav-btn.active {
+  background: linear-gradient(135deg, rgba(255, 0, 51, 0.12), rgba(88, 101, 242, 0.05));
+  color: var(--text-primary);
+  border-color: rgba(255, 0, 51, 0.2);
+  box-shadow: inset 0 0 15px rgba(255, 0, 51, 0.05);
+}
+.nav-btn.active::before {
+  content: ''; position: absolute; left: 0; top: 25%; bottom: 25%; width: 3px;
+  background: var(--yt); border-radius: 99px;
+  box-shadow: 0 0 10px var(--yt);
+}
+.nav-btn.active i { color: var(--yt-light); text-shadow: 0 0 8px rgba(255,0,51,0.5); }
+.nav-btn i { width: 20px; text-align: center; font-size: 16px; transition: color var(--transition); }
+.nav-spacer { flex: 1; }
+.sidebar-footer {
+  padding: 12px; color: var(--text-muted); font-size: 11px;
+  border-top: 1px solid var(--border); margin-top: 12px;
+  font-weight: 500;
+}
+
+/* ===== MAIN SECTION ===== */
+.main {
+  padding: 32px 48px 60px;
+  overflow-x: hidden; min-width: 0;
+}
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 36px; gap: 20px; flex-wrap: wrap;
+}
+.topbar h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 28px; font-weight: 800;
+  display: flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.topbar h1 i {
+  -webkit-text-fill-color: var(--yt);
+  font-size: 24px;
+  filter: drop-shadow(0 0 8px rgba(255,0,51,0.4));
+}
+.user-chip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 18px 8px 8px;
+  background: var(--surface);
+  backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  transition: all var(--transition);
+}
+.user-chip:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+  transform: translateY(-1px);
+}
+.user-chip img { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.2); }
+.user-chip .bot-name-label { font-size: 13.5px; font-weight: 700; color: var(--text-primary); }
+.user-chip .online-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green);
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 6px var(--neon-green); }
+  50% { transform: scale(1.2); opacity: 0.8; box-shadow: 0 0 14px var(--neon-green); }
+}
+
+/* ===== GRID / FORM SYSTEM ===== */
+.grid { display: grid; gap: 20px; }
+.g-4 { grid-template-columns: repeat(4, 1fr); }
+.g-3 { grid-template-columns: repeat(3, 1fr); }
+.g-2 { grid-template-columns: repeat(2, 1fr); }
+.g-1 { grid-template-columns: 1fr; }
+
+/* ===== STAT & FORM CARDS (GLASSMORPHIC) ===== */
+.card {
+  background: var(--surface);
+  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative; overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-4px) scale(1.01);
+  background: var(--surface-hover);
+  box-shadow: var(--shadow-lg);
+}
+.card::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at 100% 0%, rgba(255,255,255,0.03), transparent 60%);
+  pointer-events: none;
+}
+.card .card-label {
+  font-size: 11.5px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 1px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.card .card-label i { font-size: 14px; color: var(--text-secondary); }
+.card .card-value {
+  font-family: 'Outfit', sans-serif;
+  font-size: 34px; font-weight: 800; letter-spacing: -0.8px;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #fff, var(--text-secondary));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.card .card-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; font-weight: 500; }
+
+/* Accent card variants */
+.card.card-yt { border-color: rgba(255,0,51,0.12); }
+.card.card-yt .card-label i { color: var(--yt); }
+.card.card-yt:hover {
+  border-color: rgba(255,0,51,0.3);
+  box-shadow: 0 15px 35px rgba(255, 0, 51, 0.15);
+}
+.card.card-yt .card-value {
+  background: linear-gradient(135deg, #fff, var(--yt-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.card.card-brand { border-color: rgba(88,101,242,0.12); }
+.card.card-brand .card-label i { color: var(--brand); }
+.card.card-brand:hover {
+  border-color: rgba(88,101,242,0.3);
+  box-shadow: 0 15px 35px rgba(88, 101, 242, 0.15);
+}
+.card.card-brand .card-value {
+  background: linear-gradient(135deg, #fff, var(--brand-light));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--text-secondary);
+  margin: 36px 0 18px;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title i { font-size: 16px; color: var(--text-muted); }
+.section-title .yt-color { color: var(--yt); filter: drop-shadow(0 0 5px rgba(255,0,51,0.3)); }
+
+/* ===== FORM FIELDS & PANELS ===== */
+.panel {
+  background: var(--surface);
+  backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: border-color var(--transition);
+}
+.panel:hover { border-color: rgba(255, 255, 255, 0.08); }
+.panel-header {
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 14px; flex-wrap: wrap;
+}
+.panel-header h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+}
+.panel-header h3 i { color: var(--text-secondary); font-size: 15px; }
+.panel-body { padding: 24px 26px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field + .field { margin-top: 20px; }
 .field label {
-  font-size: 12px; font-weight: 600; color: var(--text-2);
-  text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 12px; font-weight: 700; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.8px;
 }
 .field input, .field select, .field textarea {
-  background: var(--bg-1);
+  background: rgba(6, 8, 14, 0.6);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 11px 14px;
-  font-size: 14px;
+  padding: 12px 16px;
+  font-size: 14.5px;
+  color: var(--text-primary);
   outline: none;
-  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  transition: all var(--transition);
 }
 .field input:hover, .field select:hover, .field textarea:hover {
   border-color: var(--border-hover);
-  background: var(--bg-2);
+  background: rgba(13, 17, 28, 0.7);
 }
 .field input:focus, .field select:focus, .field textarea:focus {
   border-color: var(--brand);
-  box-shadow: 0 0 0 3px var(--brand-glow);
-  background: var(--bg-2);
+  box-shadow: 0 0 0 4px var(--brand-glow);
+  background: rgba(13, 17, 28, 0.75);
 }
-.field textarea { resize: vertical; min-height: 80px; }
-.field .hint { font-size: 11px; color: var(--text-3); margin-top: 2px; }
-.field-row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
-.field-row .field { flex: 1; min-width: 160px; }
+.field textarea { resize: vertical; min-height: 90px; }
+.field .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
+.field-row { display: flex; gap: 16px; align-items: end; flex-wrap: wrap; }
+.field-row .field { flex: 1; min-width: 180px; }
 .field-row .field.auto-w { flex: 0 0 auto; min-width: auto; }
 
-/* ===== BUTTONS ===== */
+/* ===== BUTTONS (PREMIUM MODERN) ===== */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 11px 22px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 24px;
   border-radius: var(--r-md);
-  border: 1px solid transparent;
-  font-weight: 600; font-size: 14px;
+  border: 1px solid rgba(255,255,255,0.04);
+  font-weight: 700; font-size: 14.5px;
   cursor: pointer;
   transition: all var(--transition);
   white-space: nowrap;
@@ -163,498 +426,537 @@ a:hover { color: var(--brand); }
 }
 .btn::after {
   content: ''; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,0.1), transparent);
   pointer-events: none;
 }
-.btn:active { transform: translateY(1px); }
-.btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
+.btn:active { transform: translateY(1.5px); }
+.btn[disabled] { opacity: 0.35; cursor: not-allowed; transform: none; }
 
 .btn-primary {
   background: linear-gradient(135deg, var(--yt), #d4002a);
   color: #fff;
-  box-shadow: var(--shadow-glow-yt);
+  box-shadow: 0 4px 15px rgba(255, 0, 51, 0.3);
 }
-.btn-primary:hover:not([disabled]) { background: linear-gradient(135deg, var(--yt-light), var(--yt)); }
+.btn-primary:hover:not([disabled]) {
+  background: linear-gradient(135deg, var(--yt-light), var(--yt));
+  box-shadow: 0 6px 20px rgba(255, 0, 51, 0.5);
+  transform: translateY(-1.5px);
+}
 
 .btn-brand {
   background: linear-gradient(135deg, var(--brand), #4752c4);
   color: #fff;
-  box-shadow: var(--shadow-glow-brand);
+  box-shadow: 0 4px 15px rgba(88, 101, 242, 0.3);
 }
-.btn-brand:hover:not([disabled]) { background: linear-gradient(135deg, var(--brand-light), var(--brand)); }
+.btn-brand:hover:not([disabled]) {
+  background: linear-gradient(135deg, var(--brand-light), var(--brand));
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.5);
+  transform: translateY(-1.5px);
+}
 
 .btn-success {
-  background: linear-gradient(135deg, var(--ok), #1aa34a);
+  background: linear-gradient(135deg, var(--neon-green), #0c9468);
   color: #fff;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
 }
-.btn-success:hover:not([disabled]) { filter: brightness(1.1); }
+.btn-success:hover:not([disabled]) {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1.5px);
+}
 
 .btn-danger {
-  background: linear-gradient(135deg, var(--err), #cc2040);
+  background: linear-gradient(135deg, var(--neon-red), #cc2040);
   color: #fff;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.25);
 }
-.btn-danger:hover:not([disabled]) { filter: brightness(1.1); }
+.btn-danger:hover:not([disabled]) {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+  transform: translateY(-1.5px);
+}
 
 .btn-ghost {
   background: transparent;
   border-color: var(--border);
-  color: var(--text);
+  color: var(--text-primary);
 }
-.btn-ghost:hover:not([disabled]) { background: var(--surface); border-color: var(--border-hover); }
-
-.btn-sm { padding: 7px 14px; font-size: 13px; }
-.btn-lg { padding: 14px 28px; font-size: 15px; }
-.btn-icon {
-  width: 38px; height: 38px; padding: 0;
-  display: grid; place-items: center;
-  border-radius: var(--r-md);
+.btn-ghost:hover:not([disabled]) {
+  background: rgba(255,255,255,0.04);
+  border-color: var(--border-hover);
+  transform: translateY(-1.5px);
 }
 
+.btn-sm { padding: 8px 16px; font-size: 13px; border-radius: var(--r-sm); }
+.btn-lg { padding: 14px 30px; font-size: 15.5px; }
+.btn-icon { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
 .btn-full { width: 100%; }
 
-/* ===== APP LAYOUT ===== */
-.app {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  min-height: 100vh;
+/* ===== ONE-CLICK ANNOUNCEMENT TEMPLATE CHIPS ===== */
+.template-chips {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; margin-top: 6px;
 }
-
-/* ===== SIDEBAR ===== */
-.sidebar {
-  background: rgba(12,14,20,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid var(--border);
-  padding: 20px 14px;
-  display: flex; flex-direction: column; gap: 2px;
-  position: sticky; top: 0; height: 100vh;
-  overflow-y: auto;
-}
-.brand-block {
-  display: flex; align-items: center; gap: 12px;
-  padding: 8px 10px 20px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 14px;
-}
-.brand-block .logo {
-  width: 38px; height: 38px; border-radius: 10px;
-  display: grid; place-items: center;
-  background: linear-gradient(135deg, var(--yt), #cc0029);
-  color: #fff; font-size: 16px;
-  box-shadow: var(--shadow-glow-yt);
-  flex-shrink: 0;
-}
-.brand-block .info .name { font-weight: 700; font-size: 15px; }
-.brand-block .info .sub { font-size: 11px; color: var(--text-3); }
-
-.nav-btn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  border-radius: var(--r-md);
-  color: var(--text-2);
-  cursor: pointer;
-  font-size: 14px; font-weight: 500;
+.template-chip {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 8px 14px; border-radius: 99px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
   transition: all var(--transition);
-  border: 1px solid transparent;
 }
-.nav-btn:hover { background: var(--surface); color: var(--text); }
-.nav-btn.active {
-  background: linear-gradient(135deg, rgba(255,0,51,0.15), rgba(255,0,51,0.05));
-  color: var(--yt-light);
-  border-color: rgba(255,0,51,0.2);
-  box-shadow: inset 0 0 20px rgba(255,0,51,0.05);
-}
-.nav-btn.active i { color: var(--yt); }
-.nav-btn i { width: 20px; text-align: center; font-size: 15px; transition: color var(--transition); }
-.nav-spacer { flex: 1; }
-.sidebar-footer {
-  padding: 10px; color: var(--text-3); font-size: 11px;
-  border-top: 1px solid var(--border); margin-top: 8px;
-}
-
-/* ===== MAIN ===== */
-.main {
-  padding: 28px 36px 60px;
-  overflow-x: hidden; min-width: 0;
-  background:
-    radial-gradient(ellipse 60% 40% at 80% 0%, rgba(255,0,51,0.03), transparent),
-    radial-gradient(ellipse 50% 60% at 20% 100%, rgba(88,101,242,0.03), transparent);
-}
-.topbar {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
-}
-.topbar h1 {
-  font-size: 24px; font-weight: 700;
-  display: flex; align-items: center; gap: 10px;
-  background: linear-gradient(135deg, var(--text), var(--text-2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.topbar h1 i {
-  -webkit-text-fill-color: var(--yt);
-  font-size: 22px;
-}
-.user-chip {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 14px 6px 6px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 99px;
-  transition: border-color var(--transition);
-}
-.user-chip:hover { border-color: var(--border-hover); }
-.user-chip img { width: 30px; height: 30px; border-radius: 50%; }
-.user-chip .online-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--ok);
-  box-shadow: 0 0 6px var(--ok);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-@keyframes pulse-dot {
-  0%, 100% { box-shadow: 0 0 4px var(--ok); }
-  50% { box-shadow: 0 0 10px var(--ok); }
-}
-
-/* ===== GRID / LAYOUT ===== */
-.grid { display: grid; gap: 16px; }
-.g-4 { grid-template-columns: repeat(4, 1fr); }
-.g-3 { grid-template-columns: repeat(3, 1fr); }
-.g-2 { grid-template-columns: repeat(2, 1fr); }
-.g-1 { grid-template-columns: 1fr; }
-
-/* ===== STAT CARDS ===== */
-.card {
-  background: var(--surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  padding: 20px;
-  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition), background var(--transition);
-  position: relative; overflow: hidden;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-.card:hover {
+.template-chip:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
   border-color: var(--border-hover);
-  transform: translateY(-4px);
-  background: var(--surface-2);
-  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  transform: translateY(-1.5px);
 }
-.card .card-label {
-  font-size: 11px; font-weight: 600; color: var(--text-3);
-  text-transform: uppercase; letter-spacing: 0.6px;
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 10px;
-}
-.card .card-label i { font-size: 13px; }
-.card .card-value {
-  font-size: 30px; font-weight: 800; letter-spacing: -1px;
-  line-height: 1.1;
-}
-.card .card-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+.template-chip i { font-size: 13px; }
 
-/* Accent card variants */
-.card.card-yt { border-color: rgba(255,0,51,0.15); }
-.card.card-yt .card-label i { color: var(--yt); }
-.card.card-yt:hover { border-color: rgba(255,0,51,0.3); }
-.card.card-brand { border-color: rgba(88,101,242,0.15); }
-.card.card-brand .card-label i { color: var(--brand); }
-.card.card-brand:hover { border-color: rgba(88,101,242,0.3); }
-
-/* ===== SECTION TITLE ===== */
-.section-title {
-  font-size: 13px; font-weight: 600; color: var(--text-3);
-  margin: 28px 0 14px;
-  text-transform: uppercase; letter-spacing: 0.6px;
-  display: flex; align-items: center; gap: 8px;
-}
-.section-title i { font-size: 14px; }
-.section-title .yt-color { color: var(--yt); }
-
-/* ===== PANELS ===== */
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  overflow: hidden;
-}
-.panel-header {
-  padding: 16px 22px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 12px; flex-wrap: wrap;
-}
-.panel-header h3 {
-  font-size: 15px; font-weight: 600;
-  display: flex; align-items: center; gap: 8px;
-}
-.panel-header h3 i { color: var(--text-3); font-size: 14px; }
-.panel-body { padding: 20px 22px; }
-
-/* ===== LIVE PRESENCE BANNER ===== */
+/* ===== LIVE PRESENCE WIDGETS & BANNER ===== */
 .presence-live {
-  background: linear-gradient(135deg, rgba(88,101,242,0.08), rgba(255,0,51,0.04));
-  border: 1px solid rgba(88,101,242,0.15);
+  background: linear-gradient(135deg, rgba(88,101,242,0.1), rgba(255,0,51,0.05));
+  border: 1px solid rgba(88,101,242,0.2);
   border-radius: var(--r-xl);
   padding: 20px 24px;
-  display: flex; align-items: center; gap: 16px;
+  display: flex; align-items: center; gap: 18px;
   position: relative; overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
 }
 .presence-live::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
   background: linear-gradient(180deg, var(--brand), var(--yt));
 }
 .presence-live .live-icon {
-  width: 48px; height: 48px; border-radius: 12px;
+  width: 52px; height: 52px; border-radius: 14px;
   background: var(--brand-glow);
   display: grid; place-items: center;
-  font-size: 20px; color: var(--brand-light);
+  font-size: 22px; color: var(--brand-light);
   flex-shrink: 0;
+  border: 1px solid rgba(88, 101, 242, 0.2);
 }
 .presence-live .live-info { flex: 1; min-width: 0; }
 .presence-live .live-label {
-  font-size: 11px; font-weight: 600; color: var(--text-3);
-  text-transform: uppercase; letter-spacing: 0.6px;
-  display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
 }
 .presence-live .live-label .pulse {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--ok);
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--neon-green);
   animation: pulse-dot 1.5s ease-in-out infinite;
 }
-.presence-live .live-text { font-size: 16px; font-weight: 600; }
-.presence-live .live-type { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.presence-live .live-text { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #fff; }
+.presence-live .live-type { font-size: 12px; color: var(--text-secondary); margin-top: 2px; font-weight: 500; }
 
-/* ===== PRESENCE ENTRY LIST ===== */
-.pres-entries { display: flex; flex-direction: column; gap: 8px; }
+/* ===== DISCORD SIMULATOR HIGH-FIDELITY WIDGET ===== */
+.discord-card {
+  background: #1e1f22;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+  color: #dbdee1;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.discord-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.discord-banner {
+  height: 84px;
+  background: linear-gradient(135deg, var(--brand), var(--yt));
+  position: relative;
+}
+.discord-avatar-container {
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: #1e1f22;
+  padding: 6px;
+  box-sizing: border-box;
+}
+.discord-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #111214;
+  object-fit: cover;
+}
+.discord-status-dot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 5px solid #1e1f22;
+  box-sizing: border-box;
+}
+.discord-status-dot.online { background: #23a55a; }
+.discord-status-dot.idle { background: #f0b232; }
+.discord-status-dot.dnd { background: #f23f43; }
+.discord-status-dot.invisible, .discord-status-dot.offline { background: #80848e; }
+
+.discord-profile-details {
+  padding: 50px 20px 24px;
+  background: #111214;
+}
+.discord-username-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.discord-username {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+}
+.discord-discriminator {
+  font-size: 13.5px;
+  color: #949ba4;
+  font-weight: 500;
+}
+.discord-bot-badge {
+  background: #5865f2;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  letter-spacing: 0.5px;
+  gap: 2.5px;
+}
+.discord-bot-badge i { font-size: 8px; }
+
+.discord-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.05);
+  margin: 14px 0;
+}
+.discord-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #949ba4;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.discord-about-me {
+  font-size: 12.5px;
+  color: #dbdee1;
+  line-height: 1.4;
+}
+.discord-custom-status-sec {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: #dbdee1;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  margin-top: 10px;
+}
+
+.discord-activity {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.discord-activity-body {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.discord-activity-icon-wrapper {
+  position: relative;
+  width: 54px;
+  height: 54px;
+  border-radius: 8px;
+  background: #1e1f22;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.discord-activity-text {
+  flex: 1;
+  min-width: 0;
+}
+.discord-activity-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.discord-activity-details {
+  font-size: 12.5px;
+  color: #dbdee1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+.discord-activity-state {
+  font-size: 11.5px;
+  color: #949ba4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+.discord-btn-primary {
+  display: block;
+  background: #4e5058;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+  margin-top: 8px;
+  text-align: center;
+}
+.discord-btn-primary:hover {
+  background: #6d6f78;
+}
+.discord-activity.streaming .discord-btn-primary {
+  background: #593695;
+}
+.discord-activity.streaming .discord-btn-primary:hover {
+  background: #7346c2;
+}
+
+/* ===== PRESENCE ROTATION LIST ===== */
+.pres-entries { display: flex; flex-direction: column; gap: 10px; }
 .pres-entry {
   display: flex; align-items: center; gap: 14px;
-  padding: 12px 16px;
-  background: var(--bg-2);
+  padding: 12px 18px;
+  background: rgba(6, 8, 14, 0.4);
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
-  transition: border-color var(--transition), background var(--transition);
+  transition: all var(--transition);
 }
-.pres-entry:hover { border-color: var(--border-hover); background: var(--surface); }
+.pres-entry:hover {
+  border-color: var(--border-hover);
+  background: var(--surface);
+  transform: translateX(2px);
+}
 .pres-entry .pe-icon {
-  width: 36px; height: 36px; border-radius: 8px;
-  background: var(--surface-2);
+  width: 38px; height: 38px; border-radius: 8px;
+  background: rgba(255,255,255,0.03);
   display: grid; place-items: center;
-  font-size: 14px; color: var(--text-2);
+  font-size: 15px; color: var(--text-secondary);
   flex-shrink: 0;
+  border: 1px solid var(--border);
 }
 .pres-entry .pe-info { flex: 1; min-width: 0; }
-.pres-entry .pe-text { font-weight: 500; font-size: 14px; }
-.pres-entry .pe-type {
-  font-size: 11px; color: var(--text-3);
-  text-transform: capitalize; margin-top: 1px;
-}
+.pres-entry .pe-text { font-weight: 600; font-size: 14px; color: #fff; }
+.pres-entry .pe-type { font-size: 11.5px; color: var(--text-muted); text-transform: capitalize; margin-top: 2px; }
 
-/* ===== YT CARDS ===== */
-.yt-sub-card {
-  display: flex; gap: 14px; padding: 16px;
-  background: var(--bg-2);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  align-items: center;
-  transition: border-color var(--transition), transform var(--transition);
-}
-.yt-sub-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
-.yt-sub-card .yt-logo {
-  width: 48px; height: 48px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--yt), #cc0029);
-  display: grid; place-items: center;
-  color: #fff; font-size: 18px;
-  flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(255,0,51,0.25);
-}
-.yt-sub-card .yt-info { flex: 1; min-width: 0; }
-.yt-sub-card .yt-title {
-  font-weight: 600; font-size: 14px;
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.yt-sub-card .yt-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
-.yt-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; padding: 2px 8px; border-radius: 4px;
-  background: rgba(88,101,242,0.15); color: var(--brand-light);
-  font-weight: 600;
-}
-
-/* ===== API KEY BOX ===== */
+/* ===== API KEY PROMINENT BOX ===== */
 .api-key-box {
-  background: linear-gradient(135deg, rgba(255,0,51,0.04), rgba(88,101,242,0.04));
-  border: 1px solid rgba(255,0,51,0.12);
+  background: linear-gradient(135deg, rgba(255, 0, 51, 0.08), rgba(88, 101, 242, 0.04));
+  border: 1px solid rgba(255,0,51,0.18);
   border-radius: var(--r-xl);
-  padding: 24px;
-  margin-bottom: 20px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
 }
 .api-key-box h3 {
-  font-size: 15px; font-weight: 600; margin-bottom: 4px;
-  display: flex; align-items: center; gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
 }
-.api-key-box h3 i { color: var(--yt); }
-.api-key-box .api-desc { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
+.api-key-box h3 i { color: var(--yt); filter: drop-shadow(0 0 5px rgba(255,0,51,0.3)); }
+.api-key-box .api-desc { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5; }
 .api-key-status {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 4px 12px; border-radius: 99px;
-  font-size: 12px; font-weight: 600;
+  padding: 4px 14px; border-radius: 99px;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
 }
-.api-key-status.ok { background: var(--ok-bg); color: var(--ok); }
-.api-key-status.missing { background: var(--err-bg); color: var(--err); }
+.api-key-status.ok { background: rgba(16,185,129,0.12); color: var(--neon-green); border: 1px solid rgba(16,185,129,0.2); }
+.api-key-status.missing { background: rgba(239,68,68,0.12); color: var(--neon-red); border: 1px solid rgba(239,68,68,0.2); }
 .test-result {
-  font-size: 13px; margin-top: 10px; padding: 8px 12px;
+  font-size: 13px; margin-top: 14px; padding: 10px 16px;
   border-radius: var(--r-md); display: none;
+  font-weight: 500;
 }
-.test-result.ok { display: block; background: var(--ok-bg); color: var(--ok); }
-.test-result.err { display: block; background: var(--err-bg); color: var(--err); }
+.test-result.ok { display: block; background: rgba(16,185,129,0.12); color: var(--neon-green); border: 1px solid rgba(16,185,129,0.2); }
+.test-result.err { display: block; background: rgba(239,68,68,0.12); color: var(--neon-red); border: 1px solid rgba(239,68,68,0.2); }
 
-/* ===== TABLE ===== */
-.table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.table th, .table td {
-  padding: 10px 14px; text-align: left;
-  border-bottom: 1px solid var(--border);
-}
+/* ===== MODERN PREMIUM TABLE ===== */
+.table-wrap { overflow-x: auto; width: 100%; border-radius: var(--r-lg); }
+.table { width: 100%; border-collapse: collapse; font-size: 13.5px; text-align: left; }
+.table th, .table td { padding: 14px 18px; border-bottom: 1px solid var(--border); }
 .table th {
-  font-size: 11px; color: var(--text-3); text-transform: uppercase;
-  letter-spacing: 0.4px; font-weight: 600;
+  font-family: 'Outfit', sans-serif; font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;
+  background: rgba(255, 255, 255, 0.01);
 }
-.table tr:hover td { background: rgba(255,255,255,0.02); }
+.table tr:hover td { background: rgba(255,255,255,0.015); }
+.yt-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; padding: 3px 10px; border-radius: 99px;
+  background: rgba(88,101,242,0.12); color: var(--brand-light);
+  font-weight: 700; border: 1px solid rgba(88, 101, 242, 0.15);
+}
 
-/* ===== LOGS ===== */
+/* ===== MONOSPACED LIVE LOGS ===== */
 .log-box {
   font-family: 'JetBrains Mono', monospace; font-size: 12px;
-  max-height: 500px; overflow-y: auto;
-  background: var(--bg-1); border-radius: var(--r-md); padding: 10px;
+  max-height: 480px; overflow-y: auto;
+  background: rgba(6, 8, 14, 0.6); border-radius: var(--r-md); padding: 12px;
+  border: 1px solid var(--border);
 }
 .log-row {
-  display: flex; gap: 10px; padding: 4px 8px; border-radius: 4px;
+  display: flex; gap: 12px; padding: 6px 10px; border-radius: 6px;
   transition: background var(--transition);
 }
-.log-row:hover { background: var(--surface); }
-.log-row .ts { color: var(--text-3); min-width: 64px; flex-shrink: 0; }
+.log-row:hover { background: rgba(255,255,255,0.02); }
+.log-row .ts { color: var(--text-muted); min-width: 74px; flex-shrink: 0; }
 .log-row .lvl {
-  min-width: 60px; text-transform: uppercase; font-weight: 700;
-  font-size: 10px; padding: 2px 6px; border-radius: 4px;
-  text-align: center; height: fit-content; margin-top: 1px;
+  min-width: 66px; text-transform: uppercase; font-weight: 800;
+  font-size: 9.5px; padding: 2px 8px; border-radius: 4px;
+  text-align: center; height: fit-content; margin-top: 1.5px;
+  letter-spacing: 0.5px;
 }
 .log-row.info .lvl { background: rgba(88,101,242,0.12); color: var(--brand-light); }
-.log-row.success .lvl { background: var(--ok-bg); color: var(--ok); }
-.log-row.warning .lvl { background: var(--warn-bg); color: var(--warn); }
-.log-row.error .lvl { background: var(--err-bg); color: var(--err); }
-.log-row .msg { flex: 1; word-break: break-word; color: var(--text-2); }
+.log-row.success .lvl { background: rgba(16,185,129,0.12); color: var(--neon-green); }
+.log-row.warning .lvl { background: rgba(245,158,11,0.12); color: var(--neon-yellow); }
+.log-row.error .lvl { background: rgba(239,68,68,0.12); color: var(--neon-red); }
+.log-row .msg { flex: 1; word-break: break-word; color: var(--text-primary); }
 
-/* ===== EMPTY STATE ===== */
+/* ===== EMPTY PLACEHOLDERS ===== */
 .empty {
-  text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 13px;
+  text-align: center; padding: 48px 24px; color: var(--text-muted); font-size: 13.5px;
 }
-.empty i { font-size: 40px; display: block; margin-bottom: 12px; opacity: 0.4; }
+.empty i { font-size: 44px; display: block; margin-bottom: 14px; opacity: 0.35; }
 
-/* ===== TOAST ===== */
+/* ===== TOAST NOTIFICATION ===== */
 .toast {
-  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-  background: var(--surface);
+  position: fixed; bottom: 32px; right: 32px; z-index: 99999;
+  background: rgba(13, 17, 28, 0.9);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
-  padding: 14px 20px;
-  border-radius: var(--r-lg);
+  padding: 16px 24px; border-radius: var(--r-lg);
   box-shadow: var(--shadow-lg);
-  display: flex; align-items: center; gap: 10px;
-  animation: toast-in 0.3s ease;
-  min-width: 260px; max-width: 400px;
-  font-size: 14px;
+  display: flex; align-items: center; gap: 12px;
+  animation: toast-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-width: 280px; max-width: 420px;
+  font-size: 14.5px; font-weight: 600;
 }
-.toast.success { border-left: 3px solid var(--ok); }
-.toast.error { border-left: 3px solid var(--err); }
-.toast.info { border-left: 3px solid var(--brand); }
+.toast.success { border-left: 4px solid var(--neon-green); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15); }
+.toast.error { border-left: 4px solid var(--neon-red); box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15); }
+.toast.info { border-left: 4px solid var(--brand); box-shadow: 0 10px 30px rgba(88, 101, 242, 0.15); }
 @keyframes toast-in {
-  from { transform: translateX(30px) scale(0.95); opacity: 0; }
-  to { transform: translateX(0) scale(1); opacity: 1; }
+  from { transform: translateY(30px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
 }
 
-/* ===== CHECKBOX TOGGLE ===== */
+/* ===== PREMIUM TOGGLES ===== */
 .toggle-wrap {
-  display: flex; align-items: center; gap: 10px; cursor: pointer;
-  font-size: 14px; font-weight: 500;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  font-size: 14px; font-weight: 700; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 0.5px;
 }
 .toggle-wrap input[type="checkbox"] { display: none; }
 .toggle-track {
-  width: 40px; height: 22px;
-  background: var(--border);
-  border-radius: 11px;
+  width: 44px; height: 24px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   position: relative;
-  transition: background var(--transition);
+  transition: all var(--transition);
   flex-shrink: 0;
 }
 .toggle-track::after {
   content: '';
   position: absolute; top: 3px; left: 3px;
   width: 16px; height: 16px;
-  background: var(--text-2);
+  background: var(--text-secondary);
   border-radius: 50%;
   transition: all var(--transition);
 }
 .toggle-wrap input:checked + .toggle-track {
-  background: var(--ok);
+  background: var(--neon-green-glow);
+  border-color: var(--neon-green);
 }
 .toggle-wrap input:checked + .toggle-track::after {
-  transform: translateX(18px);
-  background: #fff;
+  transform: translateX(20px);
+  background: var(--neon-green);
+}
+
+/* ===== BUTTON GROUP ===== */
+.btn-group {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  margin-top: 24px;
+}
+
+.divider {
+  height: 1px; background: var(--border);
+  margin: 24px 0; border: none;
+}
+
+/* Button Loading Spinner */
+.btn .spinner {
+  width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.25);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+.btn.loading .spinner { display: inline-block; }
+.btn.loading i { display: none; }
+.btn.loading { pointer-events: none; opacity: 0.65; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Tab content animations */
+.tab { animation: fade-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1200px) {
   .g-4 { grid-template-columns: repeat(2, 1fr); }
   .g-3 { grid-template-columns: repeat(2, 1fr); }
+  .presence-layout-grid { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 768px) {
   .app { grid-template-columns: 1fr; }
   .sidebar {
     position: relative; height: auto;
     flex-direction: row; overflow-x: auto;
-    padding: 10px;
+    padding: 12px;
   }
-  .brand-block { display: none; }
-  .nav-spacer { display: none; }
-  .sidebar-footer { display: none; }
+  .brand-block, .nav-spacer, .sidebar-footer { display: none; }
   .nav-btn span { display: none; }
-  .nav-btn { padding: 10px 12px; }
-  .main { padding: 18px 16px 40px; }
+  .nav-btn { padding: 12px 14px; border-radius: var(--r-sm); }
+  .main { padding: 24px 20px 48px; }
   .g-4, .g-3, .g-2 { grid-template-columns: 1fr; }
-  .topbar h1 { font-size: 20px; }
+  .topbar h1 { font-size: 22px; }
   .field-row { flex-direction: column; }
   .field-row .field { min-width: 100%; }
-}
-
-/* ===== DIVIDER ===== */
-.divider {
-  height: 1px; background: var(--border);
-  margin: 20px 0; border: none;
-}
-
-/* ===== BUTTON GROUP ===== */
-.btn-group {
-  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-/* Spinner for loading buttons */
-.btn .spinner {
-  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: #fff; border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-  display: none;
-}
-.btn.loading .spinner { display: inline-block; }
-.btn.loading { pointer-events: none; opacity: 0.7; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Tab content animations */
-.tab { animation: fade-up 0.25s ease; }
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 </style>
 </head>
@@ -663,50 +965,50 @@ a:hover { color: var(--brand); }
 <!-- ==================== LOGIN SCREEN ==================== -->
 <div id="loginScreen" class="login-wrap">
   <form class="login-card" onsubmit="event.preventDefault(); doLogin()">
-    <h1><span class="logo-icon"><i class="fab fa-youtube"></i></span> YT Bot Panel</h1>
-    <p class="subtitle">Sign in with your admin password to continue.</p>
+    <h1><span class="logo-icon"><i class="fab fa-youtube"></i></span> Control Center</h1>
+    <p class="subtitle">Enter your admin password to access the panel.</p>
     <div class="field">
       <label for="loginPassword">Password</label>
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
     </div>
-    <div style="height:16px"></div>
+    <div style="height:20px"></div>
     <button class="btn btn-primary btn-full btn-lg" type="submit" id="loginBtn">
       <i class="fas fa-arrow-right-to-bracket"></i> Sign In
     </button>
-    <p id="loginError" class="hidden" style="color:var(--err);margin-top:14px;font-size:13px;text-align:center"></p>
+    <p id="loginError" class="hidden" style="color:var(--neon-red);margin-top:16px;font-size:13.5px;text-align:center;font-weight:600"></p>
   </form>
 </div>
 
 <!-- ==================== APP SHELL ==================== -->
 <div id="appScreen" class="app hidden">
 
-  <!-- SIDEBAR -->
+  <!-- SIDEBAR NAVIGATION -->
   <aside class="sidebar">
     <div class="brand-block">
       <div class="logo"><i class="fab fa-youtube"></i></div>
       <div class="info">
-        <div class="name">YT Bot Panel</div>
+        <div class="name">J4FN YouTube</div>
         <div class="sub">Control Center</div>
       </div>
     </div>
     <div class="nav-btn active" data-tab="dashboard"><i class="fas fa-gauge-high"></i><span>Dashboard</span></div>
     <div class="nav-btn" data-tab="youtube"><i class="fab fa-youtube"></i><span>Creator Hub</span></div>
     <div class="nav-btn" data-tab="broadcast"><i class="fas fa-bullhorn"></i><span>Broadcast</span></div>
-    <div class="nav-btn" data-tab="presence"><i class="fas fa-circle-user"></i><span>Presence</span></div>
+    <div class="nav-btn" data-tab="presence"><i class="fas fa-circle-user"></i><span>Bot Presence</span></div>
     <div class="nav-btn" data-tab="config"><i class="fas fa-gear"></i><span>Configuration</span></div>
-    <div class="nav-btn" data-tab="logs"><i class="fas fa-terminal"></i><span>Logs</span></div>
+    <div class="nav-btn" data-tab="logs"><i class="fas fa-terminal"></i><span>Live Logs</span></div>
     <div class="nav-spacer"></div>
-    <div class="nav-btn" onclick="doLogout()" style="color:var(--err)"><i class="fas fa-arrow-right-from-bracket"></i><span>Logout</span></div>
-    <div class="sidebar-footer">v2.2 · YouTube Status Bot</div>
+    <div class="nav-btn" onclick="doLogout()" style="color:var(--neon-red)"><i class="fas fa-arrow-right-from-bracket"></i><span>Logout</span></div>
+    <div class="sidebar-footer">v3.0 Premium Dashboard</div>
   </aside>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN VIEWPORT -->
   <main class="main">
     <div class="topbar">
       <h1 id="pageTitle"><i class="fas fa-gauge-high"></i> Dashboard</h1>
       <div class="user-chip" id="botChip">
-        <img id="botAvatar" src="" alt="" />
-        <span id="botName">Loading…</span>
+        <img id="botAvatar" src="" alt="Bot Avatar" />
+        <span id="botName" class="bot-name-label">Loading…</span>
         <span class="online-dot"></span>
       </div>
     </div>
@@ -715,82 +1017,99 @@ a:hover { color: var(--brand); }
     <section class="tab" id="tab-dashboard">
       <div class="grid g-4">
         <div class="card card-brand">
-          <div class="card-label"><i class="fas fa-server"></i> Servers</div>
+          <div class="card-label"><i class="fas fa-server"></i> Servers Serving</div>
           <div class="card-value" id="s-servers">—</div>
         </div>
         <div class="card card-brand">
-          <div class="card-label"><i class="fas fa-users"></i> Members</div>
+          <div class="card-label"><i class="fas fa-users"></i> Server Members</div>
           <div class="card-value" id="s-members">—</div>
-          <div class="card-sub" id="s-online">— online</div>
+          <div class="card-sub" id="s-online">— active online</div>
         </div>
         <div class="card">
-          <div class="card-label"><i class="fas fa-clock"></i> Uptime</div>
-          <div class="card-value" id="s-uptime" style="font-size:20px">—</div>
+          <div class="card-label"><i class="fas fa-clock"></i> Bot Uptime</div>
+          <div class="card-value" id="s-uptime" style="font-size:22px">—</div>
         </div>
         <div class="card">
-          <div class="card-label"><i class="fas fa-bolt"></i> Latency</div>
+          <div class="card-label"><i class="fas fa-bolt"></i> Heartbeat Latency</div>
           <div class="card-value" id="s-latency">—</div>
         </div>
       </div>
 
-      <div class="section-title"><i class="fab fa-youtube yt-color"></i> YouTube Overview</div>
+      <div class="section-title"><i class="fab fa-youtube yt-color"></i> Real-time YouTube Statistics</div>
       <div class="grid g-3">
         <div class="card card-yt">
           <div class="card-label"><i class="fas fa-satellite-dish"></i> Tracked Channels</div>
           <div class="card-value" id="s-yt-tracked">—</div>
         </div>
         <div class="card card-yt">
-          <div class="card-label"><i class="fas fa-bell"></i> Uploads Posted</div>
+          <div class="card-label"><i class="fas fa-bell"></i> Announcements Posted</div>
           <div class="card-value" id="s-yt-events">—</div>
         </div>
         <div class="card card-yt">
-          <div class="card-label"><i class="fas fa-key"></i> API Key</div>
-          <div class="card-value" id="s-yt-key" style="font-size:16px">—</div>
-          <div class="card-sub">Manage in Configuration tab</div>
+          <div class="card-label"><i class="fas fa-key"></i> Data API v3 Key</div>
+          <div class="card-value" id="s-yt-key" style="font-size:17px">—</div>
+          <div class="card-sub">Manage key in Configuration</div>
         </div>
       </div>
     </section>
 
-    <!-- ===== YOUTUBE TAB ===== -->
+    <!-- ===== YOUTUBE TAB (CREATOR HUB) ===== -->
     <section class="tab hidden" id="tab-youtube">
-      <div class="section-title"><i class="fab fa-youtube yt-color"></i> YouTube Creator Hub</div>
+      <div class="section-title"><i class="fab fa-youtube yt-color"></i> Primary Channel Hub</div>
       <div id="ytSubsList" class="grid g-3"></div>
 
-      <div class="section-title" style="margin-top: 36px;"><i class="fas fa-bell"></i> Discord Upload Notification Feed</div>
-      <div class="panel card-glass"><div class="panel-body" id="ytEvents"></div></div>
+      <div class="section-title" style="margin-top: 40px;"><i class="fas fa-bell"></i> Discord Upload Notification Feed</div>
+      <div class="panel"><div class="panel-body table-wrap" id="ytEvents"></div></div>
     </section>
 
     <!-- ===== BROADCAST TAB ===== -->
     <section class="tab hidden" id="tab-broadcast">
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-bullhorn"></i> Send a Message</h3></div>
+        <div class="panel-header"><h3><i class="fas fa-bullhorn"></i> Send a Direct Announcement</h3></div>
         <div class="panel-body">
           <div class="field-row">
             <div class="field">
-              <label for="bcGuild">Server</label>
+              <label for="bcGuild">Guild Server</label>
               <select id="bcGuild" onchange="renderBcChannelOpts()"></select>
             </div>
             <div class="field" style="flex:2">
-              <label for="bcChannel">Channel</label>
+              <label for="bcChannel">Target Channel</label>
               <select id="bcChannel"></select>
             </div>
             <div class="field auto-w">
               <label class="toggle-wrap">
                 <input type="checkbox" id="bcEmbed" />
                 <span class="toggle-track"></span>
-                Use Embed
+                Embed Layout
               </label>
             </div>
           </div>
-          <div style="height:12px"></div>
+          <div style="height:20px"></div>
+          
+          <!-- BROADCAST TEMPLATES -->
           <div class="field">
-            <label for="bcContent">Message</label>
-            <textarea id="bcContent" rows="5" placeholder="Your announcement…"></textarea>
+            <label>One-Click Broadcast Templates</label>
+            <div class="template-chips">
+              <button type="button" class="template-chip" onclick="applyTemplate('live')">
+                <i class="fas fa-satellite-dish" style="color: var(--neon-green)"></i> 🔴 GOING LIVE
+              </button>
+              <button type="button" class="template-chip" onclick="applyTemplate('video')">
+                <i class="fab fa-youtube" style="color: var(--yt)"></i> 🆕 NEW VIDEO
+              </button>
+              <button type="button" class="template-chip" onclick="applyTemplate('announce')">
+                <i class="fas fa-bullhorn" style="color: var(--brand-light)"></i> 📢 GENERAL ANNOUNCEMENT
+              </button>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label for="bcContent">Message Content</label>
+            <textarea id="bcContent" rows="6" placeholder="Write your community announcement message…"></textarea>
           </div>
           <div class="btn-group">
             <button class="btn btn-brand btn-lg" onclick="sendBroadcast()" id="btnBroadcast">
               <span class="spinner"></span>
-              <i class="fas fa-paper-plane"></i> Send Broadcast
+              <i class="fas fa-paper-plane"></i> Dispatch Broadcast
             </button>
           </div>
         </div>
@@ -800,185 +1119,253 @@ a:hover { color: var(--brand); }
     <!-- ===== PRESENCE TAB ===== -->
     <section class="tab hidden" id="tab-presence">
 
-      <!-- Live preview -->
+      <!-- Current presence preview text banner -->
       <div class="presence-live" id="presLiveBanner">
         <div class="live-icon"><i class="fas fa-satellite-dish"></i></div>
         <div class="live-info">
-          <div class="live-label"><span class="pulse"></span> Currently Showing</div>
+          <div class="live-label"><span class="pulse"></span> Active discord presence</div>
           <div class="live-text" id="presLiveText">Loading…</div>
           <div class="live-type" id="presLiveType"></div>
         </div>
       </div>
 
-      <!-- Quick status override -->
-      <div class="panel" style="margin-bottom:20px">
-        <div class="panel-header">
-          <h3><i class="fas fa-sliders"></i> Status Override</h3>
-          <label class="toggle-wrap">
-            <input type="checkbox" id="pRotation" checked onchange="savePresenceSettings()" />
-            <span class="toggle-track"></span>
-            Auto-Rotate
-          </label>
-        </div>
-        <div class="panel-body">
-          <div class="field-row">
-            <div class="field">
-              <label for="pStatus">Status</label>
-              <select id="pStatus">
-                <option value="online">🟢 Online</option>
-                <option value="idle">🟡 Idle</option>
-                <option value="dnd">🔴 Do Not Disturb</option>
-                <option value="invisible">⚫ Invisible</option>
-              </select>
+      <!-- SIDE-BY-SIDE PRESENCE & SIMULATOR GRID -->
+      <div class="grid presence-layout-grid" style="grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start;">
+        
+        <!-- FORMS COLUMN -->
+        <div class="grid" style="gap: 20px;">
+          <!-- Status override control card -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3><i class="fas fa-sliders"></i> Override Presence</h3>
+              <label class="toggle-wrap">
+                <input type="checkbox" id="pRotation" checked onchange="savePresenceSettings()" />
+                <span class="toggle-track"></span>
+                Auto-Rotate
+              </label>
             </div>
-            <div class="field">
-              <label for="pActivity">Activity Type</label>
-              <select id="pActivity">
-                <option value="watching">👁️ Watching</option>
-                <option value="playing">🎮 Playing</option>
-                <option value="listening">🎵 Listening</option>
-                <option value="streaming">📺 Streaming</option>
-              </select>
+            <div class="panel-body">
+              <div class="field-row">
+                <div class="field">
+                  <label for="pStatus">Status Color</label>
+                  <select id="pStatus" onchange="savePresenceSettings()">
+                    <option value="online">🟢 Online</option>
+                    <option value="idle">🟡 Idle</option>
+                    <option value="dnd">🔴 Do Not Disturb</option>
+                    <option value="invisible">⚫ Invisible</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="pActivity">Activity Type</label>
+                  <select id="pActivity" onchange="savePresenceSettings()">
+                    <option value="watching">👁️ Watching</option>
+                    <option value="playing">🎮 Playing</option>
+                    <option value="listening">🎵 Listening</option>
+                    <option value="streaming">📺 Streaming</option>
+                  </select>
+                </div>
+              </div>
+              <div style="height:12px"></div>
+              <div class="field">
+                <label for="pText">Status String <span style="font-weight:400;color:var(--text-muted)">(vars: {server_count}, {yt_subs}, {prefix})</span></label>
+                <input id="pText" placeholder="📺 JustForFun · {yt_subs} subs" />
+              </div>
+              <div class="btn-group">
+                <button class="btn btn-brand" onclick="savePresenceSettings()">
+                  <i class="fas fa-check"></i> Apply Settings
+                </button>
+              </div>
             </div>
-            <div class="field" style="flex:2">
-              <label for="pText">Text <span style="font-weight:400;color:var(--text-3)">(vars: {server_count}, {yt_subs}, {prefix})</span></label>
-              <input id="pText" placeholder="📺 {yt_subs} YouTube channels" />
-            </div>
-            <div class="field auto-w">
-              <label>&nbsp;</label>
-              <button class="btn btn-brand" onclick="savePresenceSettings()">
-                <i class="fas fa-check"></i> Apply
+          </div>
+
+          <!-- Custom rotation pool entries list -->
+          <div class="panel">
+            <div class="panel-header">
+              <h3><i class="fas fa-list"></i> Custom Presence Playlist</h3>
+              <button class="btn btn-ghost btn-sm" onclick="clearPresenceEntries()" id="btnClearPres">
+                <i class="fas fa-trash"></i> Wipe Playlist
               </button>
             </div>
-          </div>
-        </div>
-      </div>
+            <div class="panel-body">
+              <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px">
+                When custom entries exist, the bot cycles through them instead of tracking the primary YouTube-channel statistics.
+              </p>
 
-      <!-- Custom entries -->
-      <div class="panel">
-        <div class="panel-header">
-          <h3><i class="fas fa-list"></i> Custom Presence Rotation Entries</h3>
-          <button class="btn btn-ghost btn-sm" onclick="clearPresenceEntries()" id="btnClearPres">
-            <i class="fas fa-trash"></i> Clear All
-          </button>
-        </div>
-        <div class="panel-body">
-          <p style="font-size:13px;color:var(--text-2);margin-bottom:16px">
-            Add custom entries below. When entries exist, the bot rotates through them instead of the default YouTube-channel rotation.
-          </p>
+              <!-- Add custom presence form -->
+              <div class="field-row" style="margin-bottom:16px">
+                <div class="field">
+                  <label for="newPresType">Type</label>
+                  <select id="newPresType">
+                    <option value="watching">👁️ Watching</option>
+                    <option value="playing">🎮 Playing</option>
+                    <option value="listening">🎵 Listening</option>
+                    <option value="streaming">📺 Streaming</option>
+                  </select>
+                </div>
+                <div class="field" style="flex:2">
+                  <label for="newPresText">Text</label>
+                  <input id="newPresText" placeholder="e.g. 📺 streams from boys" />
+                </div>
+              </div>
+              <div class="field-row" style="margin-bottom:16px">
+                <div class="field" style="flex:2">
+                  <label for="newPresUrl">Stream URL <span style="font-weight:400;color:var(--text-muted)">(streaming only)</span></label>
+                  <input id="newPresUrl" placeholder="https://youtube.com/..." />
+                </div>
+                <div class="field auto-w">
+                  <button class="btn btn-success" onclick="addPresenceEntry()" id="btnAddPres">
+                    <i class="fas fa-plus"></i> Add Entry
+                  </button>
+                </div>
+              </div>
 
-          <!-- Add form -->
-          <div class="field-row" style="margin-bottom:16px">
-            <div class="field">
-              <label for="newPresType">Type</label>
-              <select id="newPresType">
-                <option value="watching">👁️ Watching</option>
-                <option value="playing">🎮 Playing</option>
-                <option value="listening">🎵 Listening</option>
-                <option value="streaming">📺 Streaming</option>
-              </select>
-            </div>
-            <div class="field" style="flex:2">
-              <label for="newPresText">Text</label>
-              <input id="newPresText" placeholder="e.g. 📺 YouTube Streams" />
-            </div>
-            <div class="field">
-              <label for="newPresUrl">URL <span style="font-weight:400;color:var(--text-3)">(streaming only)</span></label>
-              <input id="newPresUrl" placeholder="https://youtube.com/..." />
-            </div>
-            <div class="field auto-w">
-              <label>&nbsp;</label>
-              <button class="btn btn-success" onclick="addPresenceEntry()" id="btnAddPres">
-                <i class="fas fa-plus"></i> Add
-              </button>
+              <hr class="divider" />
+
+              <!-- Rotations pool container -->
+              <div id="presEntriesList" class="pres-entries">
+                <div class="empty"><i class="fas fa-layer-group"></i>No custom entries yet. Add one above.</div>
+              </div>
             </div>
           </div>
+        </div>
 
-          <hr class="divider" />
-
-          <!-- Entry list -->
-          <div id="presEntriesList" class="pres-entries">
-            <div class="empty"><i class="fas fa-layer-group"></i>No custom entries yet. Add one above.</div>
+        <!-- DISCORD MOCKUP SIMULATOR COLUMN -->
+        <div class="grid" style="gap: 16px;">
+          <div class="section-title" style="margin: 0 0 4px;"><i class="fab fa-discord"></i> Discord presence preview</div>
+          
+          <div class="discord-card">
+            <!-- BANNER -->
+            <div class="discord-banner"></div>
+            <!-- AVATAR CONTAINER -->
+            <div class="discord-avatar-container">
+              <div style="position: relative; width: 100%; height: 100%;">
+                <img id="simAvatar" class="discord-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Bot Avatar" />
+                <div id="simStatus" class="discord-status-dot online"></div>
+              </div>
+            </div>
+            
+            <!-- PROFILE DETAILS -->
+            <div class="discord-profile-details">
+              <div class="discord-username-row">
+                <span id="simName" class="discord-username">J4FN Bot</span>
+                <span id="simDisc" class="discord-discriminator">#9210</span>
+                <span class="discord-bot-badge"><i class="fas fa-check"></i> BOT</span>
+              </div>
+              
+              <!-- CUSTOM STATUS -->
+              <div class="discord-custom-status-sec" id="simCustomStatusSec">
+                <span id="simCustomStatusText">💬 Initializing connection…</span>
+              </div>
+              
+              <div class="discord-divider"></div>
+              
+              <!-- ABOUT ME -->
+              <div class="discord-section-title">About Me</div>
+              <div class="discord-about-me">
+                Primary tracking assistant bot monitoring statistics, scheduled streams, and active videos on YouTube.
+              </div>
+              
+              <div class="discord-divider"></div>
+              
+              <!-- DYNAMIC ACTIVITY -->
+              <div id="simActivitySec" class="hidden">
+                <div id="simActivityHeader" class="discord-section-title">PLAYING A GAME</div>
+                <div id="simActivityCard" class="discord-activity">
+                  <div class="discord-activity-body">
+                    <div id="simActivityIcon" class="discord-activity-icon-wrapper">
+                      <!-- Dynamically set via JS -->
+                    </div>
+                    <div class="discord-activity-text">
+                      <div id="simActivityTitle" class="discord-activity-title">YouTube Status</div>
+                      <div id="simActivityDetails" class="discord-activity-details">Details...</div>
+                      <div id="simActivityState" class="discord-activity-state">State...</div>
+                    </div>
+                  </div>
+                  <a id="simActivityBtn" class="discord-btn-primary hidden" href="#" target="_blank">Watch</a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+
       </div>
     </section>
 
     <!-- ===== CONFIGURATION TAB ===== -->
     <section class="tab hidden" id="tab-config">
 
-      <!-- API Key section — prominent -->
+      <!-- Prominent key box -->
       <div class="api-key-box">
-        <h3><i class="fab fa-youtube"></i> YouTube API Key</h3>
+        <h3><i class="fab fa-youtube"></i> Google YouTube Data v3 API Key</h3>
         <p class="api-desc">
-          Required for YouTube tracking. Enter your key and test it before saving.
+          Required for polling live views, subscribers, video uploads, and schedules. Enter your credential below and test it before saving.
           <span id="apiKeyStatusWrap"></span>
         </p>
         <div class="field-row">
           <div class="field" style="flex:2">
-            <label for="cfgYtKey">API Key</label>
+            <label for="cfgYtKey">Data v3 API Key</label>
             <input id="cfgYtKey" type="password" placeholder="AIzaSy..." autocomplete="off" />
-            <div class="hint">Leave blank to keep the current key.</div>
+            <div class="hint">Leave blank to retain currently saved API key.</div>
           </div>
           <div class="field auto-w">
             <label>&nbsp;</label>
             <button class="btn btn-ghost" onclick="testApiKey()" id="btnTestKey">
               <span class="spinner"></span>
-              <i class="fas fa-flask-vial"></i> Test Key
+              <i class="fas fa-flask-vial"></i> Verify Key
             </button>
           </div>
         </div>
         <div id="apiTestResult" class="test-result"></div>
       </div>
 
-      <!-- General config -->
+      <!-- Settings panel -->
       <div class="panel">
-        <div class="panel-header"><h3><i class="fas fa-gear"></i> General Settings</h3></div>
+        <div class="panel-header"><h3><i class="fas fa-gear"></i> Control Panel Configurations</h3></div>
         <div class="panel-body">
           <div class="grid g-2">
             <div class="field">
-              <label for="cfgPrefix">Command Prefix (legacy)</label>
+              <label for="cfgPrefix">Command Prefix</label>
               <input id="cfgPrefix" placeholder="$" />
             </div>
             <div class="field">
-              <label for="cfgWelcome">Welcome Channel ID</label>
-              <input id="cfgWelcome" placeholder="Channel ID" />
+              <label for="cfgWelcome">Welcome Discord Channel ID</label>
+              <input id="cfgWelcome" placeholder="e.g. 1122334455667788" />
             </div>
             <div class="field">
-              <label for="cfgYtChannel">Primary YouTube Channel ID</label>
-              <input id="cfgYtChannel" placeholder="e.g. UCccp0B0bypJE4EJjwq8u2lQ" />
-              <div class="hint">The main YouTube channel the bot tracks and displays.</div>
+              <label for="cfgYtChannel">YouTube Channel ID / Handle</label>
+              <input id="cfgYtChannel" placeholder="e.g. @JustForFun-BoYs" />
+              <div class="hint">Required. Provide handle or full channel ID.</div>
             </div>
             <div class="field">
-              <label for="cfgYtNotifyChannel">YouTube Notification Channel ID</label>
-              <input id="cfgYtNotifyChannel" placeholder="e.g. 112233445566778899" />
-              <div class="hint">Discord channel ID where new video alerts will be posted.</div>
+              <label for="cfgYtNotifyChannel">Discord Announcement Channel ID</label>
+              <input id="cfgYtNotifyChannel" placeholder="e.g. 1122334455667788" />
+              <div class="hint">The target channel where new uploads are automatically broadcasted.</div>
             </div>
           </div>
           <hr class="divider" />
-          <div class="field" style="max-width:400px">
-            <label for="cfgPassword">New Admin Password <span style="font-weight:400;color:var(--text-3)">(optional)</span></label>
-            <input id="cfgPassword" type="password" placeholder="Leave blank to keep current" autocomplete="new-password" />
+          <div class="field" style="max-width:440px">
+            <label for="cfgPassword">Change Admin Password</label>
+            <input id="cfgPassword" type="password" placeholder="Leave blank to retain current password" autocomplete="new-password" />
           </div>
           <div class="btn-group">
-            <button class="btn btn-brand btn-lg" onclick="saveConfig()" id="btnSaveConfig">
+            <button class="btn btn-primary btn-lg" onclick="saveConfig()" id="btnSaveConfig">
               <span class="spinner"></span>
-              <i class="fas fa-floppy-disk"></i> Save Configuration
+              <i class="fas fa-floppy-disk"></i> Save Configurations
             </button>
             <button class="btn btn-danger btn-lg" onclick="restartBot()" id="btnRestart">
-              <i class="fas fa-power-off"></i> Restart Bot
+              <i class="fas fa-power-off"></i> Restart Polling Daemon
             </button>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ===== LOGS TAB ===== -->
+    <!-- ===== LIVE LOGS TAB ===== -->
     <section class="tab hidden" id="tab-logs">
       <div class="panel">
         <div class="panel-header">
-          <h3><i class="fas fa-terminal"></i> Live Logs</h3>
-          <button class="btn btn-ghost btn-sm" onclick="loadLogs()"><i class="fas fa-rotate"></i> Refresh</button>
+          <h3><i class="fas fa-terminal"></i> Live Bot Operations Logger</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadLogs()"><i class="fas fa-rotate"></i> Refresh Output</button>
         </div>
         <div class="panel-body"><div id="logList" class="log-box"></div></div>
       </div>
@@ -987,15 +1374,16 @@ a:hover { color: var(--brand); }
   </main>
 </div>
 
-<!-- ==================== JAVASCRIPT ==================== -->
+<!-- ==================== JAVASCRIPT LOGIC ==================== -->
 <script>
 const API = '/api';
 let TOKEN = localStorage.getItem('botToken') || '';
 let SERVERS = [];
 let CURRENT_TAB = 'dashboard';
 let pollTimer = null;
+let YT_CHANNEL_DATA = null;
 
-/* ===== BOOT ===== */
+/* ===== BOOTSTRAPPING ===== */
 window.addEventListener('DOMContentLoaded', () => {
   if (TOKEN) bootApp();
   document.querySelectorAll('.nav-btn[data-tab]').forEach(el => {
@@ -1003,7 +1391,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-/* ===== AUTH ===== */
+/* ===== AUTHORIZATION ===== */
 async function doLogin() {
   const pw = document.getElementById('loginPassword').value;
   const err = document.getElementById('loginError');
@@ -1014,7 +1402,7 @@ async function doLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pw })
     });
-    if (!r.ok) throw new Error('Invalid password');
+    if (!r.ok) throw new Error('Invalid password credential');
     const j = await r.json();
     TOKEN = j.token;
     localStorage.setItem('botToken', TOKEN);
@@ -1042,22 +1430,22 @@ function api(path, opts = {}) {
   }).then(async r => {
     if (r.status === 401) { doLogout(); throw new Error('Session expired'); }
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
+    if (!r.ok) throw new Error(j.message || `HTTP error ${r.status}`);
     return j;
   });
 }
 
-/* ===== APP BOOTSTRAP ===== */
 function bootApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
   refreshAll();
   loadConfig();
+  loadYouTube(); // Pre-load YouTube channel variables for templates
   if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(refreshAll, 5000);
 }
 
-/* ===== TAB SWITCHING ===== */
+/* ===== TAB NAVIGATION ===== */
 function switchTab(tab) {
   CURRENT_TAB = tab;
   document.querySelectorAll('.nav-btn[data-tab]').forEach(el =>
@@ -1068,11 +1456,11 @@ function switchTab(tab) {
 
   const titles = {
     dashboard: ['fas fa-gauge-high', 'Dashboard'],
-    youtube: ['fab fa-youtube', 'YouTube Tracker'],
-    broadcast: ['fas fa-bullhorn', 'Broadcast'],
-    presence: ['fas fa-circle-user', 'Bot Presence'],
-    config: ['fas fa-gear', 'Configuration'],
-    logs: ['fas fa-terminal', 'Logs']
+    youtube: ['fab fa-youtube', 'YouTube Creator Hub'],
+    broadcast: ['fas fa-bullhorn', 'Broadcast Control'],
+    presence: ['fas fa-circle-user', 'Presence Settings'],
+    config: ['fas fa-gear', 'Configurations'],
+    logs: ['fas fa-terminal', 'Live Logs']
   };
   const [icon, title] = titles[tab];
   document.getElementById('pageTitle').innerHTML = `<i class="${icon}"></i> ${title}`;
@@ -1082,7 +1470,7 @@ function switchTab(tab) {
   if (tab === 'presence') loadPresenceTab();
 }
 
-/* ===== REFRESH ===== */
+/* ===== STATISTICS REFRESHER ===== */
 async function refreshAll() {
   try {
     const [stats, servers] = await Promise.all([api('/stats'), api('/servers')]);
@@ -1105,23 +1493,28 @@ function renderStats(s) {
   document.getElementById('s-yt-events').textContent = s.youtube.recent_events;
 
   const keyEl = document.getElementById('s-yt-key');
-  keyEl.textContent = s.youtube.api_configured ? '✓ Configured' : '✗ Missing';
-  keyEl.style.color = s.youtube.api_configured ? 'var(--ok)' : 'var(--err)';
+  keyEl.textContent = s.youtube.api_configured ? '✓ Active Config' : '✗ Key Not Set';
+  keyEl.style.color = s.youtube.api_configured ? 'var(--neon-green)' : 'var(--neon-red)';
+  if (s.youtube.api_configured) {
+    keyEl.style.textShadow = '0 0 10px rgba(16,185,129,0.3)';
+  } else {
+    keyEl.style.textShadow = 'none';
+  }
 
   const statusWrap = document.getElementById('apiKeyStatusWrap');
   if (statusWrap) {
     statusWrap.innerHTML = s.youtube.api_configured
       ? '<span class="api-key-status ok"><i class="fas fa-check-circle"></i> Active</span>'
-      : '<span class="api-key-status missing"><i class="fas fa-xmark-circle"></i> Not Set</span>';
+      : '<span class="api-key-status missing"><i class="fas fa-xmark-circle"></i> Not Saved</span>';
   }
 
   if (s.bot_user) {
     document.getElementById('botName').textContent = s.bot_user.name;
-    document.getElementById('botAvatar').src = s.bot_user.avatar || '';
+    document.getElementById('botAvatar').src = s.bot_user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
   }
 }
 
-/* ===== SERVER OPTIONS ===== */
+/* ===== ANNOUNCEMENT DISPATCHER ===== */
 function renderServerOptions() {
   const sel = document.getElementById('bcGuild');
   if (!sel) return;
@@ -1145,7 +1538,63 @@ function renderBcChannelOpts() {
   }
 }
 
-/* ===== YOUTUBE ===== */
+async function sendBroadcast() {
+  const payload = {
+    channel_id: document.getElementById('bcChannel').value,
+    content: document.getElementById('bcContent').value,
+    embed: document.getElementById('bcEmbed').checked,
+  };
+  if (!payload.channel_id || !payload.content) return toast('Select a target channel and fill content', 'error');
+
+  const btn = document.getElementById('btnBroadcast');
+  btn.classList.add('loading');
+  try {
+    await api('/send-message', { method: 'POST', body: JSON.stringify(payload) });
+    toast('Broadcast successfully sent to Discord!', 'success');
+    document.getElementById('bcContent').value = '';
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); }
+}
+
+/* ===== BROADCAST PRESES TEMPLATES FUNCTION ===== */
+function applyTemplate(type) {
+  const textEl = document.getElementById('bcContent');
+  const embedEl = document.getElementById('bcEmbed');
+  if (!textEl) return;
+  
+  let msg = '';
+  let useEmbed = false;
+  
+  const channelName = YT_CHANNEL_DATA ? YT_CHANNEL_DATA.title : 'JustForFun';
+  const channelUrl = YT_CHANNEL_DATA ? YT_CHANNEL_DATA.url : 'https://www.youtube.com/@JustForFun-BoYs';
+  
+  if (type === 'live') {
+    useEmbed = true;
+    if (YT_CHANNEL_DATA && YT_CHANNEL_DATA.live_url) {
+      msg = `🔴 WE ARE LIVE NOW! 🔴\n\nCome hang out, chat, and join the stream here:\n🔗 ${YT_CHANNEL_DATA.live_url}\n\nWe are talking about latest updates, playing live, and chilling! Don't miss it! 🍿🚀`;
+    } else if (YT_CHANNEL_DATA && YT_CHANNEL_DATA.upcoming_url) {
+      msg = `🔔 SCHEDULED LIVE STREAM! 🔔\n\nSet your reminders now for our upcoming live stream:\n🎬 "${YT_CHANNEL_DATA.upcoming_title}"\n🔗 ${YT_CHANNEL_DATA.upcoming_url}\n\nSee you guys there! 🚀✨`;
+    } else {
+      msg = `🔴 WE ARE GOING LIVE! 🔴\n\nGet ready! We are going live shortly. Tune in and join the chat:\n🔗 ${channelUrl}\n\nCan't wait to see you all! 🚀🔥`;
+    }
+  } else if (type === 'video') {
+    useEmbed = true;
+    if (YT_CHANNEL_DATA && YT_CHANNEL_DATA.latest_video_title) {
+      msg = `🆕 NEW VIDEO UPLOADED! 🆕\n\nWe just dropped a brand new video:\n🎥 "${YT_CHANNEL_DATA.latest_video_title}"\n\nWatch it now and leave a comment:\n🔗 ${YT_CHANNEL_DATA.latest_video_url}\n\nHope you guys enjoy it! 🍿🔥`;
+    } else {
+      msg = `🆕 NEW VIDEO IS OUT! 🆕\n\nCheck out the latest upload on our channel now:\n🔗 ${channelUrl}\n\nDon't forget to like and subscribe! 🍿🔥`;
+    }
+  } else if (type === 'announce') {
+    useEmbed = false;
+    msg = `📢 GENERAL ANNOUNCEMENT! 📢\n\nHey everyone! Make sure you have notifications turned on for the YouTube channel so you never miss an upload or live stream! We have some incredible content lined up for you guys. \n\nCheck out our Creator Hub here:\n🔗 ${channelUrl}\n\nThank you for all your support! 💙✨`;
+  }
+  
+  textEl.value = msg;
+  embedEl.checked = useEmbed;
+  toast('Announcement template applied!', 'success');
+}
+
+/* ===== YOUTUBE STATS FETCHING & DESIGN RENDER ===== */
 async function loadYouTube() {
   try {
     const data = await api('/youtube/channel-hub');
@@ -1154,96 +1603,119 @@ async function loadYouTube() {
     if (!data.configured_id) {
       wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">
         <i class="fab fa-youtube" style="color:var(--yt);font-size:48px;margin-bottom:16px;"></i>
-        <h3 style="color:var(--text);margin-bottom:8px">No Channel ID Configured</h3>
-        <p style="color:var(--text-3)">Please configure your primary YouTube Channel ID in the <strong>Configuration</strong> tab to monitor statistics.</p>
+        <h3 style="color:var(--text-primary);margin-bottom:8px">No YouTube Channel Configured</h3>
+        <p style="color:var(--text-secondary)">Please provide your primary YouTube Channel ID/Handle in the <strong>Configuration</strong> tab to monitor statistics.</p>
       </div>`;
-      document.getElementById('ytEvents').innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No uploads tracked yet.</div>`;
+      document.getElementById('ytEvents').innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No announcements pushed.</div>`;
       return;
     }
 
     if (!data.channel) {
       wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">
         <i class="fas fa-spinner fa-spin" style="color:var(--yt);font-size:48px;margin-bottom:16px;"></i>
-        <h3 style="color:var(--text);margin-bottom:8px">Fetching Channel Data...</h3>
-        <p style="color:var(--text-3)">The bot is currently resolving channel stats. Refresh in a few seconds.</p>
+        <h3 style="color:var(--text-primary);margin-bottom:8px">Retrieving Channel Variables...</h3>
+        <p style="color:var(--text-secondary)">The statistics poller is resolving channel properties. Check back in a few seconds.</p>
       </div>`;
-      document.getElementById('ytEvents').innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No uploads tracked yet.</div>`;
+      document.getElementById('ytEvents').innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No announcements pushed.</div>`;
       return;
     }
 
     const c = data.channel;
+    YT_CHANNEL_DATA = c; // Cache globally
     const isLive = !!c.live_url;
+    const isUpcoming = !isLive && !!c.upcoming_url;
     
+    let ringClass = 'glow-ring-offline';
+    let statusLabel = 'OFFLINE';
+    let statusColor = 'var(--text-muted)';
+    let statusPulseStr = '';
+
+    if (isLive) {
+      ringClass = 'glow-ring-live';
+      statusLabel = 'LIVE NOW';
+      statusColor = 'var(--neon-green)';
+      statusPulseStr = 'box-shadow: 0 0 10px var(--neon-green); animation: pulse-dot 1.5s infinite;';
+    } else if (isUpcoming) {
+      ringClass = 'glow-ring-upcoming';
+      statusLabel = 'UPCOMING STREAM';
+      statusColor = 'var(--neon-purple)';
+      statusPulseStr = 'box-shadow: 0 0 10px var(--neon-purple); animation: pulse-dot 2s infinite; background: var(--neon-purple) !important;';
+    }
+
     wrap.innerHTML = `
-      <div class="creator-card card-glass" style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 20px; position: relative; overflow: hidden; padding: 24px; border-radius: var(--r-xl); background: linear-gradient(135deg, rgba(26,31,46,0.7), rgba(12,14,20,0.8)); border: 1px solid var(--border); box-shadow: var(--shadow-lg); transition: all 0.3s ease;">
-        <div style="height: 120px; width: 100%; border-radius: var(--r-lg); background: linear-gradient(135deg, #FF0033 0%, #7289DA 100%); opacity: 0.85; position: relative; overflow: hidden;">
-          <div style="position: absolute; inset: 0; background: url('https://www.transparenttextures.com/patterns/dark-matter.png'); opacity: 0.4;"></div>
-          <div style="position: absolute; right: 20px; bottom: 10px; color: rgba(255,255,255,0.4); font-size: 54px; font-weight: 800; pointer-events: none;">CREATOR</div>
+      <!-- CREATOR HUB BANNER WIDGET -->
+      <div class="card" style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 20px; padding: 24px;">
+        <div style="height: 130px; width: 100%; border-radius: var(--r-lg); background: linear-gradient(135deg, #FF0033 0%, #5865F2 100%); opacity: 0.85; position: relative; overflow: hidden; box-shadow: var(--shadow-sm);">
+          <div style="position: absolute; inset: 0; background: radial-gradient(circle, transparent 20%, #030407 150%);"></div>
+          <div style="position: absolute; right: 24px; bottom: 12px; color: rgba(255,255,255,0.18); font-size: 64px; font-family:'Outfit',sans-serif; font-weight: 900; pointer-events: none; letter-spacing: -2px;">CREATOR HUB</div>
         </div>
         
-        <div style="display: flex; gap: 20px; align-items: flex-start; margin-top: -60px; z-index: 2; padding: 0 16px; flex-wrap: wrap;">
-          <img src="${c.thumbnail || 'https://www.youtube.com/s/desktop/12d6b690/img/favicon_144x144.png'}" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--surface); box-shadow: var(--shadow-md); background: var(--bg-1);" />
-          <div style="flex: 1; min-width: 250px; margin-top: 50px;">
-            <h2 style="font-size: 24px; font-weight: 800; display: flex; align-items: center; gap: 10px;">
+        <div style="display: flex; gap: 24px; align-items: flex-start; margin-top: -65px; z-index: 2; padding: 0 18px; flex-wrap: wrap;">
+          <img src="${c.thumbnail || 'https://www.youtube.com/s/desktop/12d6b690/img/favicon_144x144.png'}" class="${ringClass}" style="width: 106px; height: 106px; border-radius: 50%; border: 4px solid #111214; background: var(--bg-base); box-shadow: var(--shadow-md); transition: all 0.3s;" />
+          <div style="flex: 1; min-width: 260px; margin-top: 55px;">
+            <h2 style="font-family:'Outfit',sans-serif; font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; margin: 0;">
               ${escapeHtml(c.title)}
-              <span class="yt-badge" style="background: rgba(255,0,51,0.15); color: var(--yt-light); font-size: 11px;"><i class="fab fa-youtube"></i> Primary</span>
+              <span class="yt-badge" style="background: rgba(255,0,51,0.12); color: var(--yt-light); font-size: 11px; border-color: rgba(255,0,51,0.2);"><i class="fab fa-youtube"></i> Main Account</span>
             </h2>
-            <p style="color: var(--text-2); font-size: 13px; margin-top: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-              ${escapeHtml(c.description || 'No channel description available.')}
+            <p style="color: var(--text-secondary); font-size: 13.5px; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4;">
+              ${escapeHtml(c.description || 'No primary channel description details found.')}
             </p>
-            <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
               <a href="${c.url}" target="_blank" class="btn btn-primary btn-sm"><i class="fab fa-youtube"></i> Visit Channel</a>
-              <button class="btn btn-ghost btn-sm" onclick="restartBot()"><i class="fas fa-arrows-rotate"></i> Force Sync</button>
+              <button class="btn btn-ghost btn-sm" onclick="restartBot()"><i class="fas fa-arrows-rotate"></i> Sync Cache</button>
             </div>
           </div>
           
-          <div class="card-glass" style="margin-top: 50px; padding: 14px 20px; border-radius: var(--r-lg); border: 1px solid ${isLive ? 'rgba(35,209,96,0.3)' : 'var(--border)'}; background: ${isLive ? 'rgba(35,209,96,0.06)' : 'rgba(255,255,255,0.02)'}; display: flex; flex-direction: column; align-items: flex-end; min-width: 160px;">
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; tracking: 0.5px; color: ${isLive ? 'var(--ok)' : 'var(--text-3)'}">
-              <span style="width: 8px; height: 8px; border-radius: 50%; background: ${isLive ? 'var(--ok)' : 'var(--text-3)'}; ${isLive ? 'box-shadow: 0 0 8px var(--ok); animation: pulse-dot 1.5s infinite;' : ''}"></span>
-              ${isLive ? 'LIVE NOW' : 'OFFLINE'}
+          <div class="card" style="margin-top: 55px; padding: 16px 20px; border-radius: var(--r-lg); border: 1px solid ${isLive ? 'rgba(16,185,129,0.3)' : (isUpcoming ? 'rgba(139,92,246,0.3)' : 'var(--border)')}; background: rgba(0,0,0,0.25); display: flex; flex-direction: column; align-items: flex-end; min-width: 190px; box-shadow: none;">
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; text-transform: uppercase; tracking: 0.8px; color: ${statusColor}">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background: ${isLive ? 'var(--neon-green)' : (isUpcoming ? 'var(--neon-purple)' : 'var(--text-muted)')}; ${statusPulseStr}"></span>
+              ${statusLabel}
             </div>
-            <div style="font-size: 13px; color: var(--text-2); margin-top: 6px; text-align: right; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${isLive ? escapeHtml(c.live_title) : 'Not streaming'}
+            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 8px; text-align: right; max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+              ${isLive ? escapeHtml(c.live_title) : (isUpcoming ? escapeHtml(c.upcoming_title) : 'Stream is offline')}
             </div>
-            ${isLive ? `<a href="${c.live_url}" target="_blank" class="btn btn-success btn-sm" style="margin-top: 10px; width: 100%;"><i class="fas fa-play"></i> Watch Stream</a>` : ''}
+            ${isLive ? `<a href="${c.live_url}" target="_blank" class="btn btn-success btn-sm" style="margin-top: 12px; width: 100%;"><i class="fas fa-play"></i> Watch Stream</a>` : ''}
+            ${isUpcoming ? `<a href="${c.upcoming_url}" target="_blank" class="btn btn-brand btn-sm" style="margin-top: 12px; width: 100%;"><i class="fas fa-bell"></i> Set Reminder</a>` : ''}
           </div>
         </div>
       </div>
       
-      <div class="card card-yt" style="background: linear-gradient(135deg, rgba(255,0,51,0.06), rgba(26,31,46,0.5)); border: 1px solid rgba(255,0,51,0.15);">
-        <div class="card-label"><i class="fas fa-users"></i> Subscribers</div>
+      <!-- SUB CHIPS -->
+      <div class="card card-yt">
+        <div class="card-label"><i class="fas fa-users"></i> Audience Size</div>
         <div class="card-value">${c.hidden_subs ? 'Hidden' : Number(c.subscriber_count).toLocaleString()}</div>
-        <div class="card-sub">Real-time audience size</div>
+        <div class="card-sub">Subscribers on YouTube</div>
       </div>
       
-      <div class="card card-brand" style="background: linear-gradient(135deg, rgba(88,101,242,0.06), rgba(26,31,46,0.5)); border: 1px solid rgba(88,101,242,0.15);">
-        <div class="card-label"><i class="fas fa-eye"></i> Total Views</div>
+      <div class="card card-brand">
+        <div class="card-label"><i class="fas fa-eye"></i> Accumulated Views</div>
         <div class="card-value">${Number(c.view_count).toLocaleString()}</div>
-        <div class="card-sub">Total lifetime video views</div>
+        <div class="card-sub">Total video content views</div>
       </div>
       
-      <div class="card" style="background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(26,31,46,0.5)); border: 1px solid rgba(255,255,255,0.05)">
-        <div class="card-label"><i class="fas fa-video"></i> Videos Published</div>
+      <div class="card">
+        <div class="card-label"><i class="fas fa-video"></i> Video Inventory</div>
         <div class="card-value">${Number(c.video_count).toLocaleString()}</div>
         <div class="card-sub">Total video uploads</div>
       </div>
 
+      <!-- UPCOMING / LATEST BOXES -->
       ${c.upcoming_title ? `
-      <div class="card card-brand" style="background: linear-gradient(135deg, rgba(88,101,242,0.08), rgba(26,31,46,0.5)); border: 1px solid rgba(88,101,242,0.25); grid-column: span 2;">
-        <div class="card-label" style="color: var(--brand-light); font-weight: 700;"><i class="fas fa-calendar-days"></i> Upcoming Live Stream</div>
-        <div class="card-value" style="font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;" title="${escapeHtml(c.upcoming_title)}">${escapeHtml(c.upcoming_title)}</div>
-        <div style="margin-top: 12px;">
-          <a href="${c.upcoming_url}" target="_blank" class="btn btn-brand btn-sm" style="box-shadow: none;"><i class="fas fa-bell"></i> View Scheduled Stream</a>
+      <div class="card card-brand" style="background: linear-gradient(135deg, rgba(139,92,246,0.06), rgba(26,31,46,0.3)); border: 1px solid rgba(139,92,246,0.22); grid-column: span 2;">
+        <div class="card-label" style="color: var(--brand-light); font-weight: 700;"><i class="fas fa-calendar-days"></i> Upcoming Schedule</div>
+        <div class="card-value" style="font-size: 19px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;" title="${escapeHtml(c.upcoming_title)}">${escapeHtml(c.upcoming_title)}</div>
+        <div style="margin-top: 14px;">
+          <a href="${c.upcoming_url}" target="_blank" class="btn btn-brand btn-sm"><i class="fas fa-eye"></i> View Live Stream Slot</a>
         </div>
       </div>
       ` : ''}
       
       ${c.latest_video_title ? `
-      <div class="card" style="background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(26,31,46,0.5)); border: 1px solid var(--border); grid-column: ${c.upcoming_title ? 'span 1' : 'span 3'};">
-        <div class="card-label"><i class="fas fa-file-video"></i> Latest Video Upload</div>
-        <div class="card-value" style="font-size: 16px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;" title="${escapeHtml(c.latest_video_title)}">${escapeHtml(c.latest_video_title)}</div>
-        <div style="margin-top: 12px;">
-          <a href="${c.latest_video_url}" target="_blank" class="btn btn-ghost btn-sm"><i class="fab fa-youtube"></i> Watch Video</a>
+      <div class="card" style="grid-column: ${c.upcoming_title ? 'span 1' : 'span 3'};">
+        <div class="card-label"><i class="fas fa-file-video"></i> Latest Video upload</div>
+        <div class="card-value" style="font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;" title="${escapeHtml(c.latest_video_title)}">${escapeHtml(c.latest_video_title)}</div>
+        <div style="margin-top: 14px;">
+          <a href="${c.latest_video_url}" target="_blank" class="btn btn-ghost btn-sm"><i class="fab fa-youtube"></i> Watch Latest Video</a>
         </div>
       </div>
       ` : ''}
@@ -1251,39 +1723,20 @@ async function loadYouTube() {
 
     const ev = document.getElementById('ytEvents');
     if (!data.events || !data.events.length) {
-      ev.innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No upload notifications posted yet. Configure your upload notify channel to begin.</div>`;
+      ev.innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No uploads posted recently. Upload notifications will appear here.</div>`;
     } else {
       ev.innerHTML = `<table class="table"><thead><tr>
-        <th>Time</th><th>Channel</th><th>Video</th><th>Target</th>
+        <th>Time Pushed</th><th>Source Account</th><th>Video Link</th><th>Destination</th>
         </tr></thead><tbody>${data.events.slice().reverse().map(e =>
-        `<tr><td class="mono">${e.time}</td><td>${escapeHtml(e.channel)}</td>
-         <td><a href="${e.url}" target="_blank" style="color: var(--brand-light); font-weight: 500;"><i class="fab fa-youtube" style="color:var(--yt)"></i> ${escapeHtml(e.video)}</a></td>
-         <td><span class="yt-badge" style="background:rgba(88,101,242,0.1); color:var(--brand-light)"><i class="fas fa-hashtag"></i> Discord</span></td></tr>`
+        `<tr><td class="mono" style="color:var(--text-muted)">${e.time}</td><td style="font-weight:600">${escapeHtml(e.channel)}</td>
+         <td><a href="${e.url}" target="_blank" style="color: var(--brand-light); font-weight: 600;"><i class="fab fa-youtube" style="color:var(--yt); margin-right:4px;"></i> ${escapeHtml(e.video)}</a></td>
+         <td><span class="yt-badge"><i class="fas fa-hashtag"></i> Discord Channel</span></td></tr>`
       ).join('')}</tbody></table>`;
     }
   } catch (e) { toast(e.message, 'error'); }
 }
 
-/* ===== BROADCAST ===== */
-async function sendBroadcast() {
-  const payload = {
-    channel_id: document.getElementById('bcChannel').value,
-    content: document.getElementById('bcContent').value,
-    embed: document.getElementById('bcEmbed').checked,
-  };
-  if (!payload.channel_id || !payload.content) return toast('Pick a channel and write a message', 'error');
-
-  const btn = document.getElementById('btnBroadcast');
-  btn.classList.add('loading');
-  try {
-    await api('/send-message', { method: 'POST', body: JSON.stringify(payload) });
-    toast('Message sent', 'success');
-    document.getElementById('bcContent').value = '';
-  } catch (e) { toast(e.message, 'error'); }
-  finally { btn.classList.remove('loading'); }
-}
-
-/* ===== PRESENCE ===== */
+/* ===== BOT PRESENCE PREVIEW & SIMULATOR ===== */
 async function loadPresenceTab() {
   await Promise.all([refreshPresenceLive(), loadPresenceEntries(), loadPresenceSettings()]);
 }
@@ -1300,11 +1753,109 @@ async function loadPresenceSettings() {
 
 async function refreshPresenceLive() {
   try {
-    const p = await api('/presence/current');
+    const [p, stats] = await Promise.all([api('/presence/current'), api('/stats')]);
+    
+    // Simple top header preview text
     document.getElementById('presLiveText').textContent = p.text || '(none)';
     const typeMap = { watching: '👁️ Watching', playing: '🎮 Playing', listening: '🎵 Listening', streaming: '📺 Streaming' };
     document.getElementById('presLiveType').textContent = typeMap[p.activity_type] || p.activity_type;
+    
+    // Update Discord Simulator Card in real-time!
+    updateDiscordSimulator(p, stats);
   } catch (e) { console.error(e); }
+}
+
+function updateDiscordSimulator(p, stats) {
+  const avatarEl = document.getElementById('simAvatar');
+  const nameEl = document.getElementById('simName');
+  const discEl = document.getElementById('simDisc');
+  const statusEl = document.getElementById('simStatus');
+  const customSec = document.getElementById('simCustomStatusSec');
+  const customText = document.getElementById('simCustomStatusText');
+  
+  const activitySec = document.getElementById('simActivitySec');
+  const activityHeader = document.getElementById('simActivityHeader');
+  const activityCard = document.getElementById('simActivityCard');
+  const activityIcon = document.getElementById('simActivityIcon');
+  const activityTitle = document.getElementById('simActivityTitle');
+  const activityDetails = document.getElementById('simActivityDetails');
+  const activityState = document.getElementById('simActivityState');
+  const activityBtn = document.getElementById('simActivityBtn');
+
+  if (!avatarEl) return;
+
+  // 1. Populate identity from Stats
+  if (stats && stats.bot_user) {
+    avatarEl.src = stats.bot_user.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+    nameEl.textContent = stats.bot_user.name || 'J4FN YOUTUBE';
+    discEl.textContent = stats.bot_user.discriminator ? `#${stats.bot_user.discriminator}` : '';
+    
+    // Status color class
+    statusEl.className = 'discord-status-dot';
+    const statusVal = stats.status || 'online';
+    statusEl.classList.add(statusVal);
+  } else {
+    avatarEl.src = 'https://cdn.discordapp.com/embed/avatars/0.png';
+    nameEl.textContent = 'J4FN YOUTUBE';
+    discEl.textContent = '#9210';
+    statusEl.className = 'discord-status-dot online';
+  }
+
+  // 2. Custom Status Box
+  if (p && p.text) {
+    customSec.classList.remove('hidden');
+    customText.textContent = p.text;
+    
+    // 3. Activity Box Details
+    activitySec.classList.remove('hidden');
+    activityCard.className = 'discord-activity';
+    
+    const activityHeadersMap = {
+      watching: 'WATCHING A VIDEO',
+      playing: 'PLAYING A GAME',
+      listening: 'LISTENING TO',
+      streaming: 'STREAMING LIVE'
+    };
+    
+    activityHeader.textContent = activityHeadersMap[p.activity_type] || 'PLAYING A GAME';
+
+    if (p.activity_type === 'streaming') {
+      activityCard.classList.add('streaming');
+      activityTitle.textContent = 'YouTube Live';
+      activityDetails.textContent = p.text;
+      activityState.textContent = 'Watch Stream';
+      activityIcon.innerHTML = '<i class="fab fa-youtube" style="font-size: 26px; color: #fff;"></i>';
+      
+      activityBtn.classList.remove('hidden');
+      activityBtn.href = p.url || (YT_CHANNEL_DATA ? YT_CHANNEL_DATA.url : 'https://youtube.com');
+      activityBtn.textContent = 'Watch Stream';
+    } else {
+      activityTitle.textContent = p.activity_type === 'listening' ? 'YouTube Music' : 'YouTube Status Bot';
+      activityDetails.textContent = p.text;
+      activityState.textContent = 'Tracking Status';
+      
+      if (p.activity_type === 'watching') {
+        activityIcon.innerHTML = '<i class="fab fa-youtube" style="font-size: 26px; color: #ef4444;"></i>';
+      } else if (p.activity_type === 'listening') {
+        activityIcon.innerHTML = '<i class="fas fa-headphones" style="font-size: 24px; color: #10b981;"></i>';
+      } else {
+        activityIcon.innerHTML = '<i class="fas fa-gamepad" style="font-size: 24px; color: #5865f2;"></i>';
+      }
+      activityBtn.classList.add('hidden');
+    }
+  } else {
+    // Idle fallback when bot active presence is empty
+    customSec.classList.add('hidden');
+    activitySec.classList.remove('hidden');
+    activityCard.className = 'discord-activity';
+    
+    activityHeader.textContent = 'PLAYING A GAME';
+    activityTitle.textContent = 'YouTube Status Bot';
+    activityDetails.textContent = 'Poller: Standby';
+    activityState.textContent = 'Status is Online';
+    activityIcon.innerHTML = '<i class="fas fa-robot" style="font-size: 24px; color: var(--text-muted);"></i>';
+    activityBtn.classList.add('hidden');
+  }
 }
 
 async function loadPresenceEntries() {
@@ -1312,7 +1863,7 @@ async function loadPresenceEntries() {
     const entries = await api('/presence/entries');
     const wrap = document.getElementById('presEntriesList');
     if (!entries.length) {
-      wrap.innerHTML = `<div class="empty"><i class="fas fa-layer-group"></i>No custom entries. The bot uses its default YouTube rotation.</div>`;
+      wrap.innerHTML = `<div class="empty"><i class="fas fa-layer-group"></i>No custom playlist entries. Defaulting to channel statistics.</div>`;
     } else {
       const iconMap = { watching: 'fa-eye', playing: 'fa-gamepad', listening: 'fa-headphones', streaming: 'fa-tv' };
       wrap.innerHTML = entries.map(e => `
@@ -1322,7 +1873,7 @@ async function loadPresenceEntries() {
             <div class="pe-text">${escapeHtml(e.text)}</div>
             <div class="pe-type">${e.activity_type}${e.url ? ' · ' + escapeHtml(e.url) : ''}</div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="removePresenceEntry(${e.id})" title="Remove">
+          <button class="btn btn-ghost btn-sm" onclick="removePresenceEntry(${e.id})" title="Wipe Entry">
             <i class="fas fa-xmark"></i>
           </button>
         </div>`).join('');
@@ -1334,14 +1885,14 @@ async function addPresenceEntry() {
   const text = document.getElementById('newPresText').value.trim();
   const activity_type = document.getElementById('newPresType').value;
   const url = document.getElementById('newPresUrl').value.trim();
-  if (!text) return toast('Enter presence text', 'error');
+  if (!text) return toast('Presence text string is required', 'error');
 
   try {
     await api('/presence/entries', {
       method: 'POST',
       body: JSON.stringify({ activity_type, text, url })
     });
-    toast('Presence entry added', 'success');
+    toast('Custom status added to rotation pool!', 'success');
     document.getElementById('newPresText').value = '';
     document.getElementById('newPresUrl').value = '';
     loadPresenceEntries();
@@ -1351,16 +1902,16 @@ async function addPresenceEntry() {
 async function removePresenceEntry(id) {
   try {
     await api(`/presence/entries/${id}`, { method: 'DELETE' });
-    toast('Entry removed', 'success');
+    toast('Rotation status entry deleted!', 'success');
     loadPresenceEntries();
   } catch (e) { toast(e.message, 'error'); }
 }
 
 async function clearPresenceEntries() {
-  if (!confirm('Remove all custom presence entries?')) return;
+  if (!confirm('Clear all custom rotation statuses?')) return;
   try {
     await api('/presence/entries/clear', { method: 'POST' });
-    toast('All entries cleared', 'success');
+    toast('Wiped all custom rotation entries!', 'success');
     loadPresenceEntries();
   } catch (e) { toast(e.message, 'error'); }
 }
@@ -1374,11 +1925,12 @@ async function savePresenceSettings() {
   };
   try {
     await api('/presence', { method: 'POST', body: JSON.stringify(payload) });
-    toast('Presence updated', 'success');
+    toast('Discord status override updated!', 'success');
+    refreshPresenceLive();
   } catch (e) { toast(e.message, 'error'); }
 }
 
-/* ===== CONFIG ===== */
+/* ===== CONFIGURATION OPTIONS ===== */
 async function loadConfig() {
   try {
     const c = await api('/config');
@@ -1392,7 +1944,7 @@ async function loadConfig() {
 async function saveConfig() {
   const payload = {
     PREFIX: document.getElementById('cfgPrefix').value || '$',
-    WELCOME_CHANNEL_ID: document.getElementById('cfgWelcome').value,
+    WELCOME_CHANNEL_ID: document.getElementById('cfgWelcome').value.trim(),
     YOUTUBE_CHANNEL_ID: document.getElementById('cfgYtChannel').value.trim(),
     YOUTUBE_NOTIFY_CHANNEL_ID: document.getElementById('cfgYtNotifyChannel').value.trim(),
   };
@@ -1406,7 +1958,7 @@ async function saveConfig() {
   try {
     const j = await api('/config', { method: 'POST', body: JSON.stringify(payload) });
     if (j.token) { TOKEN = j.token; localStorage.setItem('botToken', TOKEN); }
-    toast('Configuration saved', 'success');
+    toast('Configurations saved successfully!', 'success');
     document.getElementById('cfgYtKey').value = '';
     document.getElementById('cfgPassword').value = '';
     loadConfig();
@@ -1422,17 +1974,15 @@ async function testApiKey() {
   resultEl.style.display = 'none';
 
   if (!key) {
-    // Test the currently saved key
     try {
       const c = await api('/config');
       if (!c.YOUTUBE_API_KEY_SET) {
         resultEl.className = 'test-result err';
-        resultEl.textContent = 'No API key is currently configured. Enter one above.';
+        resultEl.textContent = 'No Google API key currently saved. Provide one above.';
         resultEl.style.display = 'block';
         return;
       }
     } catch (e) { /* ignore */ }
-    // Send empty to test saved key
   }
 
   const btn = document.getElementById('btnTestKey');
@@ -1454,15 +2004,15 @@ async function testApiKey() {
 }
 
 async function restartBot() {
-  if (!confirm('Restart the bot? This will disconnect briefly.')) return;
+  if (!confirm('Restart statistics polling connection? Briefly interrupts statuses.')) return;
   try {
     await api('/restart', { method: 'POST' });
-    toast('Restarting… page will reload in 5s.', 'success');
+    toast('Sent restart signal! Dashboard reloading in 5s.', 'success');
     setTimeout(() => location.reload(), 5000);
   } catch (e) { toast(e.message, 'error'); }
 }
 
-/* ===== LOGS ===== */
+/* ===== SYSTEM LOGGER ===== */
 async function loadLogs() {
   try {
     const logs = await api('/logs');
@@ -1477,7 +2027,7 @@ async function loadLogs() {
   } catch (e) { toast(e.message, 'error'); }
 }
 
-/* ===== UTILS ===== */
+/* ===== HTML STRING UTILS ===== */
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
@@ -1488,13 +2038,13 @@ function toast(msg, kind = 'info') {
   const icons = { success: 'circle-check', error: 'circle-exclamation', info: 'info-circle' };
   const t = document.createElement('div');
   t.className = `toast ${kind}`;
-  t.innerHTML = `<i class="fas fa-${icons[kind] || 'info-circle'}"></i><span>${escapeHtml(msg)}</span>`;
+  t.innerHTML = `<i class="fas fa-${icons[kind] || 'info-circle'}" style="color:${kind === 'success' ? 'var(--neon-green)' : (kind === 'error' ? 'var(--neon-red)' : 'var(--brand-light)')}"></i><span>${escapeHtml(msg)}</span>`;
   document.body.appendChild(t);
   setTimeout(() => {
     t.style.opacity = '0';
-    t.style.transition = 'opacity 0.3s';
-    setTimeout(() => t.remove(), 300);
-  }, 3500);
+    t.style.transition = 'opacity 0.4s';
+    setTimeout(() => t.remove(), 400);
+  }, 4000);
 }
 </script>
 </body>
