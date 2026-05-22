@@ -1191,6 +1191,93 @@ a:hover { color: var(--brand); }
           <div class="card-sub">Manage key in Configuration</div>
         </div>
       </div>
+
+      <div class="section-title" style="margin-top: 40px;"><i class="fab fa-discord" style="color: var(--brand-light);"></i> Bot Slash Commands Cheat Sheet</div>
+      <div class="card" style="padding: 24px; background: rgba(13, 17, 28, 0.35); border-color: rgba(88, 101, 242, 0.08);">
+        <div style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+          These are the official slash commands available in your Discord guilds. Type <code class="mono" style="color: var(--brand-light); font-weight: bold; background: rgba(88, 101, 242, 0.1); padding: 2px 6px; border-radius: 4px;">/</code> inside any server text channel to execute them!
+        </div>
+        <div class="grid g-3" style="gap: 20px;">
+          <!-- YouTube Commands -->
+          <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px;">
+            <h4 style="font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--yt-light); font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,0,51,0.08); padding-bottom: 8px;">
+              <i class="fab fa-youtube"></i> YouTube Feed
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/yt stats</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Lookup real-time subscriber and view statistics for any YouTube channel.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/yt link</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Retrieve the direct URL channel link of the configured primary account.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Information Commands -->
+          <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px;">
+            <h4 style="font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--brand-light); font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(88,101,242,0.08); padding-bottom: 8px;">
+              <i class="fas fa-circle-info"></i> Information
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/stats</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Show detailed statistics about the current guild server.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/userinfo</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Get account ages, roles, status, and joining dates for any user.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/avatar</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Enlarge and view high-quality profile picture for any member.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/servericon</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Display the server's primary animated or static guild icon.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/ping</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Measure and display the bot's WebSocket heartbeat latency.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/uptime</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Check precisely how long the statistics polling engine has been online.</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Fun & Utility Commands -->
+          <div style="background: rgba(0,0,0,0.15); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px;">
+            <h4 style="font-family: 'Outfit', sans-serif; font-size: 14.5px; color: var(--neon-purple); font-weight: 800; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1px solid rgba(139,92,246,0.08); padding-bottom: 8px;">
+              <i class="fas fa-gamepad"></i> Fun & Polls
+            </h4>
+            <div style="display: flex; flex-direction: column; gap: 10px; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/poll</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Create beautiful voting polls with up to 5 options for the community.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/roll</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Roll a random number generator dice (standard or custom sides).</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/flip</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Flip a classic 50/50 virtual coin (Heads or Tails).</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/8ball</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Ask the magical 8-ball any question to retrieve a cosmic prediction.</p>
+              </div>
+              <div>
+                <span class="mono" style="color: #fff; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.04); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.02);">/rps</span>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px; padding-left: 4px;">Play Rock, Paper, Scissors showdown directly against the bot.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ===== YOUTUBE TAB (CREATOR HUB) ===== -->
