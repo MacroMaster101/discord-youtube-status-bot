@@ -241,7 +241,7 @@ a{color:var(--brand-2);text-decoration:none}
           <div class="row">
             <div class="field"><label>Status</label><select id="pStatus"><option>online</option><option>idle</option><option>dnd</option><option>invisible</option></select></div>
             <div class="field"><label>Activity</label><select id="pActivity"><option>watching</option><option>playing</option><option>listening</option><option>streaming</option></select></div>
-            <div class="field flex-1"><label>Text (vars: {total_members}, {online_members}, {server_count}, {prefix})</label><input id="pText" placeholder="{total_members} members" /></div>
+            <div class="field flex-1"><label>Text (vars: {server_count}, {yt_subs}, {prefix})</label><input id="pText" placeholder="📺 {yt_subs} YT channels" /></div>
             <div class="field"><label><input type="checkbox" id="pRotation" checked /> Rotate</label></div>
             <div class="field"><label>&nbsp;</label><button class="btn brand" onclick="savePresence()"><i class="fas fa-check"></i> Apply</button></div>
           </div>

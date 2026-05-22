@@ -1,4 +1,5 @@
-"""Rotating bot presence. Cycles between server stats and YouTube subscription count."""
+"""Rotating bot presence — YouTube-focused. Cycles through tracked YT channel names
+and a few static YT-themed statuses. No member/presence intents needed."""
 import discord
 from discord.ext import tasks
 from core import state, storage
@@ -18,34 +19,39 @@ _ACT_MAP = {
 }
 
 
+def _build_statuses():
+    """Build the rotation: tracked YT channels first, then a few static fillers."""
+    statuses = []
+    seen = set()
+    for subs in storage.yt_list_all().values():
+        for s in subs:
+            title = s.get("yt_channel_title")
+            if title and title not in seen:
+                seen.add(title)
+                statuses.append((discord.ActivityType.watching, f"📺 {title}"))
+
+    total = len(seen)
+    if total:
+        statuses.append((discord.ActivityType.watching, f"📺 {total} YT channel{'s' if total != 1 else ''}"))
+    else:
+        statuses.append((discord.ActivityType.watching, "📺 /yt subscribe to start"))
+
+    statuses.append((discord.ActivityType.playing, "/help · YouTube tracker"))
+    return statuses
+
+
 def start_presence(client: discord.Client):
     @tasks.loop(seconds=20)
     async def rotate():
         if not state.PRESENCE_ROTATION_ENABLED:
             return
-        total_members = sum(g.member_count for g in client.guilds)
-        total_online = sum(
-            1 for g in client.guilds for m in g.members
-            if m.status != discord.Status.offline and not m.bot
-        )
-        server_count = len(client.guilds)
-        yt_subs = storage.yt_total_subscriptions()
-
-        statuses = [
-            (discord.ActivityType.watching, f"👥 {total_members:,} members"),
-            (discord.ActivityType.watching, f"🟢 {total_online:,} online"),
-            (discord.ActivityType.watching, f"🌐 {server_count} server{'s' if server_count != 1 else ''}"),
-        ]
-        if yt_subs:
-            statuses.append((discord.ActivityType.watching, f"📺 {yt_subs} YT channel{'s' if yt_subs != 1 else ''}"))
-        statuses.append((discord.ActivityType.playing, "/help | Moderating 🛡️"))
-
+        statuses = _build_statuses()
         if not hasattr(rotate, "_index"):
             rotate._index = 0
         idx = rotate._index % len(statuses)
         rotate._index += 1
         activity_type, text = statuses[idx]
-        activity = discord.Activity(type=activity_type, name=text)
+        activity = discord.Activity(type=activity_type, name=text[:128])
         status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
         try:
             await client.change_presence(status=status, activity=activity)
@@ -58,25 +64,19 @@ def start_presence(client: discord.Client):
 
     if not rotate.is_running():
         rotate.start()
-    # Expose for manual triggers from the web API
     client._rotate_task = rotate
 
 
 async def force_presence(client: discord.Client, status: str, activity: str, text: str, prefix: str):
     act_type = _ACT_MAP.get(activity, discord.ActivityType.watching)
-    total_members = sum(g.member_count for g in client.guilds) if client.guilds else 0
-    online_members = sum(
-        1 for g in client.guilds for m in g.members
-        if m.status != discord.Status.offline and not m.bot
-    )
     server_count = len(client.guilds)
+    yt_subs = storage.yt_total_subscriptions()
     formatted = text.format(
-        total_members=f"{total_members:,}",
-        online_members=f"{online_members:,}",
         server_count=server_count,
+        yt_subs=yt_subs,
         prefix=prefix,
-    ) if text else "/help"
-    activity_obj = discord.Activity(type=act_type, name=formatted)
+    ) if text else "📺 YouTube tracker"
+    activity_obj = discord.Activity(type=act_type, name=formatted[:128])
     await client.change_presence(
         status=_STATUS_MAP.get(status, discord.Status.online),
         activity=activity_obj,
