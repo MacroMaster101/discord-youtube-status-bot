@@ -58,6 +58,7 @@ def get_config():
         "WELCOME_CHANNEL_ID": Config.WELCOME_CHANNEL_ID or "",
         "YOUTUBE_API_KEY_SET": bool(Config.YOUTUBE_API_KEY),
         "YOUTUBE_CHANNEL_ID": Config.YOUTUBE_CHANNEL_ID or "",
+        "YOUTUBE_NOTIFY_CHANNEL_ID": Config.YOUTUBE_NOTIFY_CHANNEL_ID or "",
         "YOUTUBE_POLL_INTERVAL": Config.YOUTUBE_POLL_INTERVAL,
     })
 
@@ -67,7 +68,7 @@ def get_config():
 def set_config():
     data = request.get_json() or {}
     try:
-        for key in ("PREFIX", "WELCOME_CHANNEL_ID"):
+        for key in ("PREFIX", "WELCOME_CHANNEL_ID", "YOUTUBE_NOTIFY_CHANNEL_ID"):
             if key in data:
                 Config.update_env(key, str(data[key]))
         if data.get("ADMIN_PASSWORD"):

@@ -116,75 +116,76 @@ def _build_activity(activity_type: str, text: str, url: str | None):
 def _pick(client: discord.Client):
     """Return (activity, preview_dict) for the next rotation tick."""
     cache = state.YT_CHANNEL_CACHE
+    from config import Config
 
-    # 1. Live streams take top priority. Show channel and stream title: 🔴 LIVE: {title} — {live_title}
-    live = [(cid, info) for cid, info in cache.items() if info.get("live_url")]
-    if live:
-        if not hasattr(_pick, "_live_idx"):
-            _pick._live_idx = 0
-        idx = _pick._live_idx % len(live)
-        _pick._live_idx += 1
-        _, info = live[idx]
-        text = _format_status_text("🔴 LIVE: {title} — {live_title}", client, info)
-        return (_build_activity("streaming", text, info["live_url"]),
-                {"activity_type": "streaming", "text": text, "url": info["live_url"]})
+    channel_info = None
+    if Config.YOUTUBE_CHANNEL_ID:
+        channel_info = cache.get(Config.YOUTUBE_CHANNEL_ID)
+    if not channel_info and cache:
+        channel_info = list(cache.values())[0]
 
-    # 2. Custom entries from the dashboard.
+    # Build rotation items
+    rotation_items = []
+
+    if channel_info:
+        # Static default entries:
+        rotation_items.append({
+            "activity_type": "streaming",
+            "text": "📺 {title} · {subs} subs",
+            "url": channel_info["url"],
+            "channel_info": channel_info
+        })
+        rotation_items.append({
+            "activity_type": "streaming",
+            "text": "📺 {title} · {views} views",
+            "url": channel_info["url"],
+            "channel_info": channel_info
+        })
+        rotation_items.append({
+            "activity_type": "streaming",
+            "text": "📺 {title} · {videos} videos",
+            "url": channel_info["url"],
+            "channel_info": channel_info
+        })
+        if channel_info.get("live_url"):
+            rotation_items.append({
+                "activity_type": "streaming",
+                "text": "🔴 LIVE: {title} — {live_title}",
+                "url": channel_info["live_url"],
+                "channel_info": channel_info
+            })
+
+    # Custom entries from the dashboard
     custom = storage.presence_list()
-    if custom:
-        if not hasattr(_pick, "_cust_idx"):
-            _pick._cust_idx = 0
-        idx = _pick._cust_idx % len(custom)
-        _pick._cust_idx += 1
-        e = custom[idx]
-        text = e["text"] or ""
+    for e in custom:
+        rotation_items.append({
+            "activity_type": e["activity_type"],
+            "text": e["text"],
+            "url": e.get("url"),
+            "channel_info": channel_info
+        })
 
-        # Select active rotating channel for context, cycling through them
-        channel_info = None
-        if cache:
-            items = list(cache.values())
-            if not hasattr(_pick, "_cust_chan_idx"):
-                _pick._cust_chan_idx = 0
-            chan_idx = _pick._cust_chan_idx % len(items)
-            _pick._cust_chan_idx += 1
-            channel_info = items[chan_idx]
+    # Empty fallback
+    if not rotation_items:
+        status_text = "📺 Setup YouTube Bot in Dashboard"
+        return (_build_activity("watching", status_text, None),
+                {"activity_type": "watching", "text": status_text, "url": None})
 
-        formatted = _format_status_text(text, client, channel_info)
-        return (_build_activity(e["activity_type"], formatted, e.get("url")),
-                {"activity_type": e["activity_type"], "text": formatted, "url": e.get("url")})
+    # Cycle through the rotation items
+    if not hasattr(_pick, "_idx"):
+        _pick._idx = 0
+    idx = _pick._idx % len(rotation_items)
+    _pick._idx += 1
 
-    # 3. YT channel rotation. Cycles through 3 variants per channel + 1 global summary at the end.
-    if cache:
-        items = list(cache.items())
-        if not hasattr(_pick, "_idx"):
-            _pick._idx = 0
-        total_variants = len(items) * 3
-        idx = _pick._idx % (total_variants + 1)
-        _pick._idx += 1
+    item = rotation_items[idx]
+    formatted = _format_status_text(item["text"], client, item["channel_info"])
+    
+    url = item.get("url")
+    if item["activity_type"] == "streaming" and not url:
+        url = "https://www.youtube.com"
 
-        if idx < total_variants:
-            channel_idx = idx // 3
-            variant_idx = idx % 3
-            _, info = items[channel_idx]
-            if variant_idx == 0:
-                text = _format_status_text("📺 {title} · {subs} subs", client, info)
-            elif variant_idx == 1:
-                text = _format_status_text("📺 {title} · {views} views", client, info)
-            else:
-                text = _format_status_text("📺 {title} · {videos} videos", client, info)
-
-            return (_build_activity("streaming", text, info["url"]),
-                    {"activity_type": "streaming", "text": text, "url": info["url"]})
-
-        total = len(items)
-        text = f"📺 {total} YT channel{'s' if total != 1 else ''}"
-        return (_build_activity("watching", text, None),
-                {"activity_type": "watching", "text": text, "url": None})
-
-    # 4. Empty fallback.
-    text = "📺 /yt subscribe to start"
-    return (_build_activity("watching", text, None),
-            {"activity_type": "watching", "text": text, "url": None})
+    return (_build_activity(item["activity_type"], formatted, url),
+            {"activity_type": item["activity_type"], "text": formatted, "url": url})
 
 
 def start_presence(client: discord.Client):

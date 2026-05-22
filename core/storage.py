@@ -76,7 +76,7 @@ def yt_update_last_video(guild_id, discord_channel_id, yt_channel_id, video_id):
 
 
 def yt_total_subscriptions() -> int:
-    return sum(len(v) for v in yt_list_all().values())
+    return 1 if Config.YOUTUBE_CHANNEL_ID else 0
 
 
 # -------- Custom presence rotation entries --------

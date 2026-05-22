@@ -20,6 +20,8 @@ class Config:
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
     YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
     YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "")
+    YOUTUBE_NOTIFY_CHANNEL_ID = os.getenv("YOUTUBE_NOTIFY_CHANNEL_ID", "")
+    YOUTUBE_LAST_VIDEO_ID = os.getenv("YOUTUBE_LAST_VIDEO_ID", "")
     YOUTUBE_POLL_INTERVAL = int(os.getenv("YOUTUBE_POLL_INTERVAL", "300"))
     PORT = int(os.getenv("PORT", "8080"))
 
