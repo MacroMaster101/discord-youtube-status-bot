@@ -91,16 +91,67 @@ class Info(commands.Cog):
         embed.set_image(url=guild.icon.with_size(1024).url)
         await ctx.send(embed=embed)
 
-    @commands.command(name="help", help="List all bot commands")
+    @commands.command(name="help", help="Show this detailed help menu")
     async def help(self, ctx: commands.Context):
-        p = Config.PREFIX
-        embed = discord.Embed(title="📖 Bot Commands", color=0xFF0000,
-                              timestamp=datetime.datetime.utcnow())
-        embed.add_field(name="📺 YouTube", value=(
-            f"`{p}yt stats` — Show subscriber & view counts for any channel\n"
-            f"`{p}yt link` — Get the direct link of the primary YouTube channel"
-        ), inline=False)
-        embed.add_field(name="📊 Info", value=(
-            f"`{p}stats` `{p}userinfo` `{p}avatar` `{p}servericon` `{p}ping` `{p}uptime`"
-        ), inline=False)
+        p = Config.PREFIX or "$"
+        
+        embed = discord.Embed(
+            title="✨ J4FN Bot Help Menu",
+            description=(
+                f"Welcome to the **J4FN YouTube Status Bot**! "
+                f"Use the prefix **`{p}`** before each command.\n\n"
+                f"Here is a detailed list of all available commands and their parameters:"
+            ),
+            color=0xFF0000,
+            timestamp=datetime.datetime.utcnow()
+        )
+        
+        if self.bot.user:
+            embed.set_thumbnail(url=self.bot.user.display_avatar.url)
+            
+        embed.add_field(
+            name="📺 YouTube Status Tracking",
+            value=(
+                f"• **`{p}yt stats [channel]`**\n"
+                f"  └ *Show subscriber & view counts, video count, and latest video.*\n"
+                f"  └ *Example:* `{p}yt stats` or `{p}yt stats PewDiePie`\n"
+                f"• **`{p}yt link`**\n"
+                f"  └ *Get the direct link of the primary YouTube channel configured.*"
+            ),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📊 Information & Utility",
+            value=(
+                f"• **`{p}stats`**\n"
+                f"  └ *Show detailed server statistics and tracked YouTube channels.*\n"
+                f"• **`{p}userinfo [member]`**\n"
+                f"  └ *Display detailed information about a server member.*\n"
+                f"  └ *Example:* `{p}userinfo` or `{p}userinfo @member`\n"
+                f"• **`{p}avatar [member]`**\n"
+                f"  └ *Display and download the high-resolution avatar of a member.*\n"
+                f"  └ *Example:* `{p}avatar @member`\n"
+                f"• **`{p}servericon`**\n"
+                f"  └ *Show the high-resolution icon of this server.*"
+            ),
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🛠️ Bot System Commands",
+            value=(
+                f"• **`{p}ping`**\n"
+                f"  └ *Check the bot latency / response speed.*\n"
+                f"• **`{p}uptime`**\n"
+                f"  └ *Show how long the bot has been online.*"
+            ),
+            inline=False
+        )
+        
+        embed.set_footer(
+            text=f"Requested by {ctx.author.name} | Use the dashboard to configure settings!",
+            icon_url=ctx.author.display_avatar.url
+        )
+        
         await ctx.send(embed=embed)

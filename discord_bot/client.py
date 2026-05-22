@@ -26,6 +26,15 @@ def build_bot() -> commands.Bot:
         state.set_start_time()
         state.add_log(f"Logged in as {bot.user} (ID: {bot.user.id})", "success")
         state.add_log(f"Serving {len(bot.guilds)} server(s)", "info")
+        
+        # Clear registered global slash commands from Discord so the {/} badge is removed
+        try:
+            bot.tree.clear(guild=None)
+            await bot.tree.sync()
+            state.add_log("Cleared globally registered slash commands from Discord API", "success")
+        except Exception as e:
+            state.add_log(f"Failed to clear global slash commands: {e}", "warning")
+
         # Prefix commands do not need slash tree syncing
         state.add_log("Prefix commands active", "success")
         # Eagerly fetch default channel stats on startup if configured

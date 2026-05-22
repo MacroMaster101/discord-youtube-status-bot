@@ -177,6 +177,14 @@ def _pick(client: discord.Client):
                 "channel_info": channel_info
             })
 
+    # Add help command reminder to rotation (always present)
+    rotation_items.append({
+        "activity_type": "watching",
+        "text": "💡 Type {prefix}help for commands",
+        "url": None,
+        "channel_info": channel_info
+    })
+
     # Custom entries from the dashboard
     custom = storage.presence_list()
     for e in custom:
