@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bot Control Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg:#0b0d12; --bg-2:#11141c; --panel:#161a26; --panel-2:#1c2130;
+  --border:#262b3b; --border-2:#323a52;
+  --text:#e7eaf3; --text-2:#9aa3b8; --muted:#5a6478;
+  --brand:#5865F2; --brand-2:#7983ff; --brand-glow:rgba(88,101,242,.35);
+  --yt:#ff0033; --yt-2:#ff3355;
+  --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
+  --r-lg:14px; --r-md:10px; --r-sm:6px;
+  --shadow:0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(at 10% -10%, rgba(88,101,242,.12), transparent 50%),
+    radial-gradient(at 90% 110%, rgba(255,0,51,.08), transparent 50%);
+  min-height:100vh;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand-2);text-decoration:none}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ---------- Login ---------- */
+.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+.login{
+  width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);
+  border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow);
+}
+.login h1{font-size:22px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.login p{color:var(--text-2);font-size:13px;margin-bottom:22px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12px;color:var(--text-2);font-weight:500}
+.field input,.field select,.field textarea{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:10px 12px;outline:none;transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-glow);
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 16px;border-radius:var(--r-md);border:1px solid transparent;
+  background:var(--brand);color:#fff;font-weight:600;cursor:pointer;
+  transition:background .15s,transform .05s;
+}
+.btn:hover{background:var(--brand-2)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;border-color:var(--border-2);color:var(--text)}
+.btn.ghost:hover{background:var(--panel-2)}
+.btn.danger{background:var(--err)}
+.btn.danger:hover{background:#dc2626}
+.btn.yt{background:var(--yt)}
+.btn.yt:hover{background:var(--yt-2)}
+.btn.sm{padding:6px 10px;font-size:12px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+
+/* ---------- App layout ---------- */
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{
+  background:rgba(17,20,28,.85);backdrop-filter:blur(8px);
+  border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:4px;
+  position:sticky;top:0;height:100vh;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.brand-logo{
+  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--brand),var(--yt));color:#fff;font-weight:700;
+  box-shadow:0 6px 16px rgba(88,101,242,.45);
+}
+.brand-name{font-weight:700;font-size:15px;letter-spacing:.2px}
+.brand-sub{font-size:11px;color:var(--text-2)}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);
+  color:var(--text-2);cursor:pointer;font-size:14px;transition:background .15s,color .15s;
+}
+.nav-item:hover{background:var(--panel);color:var(--text)}
+.nav-item.active{background:var(--brand);color:#fff;box-shadow:0 4px 14px var(--brand-glow)}
+.nav-item i{width:18px;text-align:center}
+.nav-spacer{flex:1}
+.sidebar-foot{padding:10px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+
+.main{padding:24px 32px 60px;overflow-x:hidden;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.topbar h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+.topbar h1 i{color:var(--brand)}
+.user-chip{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;background:var(--panel);border:1px solid var(--border);border-radius:99px}
+.user-chip img{width:28px;height:28px;border-radius:50%}
+.user-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+
+/* ---------- Cards & grids ---------- */
+.grid{display:grid;gap:16px}
+.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+.grid.cols-3{grid-template-columns:repeat(3,1fr)}
+.grid.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:1100px){.grid.cols-4{grid-template-columns:repeat(2,1fr)} .grid.cols-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:720px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;flex-direction:row;overflow-x:auto}.brand{display:none}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.main{padding:18px}}
+
+.card{
+  background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:18px;transition:border-color .15s,transform .15s;
+}
+.card:hover{border-color:var(--border-2)}
+.card h3{font-size:13px;color:var(--text-2);font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.stat-value{font-size:28px;font-weight:700;letter-spacing:-.5px}
+.stat-sub{font-size:12px;color:var(--text-2);margin-top:4px}
+
+.section-title{font-size:14px;font-weight:600;color:var(--text-2);margin:24px 0 12px;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.panel-head h3{font-size:14px;font-weight:600}
+.panel-body{padding:16px 18px}
+
+/* ---------- Logs / tables ---------- */
+.log-list{font-family:'JetBrains Mono',monospace;font-size:12px;max-height:480px;overflow-y:auto;background:var(--bg);border-radius:var(--r-md);padding:10px}
+.log-row{display:flex;gap:10px;padding:4px 6px;border-radius:4px}
+.log-row:hover{background:var(--panel-2)}
+.log-row .ts{color:var(--muted);min-width:62px}
+.log-row .lvl{min-width:62px;text-transform:uppercase;font-weight:600;font-size:10px;padding:2px 6px;border-radius:4px;text-align:center;height:fit-content;margin-top:1px}
+.log-row.info .lvl{background:rgba(88,101,242,.15);color:var(--brand-2)}
+.log-row.success .lvl{background:rgba(34,197,94,.15);color:#4ade80}
+.log-row.warning .lvl{background:rgba(245,158,11,.15);color:#fbbf24}
+.log-row.error .lvl{background:rgba(239,68,68,.15);color:#f87171}
+.log-row .msg{flex:1;word-break:break-word}
+
+.table{width:100%;border-collapse:collapse;font-size:13px}
+.table th,.table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.table th{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.table tr:hover td{background:var(--panel-2)}
+
+/* ---------- YouTube cards ---------- */
+.yt-card{display:flex;gap:14px;padding:14px;background:var(--panel-2);border:1px solid var(--border);border-radius:var(--r-md);align-items:center}
+.yt-card img{width:56px;height:56px;border-radius:50%;background:var(--bg);object-fit:cover;flex-shrink:0}
+.yt-card .yt-info{flex:1;min-width:0}
+.yt-card .yt-title{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
+.yt-card .yt-meta{font-size:12px;color:var(--text-2);margin-top:2px}
+.yt-badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--yt);color:#fff;font-weight:600}
+
+.empty{text-align:center;padding:40px 20px;color:var(--text-2);font-size:13px}
+.empty i{font-size:36px;display:block;margin-bottom:10px;color:var(--muted)}
+
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.flex-1{flex:1;min-width:200px}
+
+.toast{
+  position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--border);
+  padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:10px;animation:slidein .25s ease;
+  border-left:3px solid var(--brand);min-width:240px;z-index:1000;
+}
+.toast.success{border-left-color:var(--ok)}
+.toast.error{border-left-color:var(--err)}
+@keyframes slidein{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.hidden{display:none !important}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- ================ LOGIN ================ -->
+<div id="loginScreen" class="login-wrap">
+  <form class="login" onsubmit="event.preventDefault();login()">
+    <h1><span class="brand-logo">⚡</span> Bot Panel</h1>
+    <p>Sign in with your admin password to control the bot.</p>
+    <div class="field">
+      <label>Password</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
+    </div>
+    <button class="btn" style="width:100%" type="submit"><i class="fas fa-arrow-right-to-bracket"></i> Sign in</button>
+    <p id="loginError" style="color:var(--err);margin-top:12px;font-size:12px;text-align:center" class="hidden"></p>
+  </form>
+</div>
+
+<!-- ================ APP ================ -->
+<div id="appScreen" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">⚡</div>
+      <div>
+        <div class="brand-name">Bot Panel</div>
+        <div class="brand-sub">Control center</div>
+      </div>
+    </div>
+    <div class="nav-item active" data-tab="dashboard"><i class="fas fa-gauge-high"></i> Dashboard</div>
+    <div class="nav-item" data-tab="youtube"><i class="fab fa-youtube"></i> YouTube</div>
+    <div class="nav-item" data-tab="moderation"><i class="fas fa-shield-halved"></i> Moderation</div>
+    <div class="nav-item" data-tab="broadcast"><i class="fas fa-bullhorn"></i> Broadcast</div>
+    <div class="nav-item" data-tab="presence"><i class="fas fa-circle-user"></i> Presence</div>
+    <div class="nav-item" data-tab="config"><i class="fas fa-sliders"></i> Configuration</div>
+    <div class="nav-item" data-tab="logs"><i class="fas fa-terminal"></i> Logs</div>
+    <div class="nav-spacer"></div>
+    <div class="nav-item" onclick="logout()" style="color:var(--err)"><i class="fas fa-arrow-right-from-bracket"></i> Logout</div>
+    <div class="sidebar-foot">v2.0 · YouTube + Mod</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <h1 id="pageTitle"><i class="fas fa-gauge-high"></i> Dashboard</h1>
+      <div class="user-chip" id="botChip">
+        <img id="botAvatar" src="" alt="" />
+        <span id="botName">Loading…</span>
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <section class="tab" id="tab-dashboard">
+      <div class="grid cols-4">
+        <div class="card"><h3><i class="fas fa-server"></i> Servers</h3><div class="stat-value" id="s-servers">—</div></div>
+        <div class="card"><h3><i class="fas fa-users"></i> Members</h3><div class="stat-value" id="s-members">—</div><div class="stat-sub" id="s-online">— online</div></div>
+        <div class="card"><h3><i class="fas fa-clock"></i> Uptime</h3><div class="stat-value" id="s-uptime" style="font-size:20px">—</div></div>
+        <div class="card"><h3><i class="fas fa-bolt"></i> Latency</h3><div class="stat-value" id="s-latency">—</div></div>
+      </div>
+      <div class="section-title"><i class="fab fa-youtube" style="color:var(--yt)"></i> YouTube</div>
+      <div class="grid cols-3">
+        <div class="card"><h3>Tracked channels</h3><div class="stat-value" id="s-yt-tracked">—</div></div>
+        <div class="card"><h3>Recent uploads posted</h3><div class="stat-value" id="s-yt-events">—</div></div>
+        <div class="card"><h3>API key</h3><div class="stat-value" id="s-yt-key" style="font-size:18px">—</div><div class="stat-sub">Set in Configuration tab</div></div>
+      </div>
+      <div class="section-title"><i class="fas fa-shield-halved"></i> Moderation</div>
+      <div class="grid cols-2">
+        <div class="card"><h3>Active warnings</h3><div class="stat-value" id="s-warnings">—</div></div>
+        <div class="card"><h3>Recent actions</h3><div class="stat-value" id="s-modactions">—</div></div>
+      </div>
+    </section>
+
+    <!-- YouTube -->
+    <section class="tab hidden" id="tab-youtube">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-plus"></i> Subscribe to a YouTube channel</h3></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field flex-1"><label>YouTube channel (URL, @handle, or channel ID)</label>
+              <input id="ytQuery" placeholder="@MrBeast or https://youtube.com/@MrBeast" /></div>
+            <div class="field"><label>Discord server</label>
+              <select id="ytGuild" onchange="renderYtChannelOptions()"></select></div>
+            <div class="field"><label>Post in channel</label>
+              <select id="ytChannel"></select></div>
+            <div class="field"><label>&nbsp;</label>
+              <button class="btn yt" onclick="ytSubscribe()"><i class="fab fa-youtube"></i> Subscribe</button></div>
+          </div>
+          <div id="ytPreview" class="hidden" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Tracked channels</div>
+      <div id="ytSubsList" class="grid cols-2"></div>
+
+      <div class="section-title">Recent uploads posted</div>
+      <div class="panel"><div class="panel-body" id="ytEvents"></div></div>
+    </section>
+
+    <!-- Moderation -->
+    <section class="tab hidden" id="tab-moderation">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-gavel"></i> Issue action</h3></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field"><label>Server</label><select id="modGuild"></select></div>
+            <div class="field flex-1"><label>User ID</label><input id="modUserId" placeholder="123456789012345678" /></div>
+            <div class="field"><label>Action</label>
+              <select id="modAction">
+                <option value="warn">Warn</option><option value="kick">Kick</option>
+                <option value="ban">Ban</option><option value="unban">Unban</option>
+                <option value="timeout">Timeout</option><option value="untimeout">Remove timeout</option>
+                <option value="clear_warnings">Clear warnings</option>
+              </select></div>
+            <div class="field"><label>Duration (min)</label><input id="modDuration" type="number" value="10" min="1" /></div>
+            <div class="field flex-1"><label>Reason</label><input id="modReason" placeholder="Reason" /></div>
+            <div class="field"><label>&nbsp;</label><button class="btn danger" onclick="runModAction()"><i class="fas fa-bolt"></i> Run</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="section-title">Active warnings (per server)</div>
+      <div class="row" style="margin-bottom:10px">
+        <select id="warnGuild" onchange="loadWarnings()" style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:8px 12px"></select>
+      </div>
+      <div class="panel"><div class="panel-body" id="warnList"></div></div>
+      <div class="section-title">Recent mod actions</div>
+      <div class="panel"><div class="panel-body" id="modActions"></div></div>
+    </section>
+
+    <!-- Broadcast -->
+    <section class="tab hidden" id="tab-broadcast">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-bullhorn"></i> Send a message</h3></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field"><label>Server</label><select id="bcGuild" onchange="renderBcChannelOptions()"></select></div>
+            <div class="field flex-1"><label>Channel</label><select id="bcChannel"></select></div>
+            <div class="field"><label><input type="checkbox" id="bcEmbed" /> Use embed</label></div>
+          </div>
+          <div class="field"><label>Message</label><textarea id="bcContent" rows="5" placeholder="Your announcement…" style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;resize:vertical"></textarea></div>
+          <button class="btn" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Presence -->
+    <section class="tab hidden" id="tab-presence">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-circle-user"></i> Bot presence</h3></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="field"><label>Status</label><select id="pStatus"><option>online</option><option>idle</option><option>dnd</option><option>invisible</option></select></div>
+            <div class="field"><label>Activity</label><select id="pActivity"><option>watching</option><option>playing</option><option>listening</option><option>streaming</option></select></div>
+            <div class="field flex-1"><label>Text (vars: {total_members}, {online_members}, {server_count}, {prefix})</label><input id="pText" placeholder="{total_members} members" /></div>
+            <div class="field"><label><input type="checkbox" id="pRotation" checked /> Rotate</label></div>
+            <div class="field"><label>&nbsp;</label><button class="btn" onclick="savePresence()"><i class="fas fa-check"></i> Apply</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Config -->
+    <section class="tab hidden" id="tab-config">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-sliders"></i> Configuration</h3></div>
+        <div class="panel-body">
+          <div class="grid cols-2">
+            <div class="field"><label>Prefix (legacy)</label><input id="cfgPrefix" /></div>
+            <div class="field"><label>Welcome channel ID</label><input id="cfgWelcome" /></div>
+            <div class="field"><label>Mod-log channel ID</label><input id="cfgModLog" /></div>
+            <div class="field"><label>Muted role name</label><input id="cfgMutedRole" /></div>
+            <div class="field"><label>YouTube API key</label><input id="cfgYtKey" type="password" placeholder="leave blank to keep existing" /></div>
+            <div class="field"><label>New admin password (optional)</label><input id="cfgPassword" type="password" /></div>
+          </div>
+          <div class="row" style="margin-top:14px">
+            <button class="btn" onclick="saveConfig()"><i class="fas fa-floppy-disk"></i> Save</button>
+            <button class="btn danger ghost" onclick="restartBot()"><i class="fas fa-power-off"></i> Restart bot</button>
+            <span id="cfgYtStatus" class="mono" style="color:var(--text-2);font-size:12px"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Logs -->
+    <section class="tab hidden" id="tab-logs">
+      <div class="panel">
+        <div class="panel-head"><h3><i class="fas fa-terminal"></i> Live logs</h3>
+          <button class="btn ghost sm" onclick="loadLogs()"><i class="fas fa-rotate"></i> Refresh</button></div>
+        <div class="panel-body"><div id="logList" class="log-list"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const API = '/api';
+let TOKEN = localStorage.getItem('botToken') || '';
+let SERVERS = [];
+let CURRENT_TAB = 'dashboard';
+let pollTimer = null;
+
+// ---------- Init ----------
+window.addEventListener('DOMContentLoaded', () => {
+  if (TOKEN) bootApp();
+  document.querySelectorAll('.nav-item[data-tab]').forEach(el => {
+    el.addEventListener('click', () => switchTab(el.dataset.tab));
+  });
+});
+
+// ---------- Auth ----------
+async function login(){
+  const pw = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginError');
+  err.classList.add('hidden');
+  try{
+    const r = await fetch(`${API}/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    if(!r.ok) throw new Error('Invalid password');
+    const j = await r.json();
+    TOKEN = j.token;
+    localStorage.setItem('botToken', TOKEN);
+    bootApp();
+  }catch(e){err.textContent = e.message; err.classList.remove('hidden');}
+}
+function logout(){TOKEN=''; localStorage.removeItem('botToken'); location.reload();}
+
+function api(path, opts={}){
+  return fetch(`${API}${path}`, {
+    ...opts,
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${TOKEN}`, ...(opts.headers||{})}
+  }).then(async r => {
+    if(r.status === 401){logout(); throw new Error('Session expired');}
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
+    return j;
+  });
+}
+
+function bootApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  refreshAll();
+  loadConfig();
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(refreshAll, 5000);
+}
+
+// ---------- Tabs ----------
+function switchTab(tab){
+  CURRENT_TAB = tab;
+  document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.toggle('active', el.dataset.tab===tab));
+  document.querySelectorAll('.tab').forEach(el => el.classList.add('hidden'));
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  const titles = {dashboard:['fa-gauge-high','Dashboard'],youtube:['fa-youtube','YouTube Tracker'],moderation:['fa-shield-halved','Moderation'],broadcast:['fa-bullhorn','Broadcast'],presence:['fa-circle-user','Bot Presence'],config:['fa-sliders','Configuration'],logs:['fa-terminal','Logs']};
+  const [icon,title] = titles[tab];
+  const i = tab==='youtube' ? 'fab fa-youtube' : `fas ${icon}`;
+  document.getElementById('pageTitle').innerHTML = `<i class="${i}"></i> ${title}`;
+  if(tab==='youtube') loadYouTube();
+  if(tab==='moderation') loadModeration();
+  if(tab==='logs') loadLogs();
+}
+
+// ---------- Refresh ----------
+async function refreshAll(){
+  try{
+    const [stats, servers] = await Promise.all([api('/stats'), api('/servers')]);
+    SERVERS = servers;
+    renderStats(stats);
+    renderServerOptions();
+    if(CURRENT_TAB==='youtube') loadYouTube();
+    if(CURRENT_TAB==='moderation') loadModeration();
+    if(CURRENT_TAB==='logs') loadLogs();
+  }catch(e){console.error(e);}
+}
+
+function renderStats(s){
+  document.getElementById('s-servers').textContent = s.server_count;
+  document.getElementById('s-members').textContent = s.total_members.toLocaleString();
+  document.getElementById('s-online').textContent = `${s.online_members.toLocaleString()} online`;
+  document.getElementById('s-uptime').textContent = s.uptime;
+  document.getElementById('s-latency').textContent = `${s.latency}ms`;
+  document.getElementById('s-yt-tracked').textContent = s.youtube.tracked_channels;
+  document.getElementById('s-yt-events').textContent = s.youtube.recent_events;
+  document.getElementById('s-yt-key').textContent = s.youtube.api_configured ? '✓ Configured' : '✗ Missing';
+  document.getElementById('s-yt-key').style.color = s.youtube.api_configured ? 'var(--ok)' : 'var(--err)';
+  document.getElementById('s-warnings').textContent = s.moderation.total_warnings;
+  document.getElementById('s-modactions').textContent = s.moderation.recent_actions;
+  if(s.bot_user){
+    document.getElementById('botName').textContent = s.bot_user.name;
+    document.getElementById('botAvatar').src = s.bot_user.avatar || '';
+  }
+}
+
+function renderServerOptions(){
+  for(const id of ['ytGuild','modGuild','bcGuild','warnGuild']){
+    const sel = document.getElementById(id);
+    if(!sel) continue;
+    const prev = sel.value;
+    sel.innerHTML = SERVERS.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('');
+    if(prev && SERVERS.find(g=>g.id===prev)) sel.value = prev;
+  }
+  renderYtChannelOptions();
+  renderBcChannelOptions();
+  loadWarnings();
+}
+function renderYtChannelOptions(){
+  const g = SERVERS.find(s => s.id === document.getElementById('ytGuild').value);
+  document.getElementById('ytChannel').innerHTML = g ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('') : '';
+}
+function renderBcChannelOptions(){
+  const g = SERVERS.find(s => s.id === document.getElementById('bcGuild').value);
+  document.getElementById('bcChannel').innerHTML = g ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('') : '';
+}
+
+// ---------- YouTube ----------
+async function loadYouTube(){
+  try{
+    const [subs, events] = await Promise.all([api('/youtube/subscriptions'), api('/youtube/events')]);
+    const wrap = document.getElementById('ytSubsList');
+    if(!subs.subscriptions.length){
+      wrap.innerHTML = `<div class="empty" style="grid-column:1/-1"><i class="fab fa-youtube"></i>No YouTube channels tracked yet.</div>`;
+    } else {
+      wrap.innerHTML = subs.subscriptions.map(s => `
+        <div class="yt-card">
+          <div class="brand-logo" style="background:var(--yt);width:46px;height:46px"><i class="fab fa-youtube"></i></div>
+          <div class="yt-info">
+            <div class="yt-title">${escapeHtml(s.yt_channel_title)} <span class="yt-badge">${escapeHtml(s.guild_name)}</span></div>
+            <div class="yt-meta">→ #${escapeHtml(s.discord_channel_name)} · <span class="mono">${escapeHtml(s.yt_channel_id)}</span></div>
+          </div>
+          <button class="btn ghost sm" onclick="ytUnsubscribe('${s.guild_id}','${s.discord_channel_id}','${s.yt_channel_id}')"><i class="fas fa-trash"></i></button>
+        </div>`).join('');
+    }
+    const ev = document.getElementById('ytEvents');
+    if(!events.length){
+      ev.innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No upload notifications posted yet.</div>`;
+    } else {
+      ev.innerHTML = `<table class="table"><thead><tr><th>Time</th><th>Channel</th><th>Video</th><th>Server</th></tr></thead><tbody>${events.slice().reverse().map(e=>`<tr><td class="mono">${e.time}</td><td>${escapeHtml(e.channel)}</td><td><a href="${e.url}" target="_blank">${escapeHtml(e.video)}</a></td><td>${escapeHtml(e.guild)}</td></tr>`).join('')}</tbody></table>`;
+    }
+  }catch(e){toast(e.message,'error')}
+}
+async function ytSubscribe(){
+  const query = document.getElementById('ytQuery').value.trim();
+  const guild_id = document.getElementById('ytGuild').value;
+  const discord_channel_id = document.getElementById('ytChannel').value;
+  if(!query || !guild_id || !discord_channel_id) return toast('Fill all fields','error');
+  try{
+    const j = await api('/youtube/subscribe',{method:'POST',body:JSON.stringify({query,guild_id,discord_channel_id})});
+    toast(`Subscribed to ${j.channel.title}`,'success');
+    document.getElementById('ytQuery').value='';
+    loadYouTube();
+  }catch(e){toast(e.message,'error')}
+}
+async function ytUnsubscribe(guild_id, discord_channel_id, yt_channel_id){
+  if(!confirm('Remove this subscription?')) return;
+  try{
+    await api('/youtube/unsubscribe',{method:'POST',body:JSON.stringify({guild_id,discord_channel_id,yt_channel_id})});
+    toast('Unsubscribed','success');
+    loadYouTube();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ---------- Moderation ----------
+async function loadModeration(){
+  try{
+    const acts = await api('/mod/actions');
+    const list = document.getElementById('modActions');
+    if(!acts.length){list.innerHTML = `<div class="empty"><i class="fas fa-shield"></i>No actions recorded yet.</div>`;}
+    else {list.innerHTML = `<table class="table"><thead><tr><th>Time</th><th>Action</th><th>Moderator</th><th>Target</th><th>Reason</th><th>Server</th></tr></thead><tbody>${acts.slice().reverse().map(a=>`<tr><td class="mono">${a.time}</td><td><b>${a.action}</b></td><td>${escapeHtml(a.moderator)}</td><td>${escapeHtml(a.target)}</td><td>${escapeHtml(a.reason)}</td><td>${escapeHtml(a.guild)}</td></tr>`).join('')}</tbody></table>`;}
+    loadWarnings();
+  }catch(e){toast(e.message,'error')}
+}
+async function loadWarnings(){
+  const guild_id = document.getElementById('warnGuild')?.value;
+  if(!guild_id) return;
+  try{
+    const j = await api(`/mod/warnings?guild_id=${guild_id}`);
+    const list = document.getElementById('warnList');
+    if(!j.warnings.length){list.innerHTML = `<div class="empty"><i class="fas fa-circle-check"></i>No active warnings.</div>`;return;}
+    list.innerHTML = `<table class="table"><thead><tr><th>User</th><th>Count</th><th>Latest reason</th></tr></thead><tbody>${j.warnings.map(w=>`<tr><td><span class="mono">${w.user_id}</span> — ${escapeHtml(w.user_name)}</td><td><b>${w.count}</b></td><td>${escapeHtml(w.warnings[w.warnings.length-1].reason)}</td></tr>`).join('')}</tbody></table>`;
+  }catch(e){toast(e.message,'error')}
+}
+async function runModAction(){
+  const payload = {
+    action: document.getElementById('modAction').value,
+    guild_id: document.getElementById('modGuild').value,
+    user_id: document.getElementById('modUserId').value.trim(),
+    reason: document.getElementById('modReason').value.trim() || 'Issued from dashboard',
+    duration: document.getElementById('modDuration').value,
+  };
+  if(!payload.user_id) return toast('Need a user ID','error');
+  try{
+    const j = await api('/mod/action',{method:'POST',body:JSON.stringify(payload)});
+    toast(j.message || 'Done','success');
+    loadModeration();
+  }catch(e){toast(e.message,'error')}
+}
+
+// ---------- Broadcast ----------
+async function sendBroadcast(){
+  const payload = {
+    channel_id: document.getElementById('bcChannel').value,
+    content: document.getElementById('bcContent').value,
+    embed: document.getElementById('bcEmbed').checked,
+  };
+  if(!payload.channel_id || !payload.content) return toast('Pick a channel and write a message','error');
+  try{
+    await api('/send-message',{method:'POST',body:JSON.stringify(payload)});
+    toast('Message sent','success');
+    document.getElementById('bcContent').value='';
+  }catch(e){toast(e.message,'error')}
+}
+
+// ---------- Presence ----------
+async function savePresence(){
+  const payload = {
+    status: document.getElementById('pStatus').value,
+    activity: document.getElementById('pActivity').value,
+    text: document.getElementById('pText').value,
+    rotation: document.getElementById('pRotation').checked,
+  };
+  try{await api('/presence',{method:'POST',body:JSON.stringify(payload)}); toast('Presence updated','success');}
+  catch(e){toast(e.message,'error')}
+}
+
+// ---------- Config ----------
+async function loadConfig(){
+  try{
+    const c = await api('/config');
+    document.getElementById('cfgPrefix').value = c.PREFIX || '';
+    document.getElementById('cfgWelcome').value = c.WELCOME_CHANNEL_ID || '';
+    document.getElementById('cfgModLog').value = c.MOD_LOG_CHANNEL_ID || '';
+    document.getElementById('cfgMutedRole').value = c.MUTED_ROLE_NAME || '';
+    document.getElementById('cfgYtStatus').textContent = c.YOUTUBE_API_KEY_SET ? `API key set · poll every ${c.YOUTUBE_POLL_INTERVAL}s` : 'No YouTube API key — YT features disabled';
+  }catch(e){console.error(e)}
+}
+async function saveConfig(){
+  const payload = {
+    PREFIX: document.getElementById('cfgPrefix').value,
+    WELCOME_CHANNEL_ID: document.getElementById('cfgWelcome').value,
+    MOD_LOG_CHANNEL_ID: document.getElementById('cfgModLog').value,
+    MUTED_ROLE_NAME: document.getElementById('cfgMutedRole').value,
+  };
+  const ytKey = document.getElementById('cfgYtKey').value.trim();
+  if(ytKey) payload.YOUTUBE_API_KEY = ytKey;
+  const pw = document.getElementById('cfgPassword').value;
+  if(pw) payload.ADMIN_PASSWORD = pw;
+  try{
+    const j = await api('/config',{method:'POST',body:JSON.stringify(payload)});
+    if(j.token){TOKEN = j.token; localStorage.setItem('botToken', TOKEN);}
+    toast('Configuration saved','success');
+    document.getElementById('cfgYtKey').value='';
+    document.getElementById('cfgPassword').value='';
+    loadConfig();
+  }catch(e){toast(e.message,'error')}
+}
+async function restartBot(){
+  if(!confirm('Restart the bot? This will disconnect briefly.')) return;
+  try{await api('/restart',{method:'POST'}); toast('Restarting…','success');}
+  catch(e){toast(e.message,'error')}
+}
+
+// ---------- Logs ----------
+async function loadLogs(){
+  try{
+    const logs = await api('/logs');
+    const list = document.getElementById('logList');
+    list.innerHTML = logs.slice().reverse().map(l => `<div class="log-row ${l.level}"><span class="ts">${l.timestamp}</span><span class="lvl">${l.level}</span><span class="msg">${escapeHtml(l.message)}</span></div>`).join('');
+  }catch(e){toast(e.message,'error')}
+}
+
+// ---------- Utils ----------
+function escapeHtml(s){return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg, kind=''){
+  const t = document.createElement('div');
+  t.className = `toast ${kind}`;
+  t.innerHTML = `<i class="fas fa-${kind==='success'?'circle-check':kind==='error'?'circle-exclamation':'info-circle'}"></i><span>${escapeHtml(msg)}</span>`;
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300)},3500);
+}
+</script>
+</body>
+</html>
