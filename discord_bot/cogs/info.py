@@ -33,8 +33,7 @@ class Info(commands.Cog):
         total_members = guild.member_count
         online = sum(1 for m in guild.members if m.status != discord.Status.offline and not m.bot)
         bots = sum(1 for m in guild.members if m.bot)
-        guild_warns = storage.all_warnings_for_guild(guild.id)
-        total_warns = sum(len(v) for v in guild_warns.values())
+        yt_count = len(storage.yt_list_for_guild(guild.id))
 
         embed = discord.Embed(title=f"📊 {guild.name} — Server Stats",
                               color=0x5865F2, timestamp=datetime.datetime.utcnow())
@@ -46,13 +45,9 @@ class Info(commands.Cog):
         embed.add_field(name="💬 Text", value=str(len(guild.text_channels)), inline=True)
         embed.add_field(name="🔊 Voice", value=str(len(guild.voice_channels)), inline=True)
         embed.add_field(name="📂 Categories", value=str(len(guild.categories)), inline=True)
-        embed.add_field(name="🏷️ Roles", value=str(len(guild.roles) - 1), inline=True)
-        embed.add_field(name="😀 Emojis", value=str(len(guild.emojis)), inline=True)
-        embed.add_field(name="🚀 Boosts",
-                        value=f"Tier {guild.premium_tier} ({guild.premium_subscription_count or 0})", inline=True)
+        embed.add_field(name="📺 YouTube tracked", value=str(yt_count), inline=True)
         embed.add_field(name="👑 Owner", value=str(guild.owner), inline=True)
         embed.add_field(name="📅 Created", value=guild.created_at.strftime("%b %d, %Y"), inline=True)
-        embed.add_field(name="⚠️ Warnings", value=str(total_warns), inline=True)
         embed.set_footer(text=f"Requested by {inter.user}", icon_url=inter.user.display_avatar.url)
         await inter.response.send_message(embed=embed)
 
@@ -60,7 +55,6 @@ class Info(commands.Cog):
     async def userinfo(self, inter: discord.Interaction, member: discord.Member = None):
         member = member or inter.user
         roles = [r.mention for r in member.roles if r.name != "@everyone"]
-        warns = storage.get_warnings(inter.guild.id, member.id)
         embed = discord.Embed(title=f"👤 {member}", color=member.color or 0x5865F2,
                               timestamp=datetime.datetime.utcnow())
         embed.set_thumbnail(url=member.display_avatar.url)
@@ -75,7 +69,6 @@ class Info(commands.Cog):
                         inline=True)
         embed.add_field(name=f"Roles ({len(roles)})",
                         value=", ".join(roles[:10]) or "None", inline=False)
-        embed.add_field(name="⚠️ Warnings", value=str(len(warns)), inline=True)
         await inter.response.send_message(embed=embed)
 
     @app_commands.command(name="avatar", description="Show a user's avatar")
@@ -96,19 +89,13 @@ class Info(commands.Cog):
 
     @app_commands.command(name="help", description="List all bot commands")
     async def help(self, inter: discord.Interaction):
-        embed = discord.Embed(title="📖 Bot Commands", color=0x57F287,
+        embed = discord.Embed(title="📖 Bot Commands", color=0xFF0000,
                               timestamp=datetime.datetime.utcnow())
-        embed.add_field(name="🛡️ Moderation", value=(
-            "`/kick` `/ban` `/unban` `/timeout` `/untimeout`\n"
-            "`/warn` `/warnings` `/clearwarns`\n"
-            "`/purge` `/slowmode` `/lock` `/unlock`\n"
-            "`/nick` `/addrole` `/removerole`"
-        ), inline=False)
         embed.add_field(name="📺 YouTube", value=(
             "`/yt subscribe` — Get pinged when a channel uploads\n"
             "`/yt unsubscribe` — Remove a subscription\n"
             "`/yt list` — Show this server's tracked channels\n"
-            "`/yt stats` — Show channel subscriber/view counts"
+            "`/yt stats` — Show subscriber/view counts for any channel"
         ), inline=False)
         embed.add_field(name="📊 Info", value=(
             "`/stats` `/userinfo` `/avatar` `/servericon` `/ping` `/uptime`"

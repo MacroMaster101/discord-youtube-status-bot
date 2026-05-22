@@ -9,19 +9,13 @@ class Config:
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
     PREFIX = os.getenv("PREFIX", "$")
     WELCOME_CHANNEL_ID = os.getenv("WELCOME_CHANNEL_ID", "")
-    MOD_LOG_CHANNEL_ID = os.getenv("MOD_LOG_CHANNEL_ID", "")
-    MUTED_ROLE_NAME = os.getenv("MUTED_ROLE_NAME", "Muted")
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
     YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
     YOUTUBE_POLL_INTERVAL = int(os.getenv("YOUTUBE_POLL_INTERVAL", "300"))
     PORT = int(os.getenv("PORT", "8080"))
 
     DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
-    WARNINGS_FILE = os.path.join(DATA_DIR, "warnings.json")
     YOUTUBE_SUBS_FILE = os.path.join(DATA_DIR, "youtube_subs.json")
-
-    SPAM_THRESHOLD = 5
-    SPAM_WINDOW = 6.0
 
     @classmethod
     def update_env(cls, key: str, value: str):

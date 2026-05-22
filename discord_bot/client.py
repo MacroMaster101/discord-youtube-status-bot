@@ -6,7 +6,6 @@ from core import state
 from youtube.poller import setup_poller
 from discord_bot import events
 from discord_bot.presence import start_presence
-from discord_bot.cogs.moderation import Moderation
 from discord_bot.cogs.info import Info
 from discord_bot.cogs.fun import Fun
 from discord_bot.cogs.youtube_cog import YouTubeCog
@@ -40,7 +39,6 @@ def build_bot() -> commands.Bot:
 
 
 async def setup_cogs(bot: commands.Bot):
-    await bot.add_cog(Moderation(bot))
     await bot.add_cog(Info(bot))
     await bot.add_cog(Fun(bot))
     await bot.add_cog(YouTubeCog(bot))

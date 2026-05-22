@@ -20,8 +20,6 @@ def get_config():
     return jsonify({
         "PREFIX": Config.PREFIX,
         "WELCOME_CHANNEL_ID": Config.WELCOME_CHANNEL_ID or "",
-        "MOD_LOG_CHANNEL_ID": Config.MOD_LOG_CHANNEL_ID or "",
-        "MUTED_ROLE_NAME": Config.MUTED_ROLE_NAME or "",
         "YOUTUBE_API_KEY_SET": bool(Config.YOUTUBE_API_KEY),
         "YOUTUBE_POLL_INTERVAL": Config.YOUTUBE_POLL_INTERVAL,
     })
@@ -32,7 +30,7 @@ def get_config():
 def set_config():
     data = request.get_json() or {}
     try:
-        for key in ("PREFIX", "WELCOME_CHANNEL_ID", "MOD_LOG_CHANNEL_ID", "MUTED_ROLE_NAME"):
+        for key in ("PREFIX", "WELCOME_CHANNEL_ID"):
             if key in data:
                 Config.update_env(key, str(data[key]))
         if data.get("ADMIN_PASSWORD"):

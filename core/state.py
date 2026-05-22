@@ -1,11 +1,10 @@
-"""Shared in-process state: log buffer, mod-action audit feed, presence settings."""
+"""Shared in-process state: log buffer, YouTube event feed, presence settings."""
 import sys
 import threading
 import datetime
 import collections
 
 LOGS_BUFFER = collections.deque(maxlen=300)
-MOD_ACTIONS_BUFFER = collections.deque(maxlen=300)
 YT_EVENTS_BUFFER = collections.deque(maxlen=100)
 
 PRESENCE_ROTATION_ENABLED = True
@@ -27,21 +26,6 @@ def add_log(message: str, level: str = "info"):
     sys.stdout.flush()
 
 
-def add_mod_action(action: str, moderator, target, reason: str, guild_name: str):
-    entry = {
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
-        "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "action": action,
-        "moderator": str(moderator),
-        "target": str(target),
-        "reason": reason or "No reason provided",
-        "guild": guild_name,
-    }
-    with _log_lock:
-        MOD_ACTIONS_BUFFER.append(entry)
-    add_log(f"MOD: {action} {target} by {moderator} in {guild_name} — {reason or 'no reason'}", "warning")
-
-
 def add_yt_event(channel_title: str, video_title: str, video_url: str, guild_name: str):
     entry = {
         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -58,11 +42,6 @@ def add_yt_event(channel_title: str, video_title: str, video_url: str, guild_nam
 def get_logs():
     with _log_lock:
         return list(LOGS_BUFFER)
-
-
-def get_mod_actions():
-    with _log_lock:
-        return list(MOD_ACTIONS_BUFFER)
 
 
 def get_yt_events():

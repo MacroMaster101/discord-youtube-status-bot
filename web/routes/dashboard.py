@@ -60,10 +60,6 @@ def stats():
         "text_channels": text_channels,
         "voice_channels": voice_channels,
         "bot_user": bot_user,
-        "moderation": {
-            "total_warnings": storage.total_warnings(),
-            "recent_actions": len(state.get_mod_actions()),
-        },
         "youtube": {
             "tracked_channels": storage.yt_total_subscriptions(),
             "recent_events": len(state.get_yt_events()),

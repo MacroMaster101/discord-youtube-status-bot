@@ -4,7 +4,7 @@ import threading
 import discord
 from flask import Flask, render_template
 from config import Config
-from web.routes import dashboard, mod, broadcast, youtube_routes, config_routes
+from web.routes import dashboard, broadcast, youtube_routes, config_routes
 
 
 def create_app(bot: discord.Client) -> Flask:
@@ -21,7 +21,6 @@ def create_app(bot: discord.Client) -> Flask:
         return "OK", 200
 
     app.register_blueprint(dashboard.bp)
-    app.register_blueprint(mod.bp)
     app.register_blueprint(broadcast.bp)
     app.register_blueprint(youtube_routes.bp)
     app.register_blueprint(config_routes.bp)
