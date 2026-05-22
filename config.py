@@ -16,6 +16,7 @@ class Config:
 
     DATA_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "data"))
     YOUTUBE_SUBS_FILE = os.path.join(DATA_DIR, "youtube_subs.json")
+    CUSTOM_PRESENCE_FILE = os.path.join(DATA_DIR, "custom_presence.json")
 
     @classmethod
     def update_env(cls, key: str, value: str):

@@ -13,6 +13,10 @@ YT_EVENTS_BUFFER = collections.deque(maxlen=100)
 #                           "url": str} }
 YT_CHANNEL_CACHE: dict = {}
 
+# What the bot is currently showing (live preview for the dashboard).
+# Shape: {"activity_type": str, "text": str, "url": str|None}
+CURRENT_PRESENCE: dict = {"activity_type": "watching", "text": "starting...", "url": None}
+
 PRESENCE_ROTATION_ENABLED = True
 CUSTOM_PRESENCE_STATUS = "online"
 CUSTOM_PRESENCE_ACTIVITY = "watching"

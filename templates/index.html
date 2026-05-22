@@ -3,281 +3,1006 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>YouTube Bot Panel</title>
+<title>YT Bot — Control Panel</title>
+<meta name="description" content="Discord YouTube Status Bot — Admin Dashboard" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root{
-  --bg:#0b0d12; --bg-2:#11141c; --panel:#161a26; --panel-2:#1c2130;
-  --border:#262b3b; --border-2:#323a52;
-  --text:#e7eaf3; --text-2:#9aa3b8; --muted:#5a6478;
-  --brand:#5865F2; --brand-2:#7983ff; --brand-glow:rgba(88,101,242,.35);
-  --yt:#ff0033; --yt-2:#ff3355;
-  --ok:#22c55e; --warn:#f59e0b; --err:#ef4444;
-  --r-lg:14px; --r-md:10px; --r-sm:6px;
-  --shadow:0 8px 24px rgba(0,0,0,.35);
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --bg-base: #08090d;
+  --bg-1: #0c0e14;
+  --bg-2: #12151e;
+  --bg-3: #181c28;
+  --surface: #1a1f2e;
+  --surface-2: #222838;
+  --surface-3: #2a3144;
+  --border: #262d40;
+  --border-hover: #374058;
+  --border-active: #4a5575;
+
+  --text: #eef0f6;
+  --text-2: #a0a8be;
+  --text-3: #6b7590;
+
+  --brand: #5865F2;
+  --brand-light: #7289DA;
+  --brand-glow: rgba(88,101,242,0.25);
+
+  --yt: #FF0033;
+  --yt-light: #ff3d5c;
+  --yt-glow: rgba(255,0,51,0.2);
+
+  --ok: #23d160;
+  --ok-bg: rgba(35,209,96,0.12);
+  --warn: #ffb020;
+  --warn-bg: rgba(255,176,32,0.12);
+  --err: #ff3860;
+  --err-bg: rgba(255,56,96,0.12);
+
+  --r-xl: 16px;
+  --r-lg: 12px;
+  --r-md: 8px;
+  --r-sm: 6px;
+  --r-xs: 4px;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.25);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.35);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.5);
+  --shadow-glow-yt: 0 4px 20px rgba(255,0,51,0.35);
+  --shadow-glow-brand: 0 4px 20px rgba(88,101,242,0.35);
+
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{
-  font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  background-image:
-    radial-gradient(at 10% -10%, rgba(255,0,51,.12), transparent 50%),
-    radial-gradient(at 90% 110%, rgba(88,101,242,.08), transparent 50%);
-  min-height:100vh;
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-base);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  line-height: 1.5;
 }
-button,input,select,textarea{font:inherit;color:inherit}
-a{color:var(--brand-2);text-decoration:none}
-.mono{font-family:'JetBrains Mono',monospace}
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--brand-light); text-decoration: none; transition: color var(--transition); }
+a:hover { color: var(--brand); }
+.mono { font-family: 'JetBrains Mono', monospace; }
 
-.login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-.login{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);padding:32px;box-shadow:var(--shadow)}
-.login h1{font-size:22px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
-.login p{color:var(--text-2);font-size:13px;margin-bottom:22px}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.field label{font-size:12px;color:var(--text-2);font-weight:500}
-.field input,.field select,.field textarea{background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;outline:none;transition:border-color .15s,box-shadow .15s}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--yt);box-shadow:0 0 0 3px rgba(255,0,51,.25)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 16px;border-radius:var(--r-md);border:1px solid transparent;background:var(--yt);color:#fff;font-weight:600;cursor:pointer;transition:background .15s,transform .05s}
-.btn:hover{background:var(--yt-2)}
-.btn:active{transform:translateY(1px)}
-.btn.ghost{background:transparent;border-color:var(--border-2);color:var(--text)}
-.btn.ghost:hover{background:var(--panel-2)}
-.btn.danger{background:var(--err)}
-.btn.danger:hover{background:#dc2626}
-.btn.brand{background:var(--brand)}
-.btn.brand:hover{background:var(--brand-2)}
-.btn.sm{padding:6px 10px;font-size:12px}
-.btn[disabled]{opacity:.5;cursor:not-allowed}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
-.sidebar{background:rgba(17,20,28,.85);backdrop-filter:blur(8px);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
-.brand{display:flex;align-items:center;gap:10px;padding:8px 10px 18px;border-bottom:1px solid var(--border);margin-bottom:12px}
-.brand-logo{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,var(--yt),#cc0033);color:#fff;font-weight:700;box-shadow:0 6px 16px rgba(255,0,51,.45)}
-.brand-name{font-weight:700;font-size:15px;letter-spacing:.2px}
-.brand-sub{font-size:11px;color:var(--text-2)}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);color:var(--text-2);cursor:pointer;font-size:14px;transition:background .15s,color .15s}
-.nav-item:hover{background:var(--panel);color:var(--text)}
-.nav-item.active{background:var(--yt);color:#fff;box-shadow:0 4px 14px rgba(255,0,51,.4)}
-.nav-item i{width:18px;text-align:center}
-.nav-spacer{flex:1}
-.sidebar-foot{padding:10px;color:var(--muted);font-size:11px;border-top:1px solid var(--border)}
+/* ===== UTILITY ===== */
+.hidden { display: none !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
 
-.main{padding:24px 32px 60px;overflow-x:hidden;min-width:0}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
-.topbar h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
-.topbar h1 i{color:var(--yt)}
-.user-chip{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;background:var(--panel);border:1px solid var(--border);border-radius:99px}
-.user-chip img{width:28px;height:28px;border-radius:50%}
-.user-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+/* ===== LOGIN ===== */
+.login-wrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 24px;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 20%, rgba(255,0,51,0.06), transparent),
+    radial-gradient(ellipse 60% 50% at 70% 80%, rgba(88,101,242,0.04), transparent);
+}
+.login-card {
+  width: 100%; max-width: 400px;
+  background: linear-gradient(145deg, var(--surface), var(--bg-2));
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
+  position: relative; overflow: hidden;
+}
+.login-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--yt), var(--brand));
+}
+.login-card h1 {
+  font-size: 24px; font-weight: 700; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 12px;
+}
+.login-card .subtitle { color: var(--text-2); font-size: 14px; margin-bottom: 28px; }
+.login-card .logo-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--yt), #cc0029);
+  color: #fff; font-size: 18px; font-weight: 700;
+  box-shadow: var(--shadow-glow-yt);
+}
 
-.grid{display:grid;gap:16px}
-.grid.cols-4{grid-template-columns:repeat(4,1fr)}
-.grid.cols-3{grid-template-columns:repeat(3,1fr)}
-.grid.cols-2{grid-template-columns:repeat(2,1fr)}
-@media(max-width:1100px){.grid.cols-4{grid-template-columns:repeat(2,1fr)} .grid.cols-3{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:720px){.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto;flex-direction:row;overflow-x:auto}.brand{display:none}.grid.cols-4,.grid.cols-3,.grid.cols-2{grid-template-columns:1fr}.main{padding:18px}}
+/* ===== FORM FIELDS ===== */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field + .field { margin-top: 16px; }
+.field label {
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.field input, .field select, .field textarea {
+  background: var(--bg-1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 11px 14px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.field input:hover, .field select:hover, .field textarea:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-2);
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-glow);
+  background: var(--bg-2);
+}
+.field textarea { resize: vertical; min-height: 80px; }
+.field .hint { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.field-row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+.field-row .field { flex: 1; min-width: 160px; }
+.field-row .field.auto-w { flex: 0 0 auto; min-width: auto; }
 
-.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;transition:border-color .15s}
-.card:hover{border-color:var(--border-2)}
-.card h3{font-size:13px;color:var(--text-2);font-weight:500;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.stat-value{font-size:28px;font-weight:700;letter-spacing:-.5px}
-.stat-sub{font-size:12px;color:var(--text-2);margin-top:4px}
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 22px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font-weight: 600; font-size: 14px;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+  position: relative; overflow: hidden;
+}
+.btn::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent);
+  pointer-events: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
 
-.section-title{font-size:14px;font-weight:600;color:var(--text-2);margin:24px 0 12px;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:8px}
+.btn-primary {
+  background: linear-gradient(135deg, var(--yt), #d4002a);
+  color: #fff;
+  box-shadow: var(--shadow-glow-yt);
+}
+.btn-primary:hover:not([disabled]) { background: linear-gradient(135deg, var(--yt-light), var(--yt)); }
 
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden}
-.panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.panel-head h3{font-size:14px;font-weight:600}
-.panel-body{padding:16px 18px}
+.btn-brand {
+  background: linear-gradient(135deg, var(--brand), #4752c4);
+  color: #fff;
+  box-shadow: var(--shadow-glow-brand);
+}
+.btn-brand:hover:not([disabled]) { background: linear-gradient(135deg, var(--brand-light), var(--brand)); }
 
-.log-list{font-family:'JetBrains Mono',monospace;font-size:12px;max-height:480px;overflow-y:auto;background:var(--bg);border-radius:var(--r-md);padding:10px}
-.log-row{display:flex;gap:10px;padding:4px 6px;border-radius:4px}
-.log-row:hover{background:var(--panel-2)}
-.log-row .ts{color:var(--muted);min-width:62px}
-.log-row .lvl{min-width:62px;text-transform:uppercase;font-weight:600;font-size:10px;padding:2px 6px;border-radius:4px;text-align:center;height:fit-content;margin-top:1px}
-.log-row.info .lvl{background:rgba(88,101,242,.15);color:var(--brand-2)}
-.log-row.success .lvl{background:rgba(34,197,94,.15);color:#4ade80}
-.log-row.warning .lvl{background:rgba(245,158,11,.15);color:#fbbf24}
-.log-row.error .lvl{background:rgba(239,68,68,.15);color:#f87171}
-.log-row .msg{flex:1;word-break:break-word}
+.btn-success {
+  background: linear-gradient(135deg, var(--ok), #1aa34a);
+  color: #fff;
+}
+.btn-success:hover:not([disabled]) { filter: brightness(1.1); }
 
-.table{width:100%;border-collapse:collapse;font-size:13px}
-.table th,.table td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
-.table th{font-size:11px;color:var(--text-2);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
-.table tr:hover td{background:var(--panel-2)}
+.btn-danger {
+  background: linear-gradient(135deg, var(--err), #cc2040);
+  color: #fff;
+}
+.btn-danger:hover:not([disabled]) { filter: brightness(1.1); }
 
-.yt-card{display:flex;gap:14px;padding:14px;background:var(--panel-2);border:1px solid var(--border);border-radius:var(--r-md);align-items:center}
-.yt-card .yt-logo{width:46px;height:46px;border-radius:50%;background:var(--yt);display:grid;place-items:center;color:#fff;font-size:20px;flex-shrink:0}
-.yt-card .yt-info{flex:1;min-width:0}
-.yt-card .yt-title{font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px}
-.yt-card .yt-meta{font-size:12px;color:var(--text-2);margin-top:2px}
-.yt-badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--yt);color:#fff;font-weight:600}
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover:not([disabled]) { background: var(--surface); border-color: var(--border-hover); }
 
-.empty{text-align:center;padding:40px 20px;color:var(--text-2);font-size:13px}
-.empty i{font-size:36px;display:block;margin-bottom:10px;color:var(--muted)}
+.btn-sm { padding: 7px 14px; font-size: 13px; }
+.btn-lg { padding: 14px 28px; font-size: 15px; }
+.btn-icon {
+  width: 38px; height: 38px; padding: 0;
+  display: grid; place-items: center;
+  border-radius: var(--r-md);
+}
 
-.row{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.flex-1{flex:1;min-width:200px}
+.btn-full { width: 100%; }
 
-.toast{position:fixed;bottom:24px;right:24px;background:var(--panel);border:1px solid var(--border);padding:12px 18px;border-radius:var(--r-md);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;animation:slidein .25s ease;border-left:3px solid var(--yt);min-width:240px;z-index:1000}
-.toast.success{border-left-color:var(--ok)}
-.toast.error{border-left-color:var(--err)}
-@keyframes slidein{from{transform:translateX(20px);opacity:0}to{transform:translateX(0);opacity:1}}
+/* ===== APP LAYOUT ===== */
+.app {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 100vh;
+}
 
-.hidden{display:none !important}
-::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:var(--muted)}
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: rgba(12,14,20,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid var(--border);
+  padding: 20px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+.brand-block {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 10px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+.brand-block .logo {
+  width: 38px; height: 38px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--yt), #cc0029);
+  color: #fff; font-size: 16px;
+  box-shadow: var(--shadow-glow-yt);
+  flex-shrink: 0;
+}
+.brand-block .info .name { font-weight: 700; font-size: 15px; }
+.brand-block .info .sub { font-size: 11px; color: var(--text-3); }
+
+.nav-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 14px; font-weight: 500;
+  transition: all var(--transition);
+  border: 1px solid transparent;
+}
+.nav-btn:hover { background: var(--surface); color: var(--text); }
+.nav-btn.active {
+  background: linear-gradient(135deg, rgba(255,0,51,0.15), rgba(255,0,51,0.05));
+  color: var(--yt-light);
+  border-color: rgba(255,0,51,0.2);
+  box-shadow: inset 0 0 20px rgba(255,0,51,0.05);
+}
+.nav-btn.active i { color: var(--yt); }
+.nav-btn i { width: 20px; text-align: center; font-size: 15px; transition: color var(--transition); }
+.nav-spacer { flex: 1; }
+.sidebar-footer {
+  padding: 10px; color: var(--text-3); font-size: 11px;
+  border-top: 1px solid var(--border); margin-top: 8px;
+}
+
+/* ===== MAIN ===== */
+.main {
+  padding: 28px 36px 60px;
+  overflow-x: hidden; min-width: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 80% 0%, rgba(255,0,51,0.03), transparent),
+    radial-gradient(ellipse 50% 60% at 20% 100%, rgba(88,101,242,0.03), transparent);
+}
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+}
+.topbar h1 {
+  font-size: 24px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--text), var(--text-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.topbar h1 i {
+  -webkit-text-fill-color: var(--yt);
+  font-size: 22px;
+}
+.user-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 14px 6px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  transition: border-color var(--transition);
+}
+.user-chip:hover { border-color: var(--border-hover); }
+.user-chip img { width: 30px; height: 30px; border-radius: 50%; }
+.user-chip .online-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 6px var(--ok);
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 4px var(--ok); }
+  50% { box-shadow: 0 0 10px var(--ok); }
+}
+
+/* ===== GRID / LAYOUT ===== */
+.grid { display: grid; gap: 16px; }
+.g-4 { grid-template-columns: repeat(4, 1fr); }
+.g-3 { grid-template-columns: repeat(3, 1fr); }
+.g-2 { grid-template-columns: repeat(2, 1fr); }
+.g-1 { grid-template-columns: 1fr; }
+
+/* ===== STAT CARDS ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  padding: 20px;
+  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+  position: relative; overflow: hidden;
+}
+.card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.card .card-label {
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.card .card-label i { font-size: 13px; }
+.card .card-value {
+  font-size: 30px; font-weight: 800; letter-spacing: -1px;
+  line-height: 1.1;
+}
+.card .card-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+/* Accent card variants */
+.card.card-yt { border-color: rgba(255,0,51,0.15); }
+.card.card-yt .card-label i { color: var(--yt); }
+.card.card-yt:hover { border-color: rgba(255,0,51,0.3); }
+.card.card-brand { border-color: rgba(88,101,242,0.15); }
+.card.card-brand .card-label i { color: var(--brand); }
+.card.card-brand:hover { border-color: rgba(88,101,242,0.3); }
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-size: 13px; font-weight: 600; color: var(--text-3);
+  margin: 28px 0 14px;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-title i { font-size: 14px; }
+.section-title .yt-color { color: var(--yt); }
+
+/* ===== PANELS ===== */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+.panel-header {
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.panel-header h3 {
+  font-size: 15px; font-weight: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-header h3 i { color: var(--text-3); font-size: 14px; }
+.panel-body { padding: 20px 22px; }
+
+/* ===== LIVE PRESENCE BANNER ===== */
+.presence-live {
+  background: linear-gradient(135deg, rgba(88,101,242,0.08), rgba(255,0,51,0.04));
+  border: 1px solid rgba(88,101,242,0.15);
+  border-radius: var(--r-xl);
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  position: relative; overflow: hidden;
+  margin-bottom: 20px;
+}
+.presence-live::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--brand), var(--yt));
+}
+.presence-live .live-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: var(--brand-glow);
+  display: grid; place-items: center;
+  font-size: 20px; color: var(--brand-light);
+  flex-shrink: 0;
+}
+.presence-live .live-info { flex: 1; min-width: 0; }
+.presence-live .live-label {
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.6px;
+  display: flex; align-items: center; gap: 6px; margin-bottom: 4px;
+}
+.presence-live .live-label .pulse {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ok);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+.presence-live .live-text { font-size: 16px; font-weight: 600; }
+.presence-live .live-type { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+/* ===== PRESENCE ENTRY LIST ===== */
+.pres-entries { display: flex; flex-direction: column; gap: 8px; }
+.pres-entry {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  transition: border-color var(--transition), background var(--transition);
+}
+.pres-entry:hover { border-color: var(--border-hover); background: var(--surface); }
+.pres-entry .pe-icon {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: var(--surface-2);
+  display: grid; place-items: center;
+  font-size: 14px; color: var(--text-2);
+  flex-shrink: 0;
+}
+.pres-entry .pe-info { flex: 1; min-width: 0; }
+.pres-entry .pe-text { font-weight: 500; font-size: 14px; }
+.pres-entry .pe-type {
+  font-size: 11px; color: var(--text-3);
+  text-transform: capitalize; margin-top: 1px;
+}
+
+/* ===== YT CARDS ===== */
+.yt-sub-card {
+  display: flex; gap: 14px; padding: 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  align-items: center;
+  transition: border-color var(--transition), transform var(--transition);
+}
+.yt-sub-card:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+.yt-sub-card .yt-logo {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--yt), #cc0029);
+  display: grid; place-items: center;
+  color: #fff; font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(255,0,51,0.25);
+}
+.yt-sub-card .yt-info { flex: 1; min-width: 0; }
+.yt-sub-card .yt-title {
+  font-weight: 600; font-size: 14px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.yt-sub-card .yt-meta { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.yt-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  background: rgba(88,101,242,0.15); color: var(--brand-light);
+  font-weight: 600;
+}
+
+/* ===== API KEY BOX ===== */
+.api-key-box {
+  background: linear-gradient(135deg, rgba(255,0,51,0.04), rgba(88,101,242,0.04));
+  border: 1px solid rgba(255,0,51,0.12);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.api-key-box h3 {
+  font-size: 15px; font-weight: 600; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px;
+}
+.api-key-box h3 i { color: var(--yt); }
+.api-key-box .api-desc { font-size: 13px; color: var(--text-2); margin-bottom: 16px; }
+.api-key-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 99px;
+  font-size: 12px; font-weight: 600;
+}
+.api-key-status.ok { background: var(--ok-bg); color: var(--ok); }
+.api-key-status.missing { background: var(--err-bg); color: var(--err); }
+.test-result {
+  font-size: 13px; margin-top: 10px; padding: 8px 12px;
+  border-radius: var(--r-md); display: none;
+}
+.test-result.ok { display: block; background: var(--ok-bg); color: var(--ok); }
+.test-result.err { display: block; background: var(--err-bg); color: var(--err); }
+
+/* ===== TABLE ===== */
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th, .table td {
+  padding: 10px 14px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.table th {
+  font-size: 11px; color: var(--text-3); text-transform: uppercase;
+  letter-spacing: 0.4px; font-weight: 600;
+}
+.table tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* ===== LOGS ===== */
+.log-box {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  max-height: 500px; overflow-y: auto;
+  background: var(--bg-1); border-radius: var(--r-md); padding: 10px;
+}
+.log-row {
+  display: flex; gap: 10px; padding: 4px 8px; border-radius: 4px;
+  transition: background var(--transition);
+}
+.log-row:hover { background: var(--surface); }
+.log-row .ts { color: var(--text-3); min-width: 64px; flex-shrink: 0; }
+.log-row .lvl {
+  min-width: 60px; text-transform: uppercase; font-weight: 700;
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  text-align: center; height: fit-content; margin-top: 1px;
+}
+.log-row.info .lvl { background: rgba(88,101,242,0.12); color: var(--brand-light); }
+.log-row.success .lvl { background: var(--ok-bg); color: var(--ok); }
+.log-row.warning .lvl { background: var(--warn-bg); color: var(--warn); }
+.log-row.error .lvl { background: var(--err-bg); color: var(--err); }
+.log-row .msg { flex: 1; word-break: break-word; color: var(--text-2); }
+
+/* ===== EMPTY STATE ===== */
+.empty {
+  text-align: center; padding: 48px 20px; color: var(--text-3); font-size: 13px;
+}
+.empty i { font-size: 40px; display: block; margin-bottom: 12px; opacity: 0.4; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px 20px;
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex; align-items: center; gap: 10px;
+  animation: toast-in 0.3s ease;
+  min-width: 260px; max-width: 400px;
+  font-size: 14px;
+}
+.toast.success { border-left: 3px solid var(--ok); }
+.toast.error { border-left: 3px solid var(--err); }
+.toast.info { border-left: 3px solid var(--brand); }
+@keyframes toast-in {
+  from { transform: translateX(30px) scale(0.95); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+/* ===== CHECKBOX TOGGLE ===== */
+.toggle-wrap {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  font-size: 14px; font-weight: 500;
+}
+.toggle-wrap input[type="checkbox"] { display: none; }
+.toggle-track {
+  width: 40px; height: 22px;
+  background: var(--border);
+  border-radius: 11px;
+  position: relative;
+  transition: background var(--transition);
+  flex-shrink: 0;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--text-2);
+  border-radius: 50%;
+  transition: all var(--transition);
+}
+.toggle-wrap input:checked + .toggle-track {
+  background: var(--ok);
+}
+.toggle-wrap input:checked + .toggle-track::after {
+  transform: translateX(18px);
+  background: #fff;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .g-4 { grid-template-columns: repeat(2, 1fr); }
+  .g-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: relative; height: auto;
+    flex-direction: row; overflow-x: auto;
+    padding: 10px;
+  }
+  .brand-block { display: none; }
+  .nav-spacer { display: none; }
+  .sidebar-footer { display: none; }
+  .nav-btn span { display: none; }
+  .nav-btn { padding: 10px 12px; }
+  .main { padding: 18px 16px 40px; }
+  .g-4, .g-3, .g-2 { grid-template-columns: 1fr; }
+  .topbar h1 { font-size: 20px; }
+  .field-row { flex-direction: column; }
+  .field-row .field { min-width: 100%; }
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px; background: var(--border);
+  margin: 20px 0; border: none;
+}
+
+/* ===== BUTTON GROUP ===== */
+.btn-group {
+  display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Spinner for loading buttons */
+.btn .spinner {
+  width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+.btn.loading .spinner { display: inline-block; }
+.btn.loading { pointer-events: none; opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Tab content animations */
+.tab { animation: fade-up 0.25s ease; }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 </style>
 </head>
 <body>
 
+<!-- ==================== LOGIN SCREEN ==================== -->
 <div id="loginScreen" class="login-wrap">
-  <form class="login" onsubmit="event.preventDefault();login()">
-    <h1><span class="brand-logo"><i class="fab fa-youtube"></i></span> YT Bot Panel</h1>
-    <p>Sign in with your admin password.</p>
+  <form class="login-card" onsubmit="event.preventDefault(); doLogin()">
+    <h1><span class="logo-icon"><i class="fab fa-youtube"></i></span> YT Bot Panel</h1>
+    <p class="subtitle">Sign in with your admin password to continue.</p>
     <div class="field">
-      <label>Password</label>
+      <label for="loginPassword">Password</label>
       <input id="loginPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
     </div>
-    <button class="btn" style="width:100%" type="submit"><i class="fas fa-arrow-right-to-bracket"></i> Sign in</button>
-    <p id="loginError" style="color:var(--err);margin-top:12px;font-size:12px;text-align:center" class="hidden"></p>
+    <div style="height:16px"></div>
+    <button class="btn btn-primary btn-full btn-lg" type="submit" id="loginBtn">
+      <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+    </button>
+    <p id="loginError" class="hidden" style="color:var(--err);margin-top:14px;font-size:13px;text-align:center"></p>
   </form>
 </div>
 
+<!-- ==================== APP SHELL ==================== -->
 <div id="appScreen" class="app hidden">
+
+  <!-- SIDEBAR -->
   <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-logo"><i class="fab fa-youtube"></i></div>
-      <div>
-        <div class="brand-name">YT Bot Panel</div>
-        <div class="brand-sub">Control center</div>
+    <div class="brand-block">
+      <div class="logo"><i class="fab fa-youtube"></i></div>
+      <div class="info">
+        <div class="name">YT Bot Panel</div>
+        <div class="sub">Control Center</div>
       </div>
     </div>
-    <div class="nav-item active" data-tab="dashboard"><i class="fas fa-gauge-high"></i> Dashboard</div>
-    <div class="nav-item" data-tab="youtube"><i class="fab fa-youtube"></i> YouTube</div>
-    <div class="nav-item" data-tab="broadcast"><i class="fas fa-bullhorn"></i> Broadcast</div>
-    <div class="nav-item" data-tab="presence"><i class="fas fa-circle-user"></i> Presence</div>
-    <div class="nav-item" data-tab="config"><i class="fas fa-sliders"></i> Configuration</div>
-    <div class="nav-item" data-tab="logs"><i class="fas fa-terminal"></i> Logs</div>
+    <div class="nav-btn active" data-tab="dashboard"><i class="fas fa-gauge-high"></i><span>Dashboard</span></div>
+    <div class="nav-btn" data-tab="youtube"><i class="fab fa-youtube"></i><span>YouTube</span></div>
+    <div class="nav-btn" data-tab="broadcast"><i class="fas fa-bullhorn"></i><span>Broadcast</span></div>
+    <div class="nav-btn" data-tab="presence"><i class="fas fa-circle-user"></i><span>Presence</span></div>
+    <div class="nav-btn" data-tab="config"><i class="fas fa-gear"></i><span>Configuration</span></div>
+    <div class="nav-btn" data-tab="logs"><i class="fas fa-terminal"></i><span>Logs</span></div>
     <div class="nav-spacer"></div>
-    <div class="nav-item" onclick="logout()" style="color:var(--err)"><i class="fas fa-arrow-right-from-bracket"></i> Logout</div>
-    <div class="sidebar-foot">v2.1 · YouTube only</div>
+    <div class="nav-btn" onclick="doLogout()" style="color:var(--err)"><i class="fas fa-arrow-right-from-bracket"></i><span>Logout</span></div>
+    <div class="sidebar-footer">v2.2 · YouTube Status Bot</div>
   </aside>
 
+  <!-- MAIN CONTENT -->
   <main class="main">
     <div class="topbar">
       <h1 id="pageTitle"><i class="fas fa-gauge-high"></i> Dashboard</h1>
       <div class="user-chip" id="botChip">
         <img id="botAvatar" src="" alt="" />
         <span id="botName">Loading…</span>
-        <span class="dot"></span>
+        <span class="online-dot"></span>
       </div>
     </div>
 
+    <!-- ===== DASHBOARD TAB ===== -->
     <section class="tab" id="tab-dashboard">
-      <div class="grid cols-4">
-        <div class="card"><h3><i class="fas fa-server"></i> Servers</h3><div class="stat-value" id="s-servers">—</div></div>
-        <div class="card"><h3><i class="fas fa-users"></i> Members</h3><div class="stat-value" id="s-members">—</div><div class="stat-sub" id="s-online">— online</div></div>
-        <div class="card"><h3><i class="fas fa-clock"></i> Uptime</h3><div class="stat-value" id="s-uptime" style="font-size:20px">—</div></div>
-        <div class="card"><h3><i class="fas fa-bolt"></i> Latency</h3><div class="stat-value" id="s-latency">—</div></div>
+      <div class="grid g-4">
+        <div class="card card-brand">
+          <div class="card-label"><i class="fas fa-server"></i> Servers</div>
+          <div class="card-value" id="s-servers">—</div>
+        </div>
+        <div class="card card-brand">
+          <div class="card-label"><i class="fas fa-users"></i> Members</div>
+          <div class="card-value" id="s-members">—</div>
+          <div class="card-sub" id="s-online">— online</div>
+        </div>
+        <div class="card">
+          <div class="card-label"><i class="fas fa-clock"></i> Uptime</div>
+          <div class="card-value" id="s-uptime" style="font-size:20px">—</div>
+        </div>
+        <div class="card">
+          <div class="card-label"><i class="fas fa-bolt"></i> Latency</div>
+          <div class="card-value" id="s-latency">—</div>
+        </div>
       </div>
-      <div class="section-title"><i class="fab fa-youtube" style="color:var(--yt)"></i> YouTube</div>
-      <div class="grid cols-3">
-        <div class="card"><h3>Tracked channels</h3><div class="stat-value" id="s-yt-tracked">—</div></div>
-        <div class="card"><h3>Recent uploads posted</h3><div class="stat-value" id="s-yt-events">—</div></div>
-        <div class="card"><h3>API key</h3><div class="stat-value" id="s-yt-key" style="font-size:18px">—</div><div class="stat-sub">Set in Configuration tab</div></div>
+
+      <div class="section-title"><i class="fab fa-youtube yt-color"></i> YouTube Overview</div>
+      <div class="grid g-3">
+        <div class="card card-yt">
+          <div class="card-label"><i class="fas fa-satellite-dish"></i> Tracked Channels</div>
+          <div class="card-value" id="s-yt-tracked">—</div>
+        </div>
+        <div class="card card-yt">
+          <div class="card-label"><i class="fas fa-bell"></i> Uploads Posted</div>
+          <div class="card-value" id="s-yt-events">—</div>
+        </div>
+        <div class="card card-yt">
+          <div class="card-label"><i class="fas fa-key"></i> API Key</div>
+          <div class="card-value" id="s-yt-key" style="font-size:16px">—</div>
+          <div class="card-sub">Manage in Configuration tab</div>
+        </div>
       </div>
     </section>
 
+    <!-- ===== YOUTUBE TAB ===== -->
     <section class="tab hidden" id="tab-youtube">
       <div class="panel">
-        <div class="panel-head"><h3><i class="fas fa-plus"></i> Subscribe to a YouTube channel</h3></div>
+        <div class="panel-header">
+          <h3><i class="fab fa-youtube"></i> Subscribe to a YouTube Channel</h3>
+        </div>
         <div class="panel-body">
-          <div class="row">
-            <div class="field flex-1"><label>YouTube channel (URL, @handle, or channel ID)</label>
-              <input id="ytQuery" placeholder="@MrBeast or https://youtube.com/@MrBeast" /></div>
-            <div class="field"><label>Discord server</label>
-              <select id="ytGuild" onchange="renderYtChannelOptions()"></select></div>
-            <div class="field"><label>Post in channel</label>
-              <select id="ytChannel"></select></div>
-            <div class="field"><label>&nbsp;</label>
-              <button class="btn" onclick="ytSubscribe()"><i class="fab fa-youtube"></i> Subscribe</button></div>
+          <div class="field-row">
+            <div class="field" style="flex:2">
+              <label for="ytQuery">YouTube Channel (URL, @handle, or ID)</label>
+              <input id="ytQuery" placeholder="@MrBeast or https://youtube.com/@MrBeast" />
+            </div>
+            <div class="field">
+              <label for="ytGuild">Discord Server</label>
+              <select id="ytGuild" onchange="renderYtChannelOpts()"></select>
+            </div>
+            <div class="field">
+              <label for="ytChannel">Post In Channel</label>
+              <select id="ytChannel"></select>
+            </div>
+            <div class="field auto-w">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary btn-lg" onclick="ytSubscribe()" id="btnYtSub">
+                <span class="spinner"></span>
+                <i class="fab fa-youtube"></i> Subscribe
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="section-title">Tracked channels</div>
-      <div id="ytSubsList" class="grid cols-2"></div>
+      <div class="section-title"><i class="fas fa-satellite-dish"></i> Tracked Channels</div>
+      <div id="ytSubsList" class="grid g-2"></div>
 
-      <div class="section-title">Recent uploads posted</div>
+      <div class="section-title"><i class="fas fa-bell"></i> Recent Uploads Posted</div>
       <div class="panel"><div class="panel-body" id="ytEvents"></div></div>
     </section>
 
+    <!-- ===== BROADCAST TAB ===== -->
     <section class="tab hidden" id="tab-broadcast">
       <div class="panel">
-        <div class="panel-head"><h3><i class="fas fa-bullhorn"></i> Send a message</h3></div>
+        <div class="panel-header"><h3><i class="fas fa-bullhorn"></i> Send a Message</h3></div>
         <div class="panel-body">
-          <div class="row">
-            <div class="field"><label>Server</label><select id="bcGuild" onchange="renderBcChannelOptions()"></select></div>
-            <div class="field flex-1"><label>Channel</label><select id="bcChannel"></select></div>
-            <div class="field"><label><input type="checkbox" id="bcEmbed" /> Use embed</label></div>
+          <div class="field-row">
+            <div class="field">
+              <label for="bcGuild">Server</label>
+              <select id="bcGuild" onchange="renderBcChannelOpts()"></select>
+            </div>
+            <div class="field" style="flex:2">
+              <label for="bcChannel">Channel</label>
+              <select id="bcChannel"></select>
+            </div>
+            <div class="field auto-w">
+              <label class="toggle-wrap">
+                <input type="checkbox" id="bcEmbed" />
+                <span class="toggle-track"></span>
+                Use Embed
+              </label>
+            </div>
           </div>
-          <div class="field"><label>Message</label><textarea id="bcContent" rows="5" placeholder="Your announcement…" style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 12px;resize:vertical"></textarea></div>
-          <button class="btn brand" onclick="sendBroadcast()"><i class="fas fa-paper-plane"></i> Send</button>
+          <div style="height:12px"></div>
+          <div class="field">
+            <label for="bcContent">Message</label>
+            <textarea id="bcContent" rows="5" placeholder="Your announcement…"></textarea>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-brand btn-lg" onclick="sendBroadcast()" id="btnBroadcast">
+              <span class="spinner"></span>
+              <i class="fas fa-paper-plane"></i> Send Broadcast
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- ===== PRESENCE TAB ===== -->
     <section class="tab hidden" id="tab-presence">
-      <div class="panel">
-        <div class="panel-head"><h3><i class="fas fa-circle-user"></i> Bot presence</h3></div>
+
+      <!-- Live preview -->
+      <div class="presence-live" id="presLiveBanner">
+        <div class="live-icon"><i class="fas fa-satellite-dish"></i></div>
+        <div class="live-info">
+          <div class="live-label"><span class="pulse"></span> Currently Showing</div>
+          <div class="live-text" id="presLiveText">Loading…</div>
+          <div class="live-type" id="presLiveType"></div>
+        </div>
+      </div>
+
+      <!-- Quick status override -->
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header">
+          <h3><i class="fas fa-sliders"></i> Status Override</h3>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="pRotation" checked onchange="savePresenceSettings()" />
+            <span class="toggle-track"></span>
+            Auto-Rotate
+          </label>
+        </div>
         <div class="panel-body">
-          <div class="row">
-            <div class="field"><label>Status</label><select id="pStatus"><option>online</option><option>idle</option><option>dnd</option><option>invisible</option></select></div>
-            <div class="field"><label>Activity</label><select id="pActivity"><option>watching</option><option>playing</option><option>listening</option><option>streaming</option></select></div>
-            <div class="field flex-1"><label>Text (vars: {server_count}, {yt_subs}, {prefix})</label><input id="pText" placeholder="📺 {yt_subs} YT channels" /></div>
-            <div class="field"><label><input type="checkbox" id="pRotation" checked /> Rotate</label></div>
-            <div class="field"><label>&nbsp;</label><button class="btn brand" onclick="savePresence()"><i class="fas fa-check"></i> Apply</button></div>
+          <div class="field-row">
+            <div class="field">
+              <label for="pStatus">Status</label>
+              <select id="pStatus">
+                <option value="online">🟢 Online</option>
+                <option value="idle">🟡 Idle</option>
+                <option value="dnd">🔴 Do Not Disturb</option>
+                <option value="invisible">⚫ Invisible</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pActivity">Activity Type</label>
+              <select id="pActivity">
+                <option value="watching">👁️ Watching</option>
+                <option value="playing">🎮 Playing</option>
+                <option value="listening">🎵 Listening</option>
+                <option value="streaming">📺 Streaming</option>
+              </select>
+            </div>
+            <div class="field" style="flex:2">
+              <label for="pText">Text <span style="font-weight:400;color:var(--text-3)">(vars: {server_count}, {yt_subs}, {prefix})</span></label>
+              <input id="pText" placeholder="📺 {yt_subs} YouTube channels" />
+            </div>
+            <div class="field auto-w">
+              <label>&nbsp;</label>
+              <button class="btn btn-brand" onclick="savePresenceSettings()">
+                <i class="fas fa-check"></i> Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom entries -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3><i class="fas fa-list"></i> Custom Presence Rotation Entries</h3>
+          <button class="btn btn-ghost btn-sm" onclick="clearPresenceEntries()" id="btnClearPres">
+            <i class="fas fa-trash"></i> Clear All
+          </button>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:16px">
+            Add custom entries below. When entries exist, the bot rotates through them instead of the default YouTube-channel rotation.
+          </p>
+
+          <!-- Add form -->
+          <div class="field-row" style="margin-bottom:16px">
+            <div class="field">
+              <label for="newPresType">Type</label>
+              <select id="newPresType">
+                <option value="watching">👁️ Watching</option>
+                <option value="playing">🎮 Playing</option>
+                <option value="listening">🎵 Listening</option>
+                <option value="streaming">📺 Streaming</option>
+              </select>
+            </div>
+            <div class="field" style="flex:2">
+              <label for="newPresText">Text</label>
+              <input id="newPresText" placeholder="e.g. 📺 YouTube Streams" />
+            </div>
+            <div class="field">
+              <label for="newPresUrl">URL <span style="font-weight:400;color:var(--text-3)">(streaming only)</span></label>
+              <input id="newPresUrl" placeholder="https://youtube.com/..." />
+            </div>
+            <div class="field auto-w">
+              <label>&nbsp;</label>
+              <button class="btn btn-success" onclick="addPresenceEntry()" id="btnAddPres">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- Entry list -->
+          <div id="presEntriesList" class="pres-entries">
+            <div class="empty"><i class="fas fa-layer-group"></i>No custom entries yet. Add one above.</div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ===== CONFIGURATION TAB ===== -->
     <section class="tab hidden" id="tab-config">
-      <div class="panel">
-        <div class="panel-head"><h3><i class="fas fa-sliders"></i> Configuration</h3></div>
-        <div class="panel-body">
-          <div class="grid cols-2">
-            <div class="field"><label>Prefix (legacy commands)</label><input id="cfgPrefix" placeholder="$" /></div>
-            <div class="field"><label>Welcome channel ID</label><input id="cfgWelcome" /></div>
-            <div class="field"><label>YouTube API key</label><input id="cfgYtKey" type="password" placeholder="leave blank to keep existing" /></div>
-            <div class="field"><label>New admin password (optional)</label><input id="cfgPassword" type="password" /></div>
+
+      <!-- API Key section — prominent -->
+      <div class="api-key-box">
+        <h3><i class="fab fa-youtube"></i> YouTube API Key</h3>
+        <p class="api-desc">
+          Required for YouTube tracking. Enter your key and test it before saving.
+          <span id="apiKeyStatusWrap"></span>
+        </p>
+        <div class="field-row">
+          <div class="field" style="flex:2">
+            <label for="cfgYtKey">API Key</label>
+            <input id="cfgYtKey" type="password" placeholder="AIzaSy..." autocomplete="off" />
+            <div class="hint">Leave blank to keep the current key.</div>
           </div>
-          <div class="row" style="margin-top:14px">
-            <button class="btn brand" onclick="saveConfig()"><i class="fas fa-floppy-disk"></i> Save</button>
-            <button class="btn danger" onclick="restartBot()"><i class="fas fa-power-off"></i> Restart bot</button>
-            <span id="cfgYtStatus" class="mono" style="color:var(--text-2);font-size:12px"></span>
+          <div class="field auto-w">
+            <label>&nbsp;</label>
+            <button class="btn btn-ghost" onclick="testApiKey()" id="btnTestKey">
+              <span class="spinner"></span>
+              <i class="fas fa-flask-vial"></i> Test Key
+            </button>
+          </div>
+        </div>
+        <div id="apiTestResult" class="test-result"></div>
+      </div>
+
+      <!-- General config -->
+      <div class="panel">
+        <div class="panel-header"><h3><i class="fas fa-gear"></i> General Settings</h3></div>
+        <div class="panel-body">
+          <div class="grid g-2">
+            <div class="field">
+              <label for="cfgPrefix">Command Prefix (legacy)</label>
+              <input id="cfgPrefix" placeholder="$" />
+            </div>
+            <div class="field">
+              <label for="cfgWelcome">Welcome Channel ID</label>
+              <input id="cfgWelcome" placeholder="Channel ID" />
+            </div>
+          </div>
+          <hr class="divider" />
+          <div class="field" style="max-width:400px">
+            <label for="cfgPassword">New Admin Password <span style="font-weight:400;color:var(--text-3)">(optional)</span></label>
+            <input id="cfgPassword" type="password" placeholder="Leave blank to keep current" autocomplete="new-password" />
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-brand btn-lg" onclick="saveConfig()" id="btnSaveConfig">
+              <span class="spinner"></span>
+              <i class="fas fa-floppy-disk"></i> Save Configuration
+            </button>
+            <button class="btn btn-danger btn-lg" onclick="restartBot()" id="btnRestart">
+              <i class="fas fa-power-off"></i> Restart Bot
+            </button>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- ===== LOGS TAB ===== -->
     <section class="tab hidden" id="tab-logs">
       <div class="panel">
-        <div class="panel-head"><h3><i class="fas fa-terminal"></i> Live logs</h3>
-          <button class="btn ghost sm" onclick="loadLogs()"><i class="fas fa-rotate"></i> Refresh</button></div>
-        <div class="panel-body"><div id="logList" class="log-list"></div></div>
+        <div class="panel-header">
+          <h3><i class="fas fa-terminal"></i> Live Logs</h3>
+          <button class="btn btn-ghost btn-sm" onclick="loadLogs()"><i class="fas fa-rotate"></i> Refresh</button>
+        </div>
+        <div class="panel-body"><div id="logList" class="log-box"></div></div>
       </div>
     </section>
+
   </main>
 </div>
 
+<!-- ==================== JAVASCRIPT ==================== -->
 <script>
 const API = '/api';
 let TOKEN = localStorage.getItem('botToken') || '';
@@ -285,74 +1010,107 @@ let SERVERS = [];
 let CURRENT_TAB = 'dashboard';
 let pollTimer = null;
 
+/* ===== BOOT ===== */
 window.addEventListener('DOMContentLoaded', () => {
   if (TOKEN) bootApp();
-  document.querySelectorAll('.nav-item[data-tab]').forEach(el => {
+  document.querySelectorAll('.nav-btn[data-tab]').forEach(el => {
     el.addEventListener('click', () => switchTab(el.dataset.tab));
   });
 });
 
-async function login(){
+/* ===== AUTH ===== */
+async function doLogin() {
   const pw = document.getElementById('loginPassword').value;
   const err = document.getElementById('loginError');
   err.classList.add('hidden');
-  try{
-    const r = await fetch(`${API}/login`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    if(!r.ok) throw new Error('Invalid password');
+  try {
+    const r = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw })
+    });
+    if (!r.ok) throw new Error('Invalid password');
     const j = await r.json();
     TOKEN = j.token;
     localStorage.setItem('botToken', TOKEN);
     bootApp();
-  }catch(e){err.textContent = e.message; err.classList.remove('hidden');}
+  } catch (e) {
+    err.textContent = e.message;
+    err.classList.remove('hidden');
+  }
 }
-function logout(){TOKEN=''; localStorage.removeItem('botToken'); location.reload();}
 
-function api(path, opts={}){
+function doLogout() {
+  TOKEN = '';
+  localStorage.removeItem('botToken');
+  location.reload();
+}
+
+function api(path, opts = {}) {
   return fetch(`${API}${path}`, {
     ...opts,
-    headers:{'Content-Type':'application/json','Authorization':`Bearer ${TOKEN}`, ...(opts.headers||{})}
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${TOKEN}`,
+      ...(opts.headers || {})
+    }
   }).then(async r => {
-    if(r.status === 401){logout(); throw new Error('Session expired');}
-    const j = await r.json().catch(()=>({}));
-    if(!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
+    if (r.status === 401) { doLogout(); throw new Error('Session expired'); }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
     return j;
   });
 }
 
-function bootApp(){
+/* ===== APP BOOTSTRAP ===== */
+function bootApp() {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('appScreen').classList.remove('hidden');
   refreshAll();
   loadConfig();
-  if(pollTimer) clearInterval(pollTimer);
+  if (pollTimer) clearInterval(pollTimer);
   pollTimer = setInterval(refreshAll, 5000);
 }
 
-function switchTab(tab){
+/* ===== TAB SWITCHING ===== */
+function switchTab(tab) {
   CURRENT_TAB = tab;
-  document.querySelectorAll('.nav-item[data-tab]').forEach(el => el.classList.toggle('active', el.dataset.tab===tab));
+  document.querySelectorAll('.nav-btn[data-tab]').forEach(el =>
+    el.classList.toggle('active', el.dataset.tab === tab)
+  );
   document.querySelectorAll('.tab').forEach(el => el.classList.add('hidden'));
   document.getElementById(`tab-${tab}`).classList.remove('hidden');
-  const titles = {dashboard:['fa-gauge-high','Dashboard'],youtube:['fa-youtube','YouTube Tracker'],broadcast:['fa-bullhorn','Broadcast'],presence:['fa-circle-user','Bot Presence'],config:['fa-sliders','Configuration'],logs:['fa-terminal','Logs']};
-  const [icon,title] = titles[tab];
-  const i = tab==='youtube' ? 'fab fa-youtube' : `fas ${icon}`;
-  document.getElementById('pageTitle').innerHTML = `<i class="${i}"></i> ${title}`;
-  if(tab==='youtube') loadYouTube();
-  if(tab==='logs') loadLogs();
+
+  const titles = {
+    dashboard: ['fas fa-gauge-high', 'Dashboard'],
+    youtube: ['fab fa-youtube', 'YouTube Tracker'],
+    broadcast: ['fas fa-bullhorn', 'Broadcast'],
+    presence: ['fas fa-circle-user', 'Bot Presence'],
+    config: ['fas fa-gear', 'Configuration'],
+    logs: ['fas fa-terminal', 'Logs']
+  };
+  const [icon, title] = titles[tab];
+  document.getElementById('pageTitle').innerHTML = `<i class="${icon}"></i> ${title}`;
+
+  if (tab === 'youtube') loadYouTube();
+  if (tab === 'logs') loadLogs();
+  if (tab === 'presence') loadPresenceTab();
 }
 
-async function refreshAll(){
-  try{
+/* ===== REFRESH ===== */
+async function refreshAll() {
+  try {
     const [stats, servers] = await Promise.all([api('/stats'), api('/servers')]);
     SERVERS = servers;
     renderStats(stats);
     renderServerOptions();
-    if(CURRENT_TAB==='youtube') loadYouTube();
-    if(CURRENT_TAB==='logs') loadLogs();
-  }catch(e){console.error(e);}
+    if (CURRENT_TAB === 'youtube') loadYouTube();
+    if (CURRENT_TAB === 'logs') loadLogs();
+    if (CURRENT_TAB === 'presence') refreshPresenceLive();
+  } catch (e) { console.error(e); }
 }
 
-function renderStats(s){
+function renderStats(s) {
   document.getElementById('s-servers').textContent = s.server_count;
   document.getElementById('s-members').textContent = s.total_members.toLocaleString();
   document.getElementById('s-online').textContent = `${s.online_members.toLocaleString()} online`;
@@ -360,152 +1118,344 @@ function renderStats(s){
   document.getElementById('s-latency').textContent = `${s.latency}ms`;
   document.getElementById('s-yt-tracked').textContent = s.youtube.tracked_channels;
   document.getElementById('s-yt-events').textContent = s.youtube.recent_events;
-  document.getElementById('s-yt-key').textContent = s.youtube.api_configured ? '✓ Configured' : '✗ Missing';
-  document.getElementById('s-yt-key').style.color = s.youtube.api_configured ? 'var(--ok)' : 'var(--err)';
-  if(s.bot_user){
+
+  const keyEl = document.getElementById('s-yt-key');
+  keyEl.textContent = s.youtube.api_configured ? '✓ Configured' : '✗ Missing';
+  keyEl.style.color = s.youtube.api_configured ? 'var(--ok)' : 'var(--err)';
+
+  const statusWrap = document.getElementById('apiKeyStatusWrap');
+  if (statusWrap) {
+    statusWrap.innerHTML = s.youtube.api_configured
+      ? '<span class="api-key-status ok"><i class="fas fa-check-circle"></i> Active</span>'
+      : '<span class="api-key-status missing"><i class="fas fa-xmark-circle"></i> Not Set</span>';
+  }
+
+  if (s.bot_user) {
     document.getElementById('botName').textContent = s.bot_user.name;
     document.getElementById('botAvatar').src = s.bot_user.avatar || '';
   }
 }
 
-function renderServerOptions(){
-  for(const id of ['ytGuild','bcGuild']){
+/* ===== SERVER OPTIONS ===== */
+function renderServerOptions() {
+  for (const id of ['ytGuild', 'bcGuild']) {
     const sel = document.getElementById(id);
-    if(!sel) continue;
+    if (!sel) continue;
     const prev = sel.value;
-    sel.innerHTML = SERVERS.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('');
-    if(prev && SERVERS.find(g=>g.id===prev)) sel.value = prev;
+    sel.innerHTML = SERVERS.map(g =>
+      `<option value="${g.id}">${escapeHtml(g.name)}</option>`
+    ).join('');
+    if (prev && SERVERS.find(g => g.id === prev)) sel.value = prev;
   }
-  renderYtChannelOptions();
-  renderBcChannelOptions();
-}
-function renderYtChannelOptions(){
-  const g = SERVERS.find(s => s.id === document.getElementById('ytGuild').value);
-  document.getElementById('ytChannel').innerHTML = g ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('') : '';
-}
-function renderBcChannelOptions(){
-  const g = SERVERS.find(s => s.id === document.getElementById('bcGuild').value);
-  document.getElementById('bcChannel').innerHTML = g ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('') : '';
+  renderYtChannelOpts();
+  renderBcChannelOpts();
 }
 
-async function loadYouTube(){
-  try{
-    const [subs, events] = await Promise.all([api('/youtube/subscriptions'), api('/youtube/events')]);
+function renderYtChannelOpts() {
+  const g = SERVERS.find(s => s.id === document.getElementById('ytGuild').value);
+  document.getElementById('ytChannel').innerHTML = g
+    ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('')
+    : '';
+}
+
+function renderBcChannelOpts() {
+  const g = SERVERS.find(s => s.id === document.getElementById('bcGuild').value);
+  document.getElementById('bcChannel').innerHTML = g
+    ? g.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('')
+    : '';
+}
+
+/* ===== YOUTUBE ===== */
+async function loadYouTube() {
+  try {
+    const [subs, events] = await Promise.all([
+      api('/youtube/subscriptions'),
+      api('/youtube/events')
+    ]);
     const wrap = document.getElementById('ytSubsList');
-    if(!subs.subscriptions.length){
-      wrap.innerHTML = `<div class="empty" style="grid-column:1/-1"><i class="fab fa-youtube"></i>No YouTube channels tracked yet.</div>`;
+    if (!subs.subscriptions.length) {
+      wrap.innerHTML = `<div class="empty" style="grid-column:1/-1">
+        <i class="fab fa-youtube"></i>No YouTube channels tracked yet.</div>`;
     } else {
       wrap.innerHTML = subs.subscriptions.map(s => `
-        <div class="yt-card">
+        <div class="yt-sub-card">
           <div class="yt-logo"><i class="fab fa-youtube"></i></div>
           <div class="yt-info">
-            <div class="yt-title">${escapeHtml(s.yt_channel_title)} <span class="yt-badge">${escapeHtml(s.guild_name)}</span></div>
+            <div class="yt-title">${escapeHtml(s.yt_channel_title)}
+              <span class="yt-badge"><i class="fas fa-server"></i> ${escapeHtml(s.guild_name)}</span>
+            </div>
             <div class="yt-meta">→ #${escapeHtml(s.discord_channel_name)} · <span class="mono">${escapeHtml(s.yt_channel_id)}</span></div>
           </div>
-          <button class="btn ghost sm" onclick="ytUnsubscribe('${s.guild_id}','${s.discord_channel_id}','${s.yt_channel_id}')"><i class="fas fa-trash"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="ytUnsubscribe('${s.guild_id}','${s.discord_channel_id}','${s.yt_channel_id}')">
+            <i class="fas fa-trash-can"></i> Remove
+          </button>
         </div>`).join('');
     }
+
     const ev = document.getElementById('ytEvents');
-    if(!events.length){
+    if (!events.length) {
       ev.innerHTML = `<div class="empty"><i class="fas fa-bell-slash"></i>No upload notifications posted yet.</div>`;
     } else {
-      ev.innerHTML = `<table class="table"><thead><tr><th>Time</th><th>Channel</th><th>Video</th><th>Server</th></tr></thead><tbody>${events.slice().reverse().map(e=>`<tr><td class="mono">${e.time}</td><td>${escapeHtml(e.channel)}</td><td><a href="${e.url}" target="_blank">${escapeHtml(e.video)}</a></td><td>${escapeHtml(e.guild)}</td></tr>`).join('')}</tbody></table>`;
+      ev.innerHTML = `<table class="table"><thead><tr>
+        <th>Time</th><th>Channel</th><th>Video</th><th>Server</th>
+        </tr></thead><tbody>${events.slice().reverse().map(e =>
+        `<tr><td class="mono">${e.time}</td><td>${escapeHtml(e.channel)}</td>
+         <td><a href="${e.url}" target="_blank">${escapeHtml(e.video)}</a></td>
+         <td>${escapeHtml(e.guild)}</td></tr>`
+      ).join('')}</tbody></table>`;
     }
-  }catch(e){toast(e.message,'error')}
+  } catch (e) { toast(e.message, 'error'); }
 }
-async function ytSubscribe(){
+
+async function ytSubscribe() {
   const query = document.getElementById('ytQuery').value.trim();
   const guild_id = document.getElementById('ytGuild').value;
   const discord_channel_id = document.getElementById('ytChannel').value;
-  if(!query || !guild_id || !discord_channel_id) return toast('Fill all fields','error');
-  try{
-    const j = await api('/youtube/subscribe',{method:'POST',body:JSON.stringify({query,guild_id,discord_channel_id})});
-    toast(`Subscribed to ${j.channel.title}`,'success');
-    document.getElementById('ytQuery').value='';
+  if (!query || !guild_id || !discord_channel_id) return toast('Fill all fields', 'error');
+
+  const btn = document.getElementById('btnYtSub');
+  btn.classList.add('loading');
+  try {
+    const j = await api('/youtube/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ query, guild_id, discord_channel_id })
+    });
+    toast(`Subscribed to ${j.channel.title}`, 'success');
+    document.getElementById('ytQuery').value = '';
     loadYouTube();
-  }catch(e){toast(e.message,'error')}
-}
-async function ytUnsubscribe(guild_id, discord_channel_id, yt_channel_id){
-  if(!confirm('Remove this subscription?')) return;
-  try{
-    await api('/youtube/unsubscribe',{method:'POST',body:JSON.stringify({guild_id,discord_channel_id,yt_channel_id})});
-    toast('Unsubscribed','success');
-    loadYouTube();
-  }catch(e){toast(e.message,'error')}
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); }
 }
 
-async function sendBroadcast(){
+async function ytUnsubscribe(guild_id, discord_channel_id, yt_channel_id) {
+  if (!confirm('Remove this subscription?')) return;
+  try {
+    await api('/youtube/unsubscribe', {
+      method: 'POST',
+      body: JSON.stringify({ guild_id, discord_channel_id, yt_channel_id })
+    });
+    toast('Unsubscribed', 'success');
+    loadYouTube();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ===== BROADCAST ===== */
+async function sendBroadcast() {
   const payload = {
     channel_id: document.getElementById('bcChannel').value,
     content: document.getElementById('bcContent').value,
     embed: document.getElementById('bcEmbed').checked,
   };
-  if(!payload.channel_id || !payload.content) return toast('Pick a channel and write a message','error');
-  try{
-    await api('/send-message',{method:'POST',body:JSON.stringify(payload)});
-    toast('Message sent','success');
-    document.getElementById('bcContent').value='';
-  }catch(e){toast(e.message,'error')}
+  if (!payload.channel_id || !payload.content) return toast('Pick a channel and write a message', 'error');
+
+  const btn = document.getElementById('btnBroadcast');
+  btn.classList.add('loading');
+  try {
+    await api('/send-message', { method: 'POST', body: JSON.stringify(payload) });
+    toast('Message sent', 'success');
+    document.getElementById('bcContent').value = '';
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); }
 }
 
-async function savePresence(){
+/* ===== PRESENCE ===== */
+async function loadPresenceTab() {
+  await Promise.all([refreshPresenceLive(), loadPresenceEntries()]);
+}
+
+async function refreshPresenceLive() {
+  try {
+    const p = await api('/presence/current');
+    document.getElementById('presLiveText').textContent = p.text || '(none)';
+    const typeMap = { watching: '👁️ Watching', playing: '🎮 Playing', listening: '🎵 Listening', streaming: '📺 Streaming' };
+    document.getElementById('presLiveType').textContent = typeMap[p.activity_type] || p.activity_type;
+  } catch (e) { console.error(e); }
+}
+
+async function loadPresenceEntries() {
+  try {
+    const entries = await api('/presence/entries');
+    const wrap = document.getElementById('presEntriesList');
+    if (!entries.length) {
+      wrap.innerHTML = `<div class="empty"><i class="fas fa-layer-group"></i>No custom entries. The bot uses its default YouTube rotation.</div>`;
+    } else {
+      const iconMap = { watching: 'fa-eye', playing: 'fa-gamepad', listening: 'fa-headphones', streaming: 'fa-tv' };
+      wrap.innerHTML = entries.map(e => `
+        <div class="pres-entry">
+          <div class="pe-icon"><i class="fas ${iconMap[e.activity_type] || 'fa-circle'}"></i></div>
+          <div class="pe-info">
+            <div class="pe-text">${escapeHtml(e.text)}</div>
+            <div class="pe-type">${e.activity_type}${e.url ? ' · ' + escapeHtml(e.url) : ''}</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="removePresenceEntry(${e.id})" title="Remove">
+            <i class="fas fa-xmark"></i>
+          </button>
+        </div>`).join('');
+    }
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function addPresenceEntry() {
+  const text = document.getElementById('newPresText').value.trim();
+  const activity_type = document.getElementById('newPresType').value;
+  const url = document.getElementById('newPresUrl').value.trim();
+  if (!text) return toast('Enter presence text', 'error');
+
+  try {
+    await api('/presence/entries', {
+      method: 'POST',
+      body: JSON.stringify({ activity_type, text, url })
+    });
+    toast('Presence entry added', 'success');
+    document.getElementById('newPresText').value = '';
+    document.getElementById('newPresUrl').value = '';
+    loadPresenceEntries();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function removePresenceEntry(id) {
+  try {
+    await api(`/presence/entries/${id}`, { method: 'DELETE' });
+    toast('Entry removed', 'success');
+    loadPresenceEntries();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function clearPresenceEntries() {
+  if (!confirm('Remove all custom presence entries?')) return;
+  try {
+    await api('/presence/entries/clear', { method: 'POST' });
+    toast('All entries cleared', 'success');
+    loadPresenceEntries();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+async function savePresenceSettings() {
   const payload = {
     status: document.getElementById('pStatus').value,
     activity: document.getElementById('pActivity').value,
     text: document.getElementById('pText').value,
     rotation: document.getElementById('pRotation').checked,
   };
-  try{await api('/presence',{method:'POST',body:JSON.stringify(payload)}); toast('Presence updated','success');}
-  catch(e){toast(e.message,'error')}
+  try {
+    await api('/presence', { method: 'POST', body: JSON.stringify(payload) });
+    toast('Presence updated', 'success');
+  } catch (e) { toast(e.message, 'error'); }
 }
 
-async function loadConfig(){
-  try{
+/* ===== CONFIG ===== */
+async function loadConfig() {
+  try {
     const c = await api('/config');
     document.getElementById('cfgPrefix').value = c.PREFIX || '$';
     document.getElementById('cfgWelcome').value = c.WELCOME_CHANNEL_ID || '';
-    document.getElementById('cfgYtStatus').textContent = c.YOUTUBE_API_KEY_SET ? `API key set · poll every ${c.YOUTUBE_POLL_INTERVAL}s` : 'No YouTube API key — YT features disabled';
-  }catch(e){console.error(e)}
+  } catch (e) { console.error(e); }
 }
-async function saveConfig(){
+
+async function saveConfig() {
   const payload = {
     PREFIX: document.getElementById('cfgPrefix').value || '$',
     WELCOME_CHANNEL_ID: document.getElementById('cfgWelcome').value,
   };
   const ytKey = document.getElementById('cfgYtKey').value.trim();
-  if(ytKey) payload.YOUTUBE_API_KEY = ytKey;
+  if (ytKey) payload.YOUTUBE_API_KEY = ytKey;
   const pw = document.getElementById('cfgPassword').value;
-  if(pw) payload.ADMIN_PASSWORD = pw;
-  try{
-    const j = await api('/config',{method:'POST',body:JSON.stringify(payload)});
-    if(j.token){TOKEN = j.token; localStorage.setItem('botToken', TOKEN);}
-    toast('Configuration saved','success');
-    document.getElementById('cfgYtKey').value='';
-    document.getElementById('cfgPassword').value='';
+  if (pw) payload.ADMIN_PASSWORD = pw;
+
+  const btn = document.getElementById('btnSaveConfig');
+  btn.classList.add('loading');
+  try {
+    const j = await api('/config', { method: 'POST', body: JSON.stringify(payload) });
+    if (j.token) { TOKEN = j.token; localStorage.setItem('botToken', TOKEN); }
+    toast('Configuration saved', 'success');
+    document.getElementById('cfgYtKey').value = '';
+    document.getElementById('cfgPassword').value = '';
     loadConfig();
-  }catch(e){toast(e.message,'error')}
-}
-async function restartBot(){
-  if(!confirm('Restart the bot? This will disconnect briefly.')) return;
-  try{await api('/restart',{method:'POST'}); toast('Restarting…','success');}
-  catch(e){toast(e.message,'error')}
+    refreshAll();
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.classList.remove('loading'); }
 }
 
-async function loadLogs(){
-  try{
+async function testApiKey() {
+  let key = document.getElementById('cfgYtKey').value.trim();
+  const resultEl = document.getElementById('apiTestResult');
+  resultEl.className = 'test-result';
+  resultEl.style.display = 'none';
+
+  if (!key) {
+    // Test the currently saved key
+    try {
+      const c = await api('/config');
+      if (!c.YOUTUBE_API_KEY_SET) {
+        resultEl.className = 'test-result err';
+        resultEl.textContent = 'No API key is currently configured. Enter one above.';
+        resultEl.style.display = 'block';
+        return;
+      }
+    } catch (e) { /* ignore */ }
+    // Send empty to test saved key
+  }
+
+  const btn = document.getElementById('btnTestKey');
+  btn.classList.add('loading');
+  try {
+    const r = await api('/test-yt-key', {
+      method: 'POST',
+      body: JSON.stringify({ key: key || '' })
+    });
+    resultEl.className = `test-result ${r.ok ? 'ok' : 'err'}`;
+    resultEl.textContent = r.message;
+    resultEl.style.display = 'block';
+  } catch (e) {
+    resultEl.className = 'test-result err';
+    resultEl.textContent = e.message;
+    resultEl.style.display = 'block';
+  }
+  finally { btn.classList.remove('loading'); }
+}
+
+async function restartBot() {
+  if (!confirm('Restart the bot? This will disconnect briefly.')) return;
+  try {
+    await api('/restart', { method: 'POST' });
+    toast('Restarting… page will reload in 5s.', 'success');
+    setTimeout(() => location.reload(), 5000);
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+/* ===== LOGS ===== */
+async function loadLogs() {
+  try {
     const logs = await api('/logs');
     const list = document.getElementById('logList');
-    list.innerHTML = logs.slice().reverse().map(l => `<div class="log-row ${l.level}"><span class="ts">${l.timestamp}</span><span class="lvl">${l.level}</span><span class="msg">${escapeHtml(l.message)}</span></div>`).join('');
-  }catch(e){toast(e.message,'error')}
+    list.innerHTML = logs.slice().reverse().map(l =>
+      `<div class="log-row ${l.level}">
+        <span class="ts">${l.timestamp}</span>
+        <span class="lvl">${l.level}</span>
+        <span class="msg">${escapeHtml(l.message)}</span>
+      </div>`
+    ).join('');
+  } catch (e) { toast(e.message, 'error'); }
 }
 
-function escapeHtml(s){return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function toast(msg, kind=''){
+/* ===== UTILS ===== */
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
+  );
+}
+
+function toast(msg, kind = 'info') {
+  const icons = { success: 'circle-check', error: 'circle-exclamation', info: 'info-circle' };
   const t = document.createElement('div');
   t.className = `toast ${kind}`;
-  t.innerHTML = `<i class="fas fa-${kind==='success'?'circle-check':kind==='error'?'circle-exclamation':'info-circle'}"></i><span>${escapeHtml(msg)}</span>`;
+  t.innerHTML = `<i class="fas fa-${icons[kind] || 'info-circle'}"></i><span>${escapeHtml(msg)}</span>`;
   document.body.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .3s';setTimeout(()=>t.remove(),300)},3500);
+  setTimeout(() => {
+    t.style.opacity = '0';
+    t.style.transition = 'opacity 0.3s';
+    setTimeout(() => t.remove(), 300);
+  }, 3500);
 }
 </script>
 </body>
