@@ -1343,9 +1343,17 @@ a:hover { color: var(--brand); }
             </div>
           </div>
           <hr class="divider" />
-          <div class="field" style="max-width:440px">
-            <label for="cfgPassword">Change Admin Password</label>
-            <input id="cfgPassword" type="password" placeholder="Leave blank to retain current password" autocomplete="new-password" />
+          <div class="grid g-2" style="margin-bottom: 20px;">
+            <div class="field">
+              <label for="cfgDiscordToken">Discord Bot Token</label>
+              <input id="cfgDiscordToken" type="password" placeholder="••••••••••••••••" autocomplete="off" />
+              <div id="cfgDiscordTokenHint" class="hint">Leave blank to keep the current token.</div>
+            </div>
+            <div class="field">
+              <label for="cfgPassword">Change Admin Password</label>
+              <input id="cfgPassword" type="password" placeholder="Leave blank to retain current password" autocomplete="new-password" />
+              <div class="hint">Leave blank to keep the current password.</div>
+            </div>
           </div>
           <div class="btn-group">
             <button class="btn btn-primary btn-lg" onclick="saveConfig()" id="btnSaveConfig">
@@ -1938,6 +1946,19 @@ async function loadConfig() {
     document.getElementById('cfgWelcome').value = c.WELCOME_CHANNEL_ID || '';
     document.getElementById('cfgYtChannel').value = c.YOUTUBE_CHANNEL_ID || '';
     document.getElementById('cfgYtNotifyChannel').value = c.YOUTUBE_NOTIFY_CHANNEL_ID || '';
+
+    // Update Discord Token visual indicators
+    const tokEl = document.getElementById('cfgDiscordToken');
+    const tokHint = document.getElementById('cfgDiscordTokenHint');
+    if (c.DISCORD_TOKEN_SET) {
+      tokEl.placeholder = '••••••••••••••••';
+      tokHint.textContent = 'Active. Leave blank to keep current token.';
+      tokHint.style.color = 'var(--neon-green)';
+    } else {
+      tokEl.placeholder = 'Token not configured';
+      tokHint.textContent = 'Missing token! Add one to connect the bot.';
+      tokHint.style.color = 'var(--neon-red)';
+    }
   } catch (e) { console.error(e); }
 }
 
@@ -1950,6 +1971,8 @@ async function saveConfig() {
   };
   const ytKey = document.getElementById('cfgYtKey').value.trim();
   if (ytKey) payload.YOUTUBE_API_KEY = ytKey;
+  const discordTok = document.getElementById('cfgDiscordToken').value.trim();
+  if (discordTok) payload.DISCORD_TOKEN = discordTok;
   const pw = document.getElementById('cfgPassword').value;
   if (pw) payload.ADMIN_PASSWORD = pw;
 
@@ -1960,6 +1983,7 @@ async function saveConfig() {
     if (j.token) { TOKEN = j.token; localStorage.setItem('botToken', TOKEN); }
     toast('Configurations saved successfully!', 'success');
     document.getElementById('cfgYtKey').value = '';
+    document.getElementById('cfgDiscordToken').value = '';
     document.getElementById('cfgPassword').value = '';
     loadConfig();
     refreshAll();

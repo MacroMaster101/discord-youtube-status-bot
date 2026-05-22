@@ -60,6 +60,7 @@ def get_config():
         "YOUTUBE_CHANNEL_ID": Config.YOUTUBE_CHANNEL_ID or "",
         "YOUTUBE_NOTIFY_CHANNEL_ID": Config.YOUTUBE_NOTIFY_CHANNEL_ID or "",
         "YOUTUBE_POLL_INTERVAL": Config.YOUTUBE_POLL_INTERVAL,
+        "DISCORD_TOKEN_SET": bool(Config.DISCORD_TOKEN),
     })
 
 
@@ -75,6 +76,8 @@ def set_config():
             Config.update_env("ADMIN_PASSWORD", str(data["ADMIN_PASSWORD"]))
         if "YOUTUBE_API_KEY" in data and data["YOUTUBE_API_KEY"]:
             Config.update_env("YOUTUBE_API_KEY", str(data["YOUTUBE_API_KEY"]))
+        if "DISCORD_TOKEN" in data and data["DISCORD_TOKEN"]:
+            Config.update_env("DISCORD_TOKEN", str(data["DISCORD_TOKEN"]))
         if "YOUTUBE_CHANNEL_ID" in data:
             Config.update_env("YOUTUBE_CHANNEL_ID", str(data["YOUTUBE_CHANNEL_ID"]))
         state.add_log(f"Configuration updated", "success")

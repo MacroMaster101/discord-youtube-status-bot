@@ -41,9 +41,6 @@ class Config:
                         # Do not overwrite a non-empty environment/dotenv value with an empty one
                         if current_val and not v:
                             continue
-                        # Prioritize environment variables/secrets if they are set in the actual environment
-                        if k in ("DISCORD_TOKEN", "YOUTUBE_API_KEY") and os.getenv(k):
-                            continue
 
                         if k in ("YOUTUBE_POLL_INTERVAL", "PORT"):
                             setattr(cls, k, int(v))
