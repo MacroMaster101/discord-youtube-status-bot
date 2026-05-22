@@ -14,31 +14,45 @@ def setup_poller(client: discord.Client):
             return
 
         # 1. Refresh metadata for the rotating presence
+        info, live, upcoming, latest = None, None, None, None
         try:
             info = await yt_api.resolve_channel(Config.YOUTUBE_CHANNEL_ID)
-            live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
-        except yt_api.YouTubeError as e:
-            state.add_log(f"YT cache refresh failed for primary channel: {e}", "error")
+        except Exception as e:
+            state.add_log(f"YT cache resolve channel failed: {e}", "error")
             return
 
-        if info:
-            state.YT_CHANNEL_CACHE[Config.YOUTUBE_CHANNEL_ID] = {
-                "title": info["title"],
-                "subscriber_count": info["subscriber_count"],
-                "view_count": info.get("view_count", 0),
-                "video_count": info.get("video_count", 0),
-                "hidden_subs": info.get("hidden_subs", False),
-                "url": f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}",
-                "live_url": live["url"] if live else None,
-                "live_title": live["title"] if live else None,
-            }
+        if not info:
+            return
 
-        # 2. Check for new uploads + post notifications
+        try:
+            live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
+        except Exception as e:
+            state.add_log(f"YT cache check live failed: {e}", "warning")
+
+        try:
+            upcoming = await yt_api.upcoming_stream(Config.YOUTUBE_CHANNEL_ID)
+        except Exception as e:
+            state.add_log(f"YT cache check upcoming failed: {e}", "warning")
+
         try:
             latest = await yt_api.latest_video(Config.YOUTUBE_CHANNEL_ID)
-        except yt_api.YouTubeError as e:
-            state.add_log(f"YT poll upload check failed: {e}", "error")
-            return
+        except Exception as e:
+            state.add_log(f"YT cache check latest failed: {e}", "warning")
+
+        state.YT_CHANNEL_CACHE[Config.YOUTUBE_CHANNEL_ID] = {
+            "title": info["title"],
+            "subscriber_count": info["subscriber_count"],
+            "view_count": info.get("view_count", 0),
+            "video_count": info.get("video_count", 0),
+            "hidden_subs": info.get("hidden_subs", False),
+            "url": f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}",
+            "live_url": live["url"] if live else None,
+            "live_title": live["title"] if live else None,
+            "upcoming_title": upcoming["title"] if upcoming else None,
+            "upcoming_url": upcoming["url"] if upcoming else None,
+            "latest_video_title": latest["title"] if latest else None,
+            "latest_video_url": latest["url"] if latest else None,
+        }
 
         if latest:
             if not Config.YOUTUBE_LAST_VIDEO_ID:

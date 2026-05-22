@@ -36,7 +36,19 @@ def build_bot() -> commands.Bot:
                 try:
                     info = await yt_api.resolve_channel(Config.YOUTUBE_CHANNEL_ID)
                     if info:
-                        live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
+                        live, upcoming, latest = None, None, None
+                        try:
+                            live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
+                        except Exception:
+                            pass
+                        try:
+                            upcoming = await yt_api.upcoming_stream(Config.YOUTUBE_CHANNEL_ID)
+                        except Exception:
+                            pass
+                        try:
+                            latest = await yt_api.latest_video(Config.YOUTUBE_CHANNEL_ID)
+                        except Exception:
+                            pass
                         state.YT_CHANNEL_CACHE[Config.YOUTUBE_CHANNEL_ID] = {
                             "title": info["title"],
                             "subscriber_count": info["subscriber_count"],
@@ -46,6 +58,10 @@ def build_bot() -> commands.Bot:
                             "url": f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}",
                             "live_url": live["url"] if live else None,
                             "live_title": live["title"] if live else None,
+                            "upcoming_title": upcoming["title"] if upcoming else None,
+                            "upcoming_url": upcoming["url"] if upcoming else None,
+                            "latest_video_title": latest["title"] if latest else None,
+                            "latest_video_url": latest["url"] if latest else None,
                         }
                         state.add_log(f"Successfully cached main channel: {info['title']}", "success")
                 except Exception as e:

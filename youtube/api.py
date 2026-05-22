@@ -107,6 +107,26 @@ async def live_stream(yt_channel_id: str) -> Optional[dict]:
         }
 
 
+async def upcoming_stream(yt_channel_id: str) -> Optional[dict]:
+    """If the channel has an upcoming scheduled live stream, return {id, title, url}. Else None."""
+    async with aiohttp.ClientSession() as session:
+        data = await _get(session, "search", {
+            "part": "snippet", "channelId": yt_channel_id, "eventType": "upcoming",
+            "type": "video", "maxResults": 1,
+        })
+        items = data.get("items", [])
+        if not items:
+            return None
+        it = items[0]
+        vid = it["id"]["videoId"]
+        sn = it["snippet"]
+        return {
+            "id": vid,
+            "title": sn["title"],
+            "url": f"https://www.youtube.com/watch?v={vid}",
+        }
+
+
 async def latest_video(yt_channel_id: str) -> Optional[dict]:
     """Returns {id, title, thumbnail, published_at, url} for the most recent upload, or None."""
     async with aiohttp.ClientSession() as session:

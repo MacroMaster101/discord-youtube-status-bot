@@ -87,6 +87,10 @@ def _format_status_text(text: str, client: discord.Client, channel_info: dict | 
         "videos": "",
         "live_title": "",
         "live_url": "",
+        "upcoming_title": "",
+        "upcoming_url": "",
+        "latest_video_title": "",
+        "latest_video_url": "",
     }
 
     if channel_info:
@@ -98,6 +102,10 @@ def _format_status_text(text: str, client: discord.Client, channel_info: dict | 
             "videos": f"{channel_info.get('video_count', 0):,}",
             "live_title": channel_info.get("live_title") or "",
             "live_url": channel_info.get("live_url") or "",
+            "upcoming_title": channel_info.get("upcoming_title") or "",
+            "upcoming_url": channel_info.get("upcoming_url") or "",
+            "latest_video_title": channel_info.get("latest_video_title") or "",
+            "latest_video_url": channel_info.get("latest_video_url") or "",
         })
 
     try:
@@ -152,6 +160,20 @@ def _pick(client: discord.Client):
                 "activity_type": "streaming",
                 "text": "🔴 LIVE: {title} — {live_title}",
                 "url": channel_info["live_url"],
+                "channel_info": channel_info
+            })
+        if channel_info.get("upcoming_title"):
+            rotation_items.append({
+                "activity_type": "streaming",
+                "text": "📅 Upcoming: {upcoming_title}",
+                "url": channel_info["upcoming_url"],
+                "channel_info": channel_info
+            })
+        if channel_info.get("latest_video_title"):
+            rotation_items.append({
+                "activity_type": "streaming",
+                "text": "🆕 New: {latest_video_title}",
+                "url": channel_info["latest_video_url"],
                 "channel_info": channel_info
             })
 
