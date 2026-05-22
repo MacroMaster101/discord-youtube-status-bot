@@ -29,7 +29,7 @@ def build_bot() -> commands.Bot:
         
         # Clear registered global slash commands from Discord so the {/} badge is removed
         try:
-            bot.tree.clear(guild=None)
+            bot.tree.clear_commands(guild=None)
             await bot.tree.sync()
             state.add_log("Cleared globally registered slash commands from Discord API", "success")
         except Exception as e:

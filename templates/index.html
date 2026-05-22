@@ -2560,13 +2560,24 @@ async function loadLogs() {
   try {
     const logs = await api('/logs');
     const list = document.getElementById('logList');
-    list.innerHTML = logs.slice().reverse().map(l =>
-      `<div class="log-row ${l.level}">
-        <span class="ts">${l.timestamp}</span>
+    list.innerHTML = logs.slice().reverse().map(l => {
+      let displayTime = l.timestamp;
+      try {
+        if (l.timestamp.includes('T') || l.timestamp.includes('Z')) {
+          const date = new Date(l.timestamp);
+          if (!isNaN(date.getTime())) {
+            displayTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+          }
+        }
+      } catch (e) {
+        console.error("Failed to parse log timestamp:", e);
+      }
+      return `<div class="log-row ${l.level}">
+        <span class="ts">${displayTime}</span>
         <span class="lvl">${l.level}</span>
         <span class="msg">${escapeHtml(l.message)}</span>
-      </div>`
-    ).join('');
+      </div>`;
+    }).join('');
   } catch (e) { toast(e.message, 'error'); }
 }
 

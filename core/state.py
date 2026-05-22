@@ -28,11 +28,13 @@ _log_lock = threading.Lock()
 
 
 def add_log(message: str, level: str = "info"):
-    timestamp = datetime.datetime.now().strftime("%H:%M:%S")
-    entry = {"timestamp": timestamp, "message": message, "level": level}
+    now_utc = datetime.datetime.utcnow()
+    timestamp_iso = now_utc.isoformat() + "Z"
+    console_ts = now_utc.strftime("%H:%M:%S") + " UTC"
+    entry = {"timestamp": timestamp_iso, "message": message, "level": level}
     with _log_lock:
         LOGS_BUFFER.append(entry)
-    sys.stdout.write(f"[{timestamp}] [{level.upper()}] {message}\n")
+    sys.stdout.write(f"[{console_ts}] [{level.upper()}] {message}\n")
     sys.stdout.flush()
 
 
