@@ -1528,8 +1528,31 @@ a:hover { color: var(--brand); }
             </div>
             
             <div class="field" style="margin-top: 24px;">
-              <label for="cfgYtNotifyChannel">Discord Announcement Channel ID</label>
-              <div class="input-icon-wrap discord-icon-wrap">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <label for="cfgYtNotifyChannel">Discord Announcement Channel</label>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnToggleYtNotifyMode" onclick="toggleInputMode('YtNotify')" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;">
+                  <i class="fas fa-keyboard"></i> Manual ID
+                </button>
+              </div>
+
+              <!-- Dropdown Selector Group (Default) -->
+              <div id="groupYtNotifyDropdown" class="field-row" style="gap: 10px; width: 100%;">
+                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1;">
+                  <select id="cfgYtNotifyGuild" onchange="populateChannelsDropdown('cfgYtNotifyGuild', 'cfgYtNotifySelect'); syncChannelIdVal('cfgYtNotifySelect', 'cfgYtNotifyChannel')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
+                    <option value="">Select Server...</option>
+                  </select>
+                  <i class="fas fa-server prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
+                </div>
+                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1.2;">
+                  <select id="cfgYtNotifySelect" onchange="syncChannelIdVal('cfgYtNotifySelect', 'cfgYtNotifyChannel')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
+                    <option value="">Select Channel...</option>
+                  </select>
+                  <i class="fas fa-hashtag prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
+                </div>
+              </div>
+
+              <!-- Manual ID Input (Hidden by default) -->
+              <div id="groupYtNotifyManual" class="input-icon-wrap discord-icon-wrap hidden">
                 <input id="cfgYtNotifyChannel" placeholder="e.g. 1122334455667788" autocomplete="off" />
                 <i class="fas fa-bullhorn prefix-icon"></i>
               </div>
@@ -1537,8 +1560,31 @@ a:hover { color: var(--brand); }
             </div>
 
             <div class="field" style="margin-top: 24px;">
-              <label for="cfgWelcome">Welcome Discord Channel ID</label>
-              <div class="input-icon-wrap discord-icon-wrap">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <label for="cfgWelcome">Welcome Discord Channel</label>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnToggleWelcomeMode" onclick="toggleInputMode('Welcome')" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;">
+                  <i class="fas fa-keyboard"></i> Manual ID
+                </button>
+              </div>
+
+              <!-- Dropdown Selector Group (Default) -->
+              <div id="groupWelcomeDropdown" class="field-row" style="gap: 10px; width: 100%;">
+                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1;">
+                  <select id="cfgWelcomeGuild" onchange="populateChannelsDropdown('cfgWelcomeGuild', 'cfgWelcomeSelect'); syncChannelIdVal('cfgWelcomeSelect', 'cfgWelcome')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
+                    <option value="">Select Server...</option>
+                  </select>
+                  <i class="fas fa-server prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
+                </div>
+                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1.2;">
+                  <select id="cfgWelcomeSelect" onchange="syncChannelIdVal('cfgWelcomeSelect', 'cfgWelcome')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
+                    <option value="">Select Channel...</option>
+                  </select>
+                  <i class="fas fa-hashtag prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
+                </div>
+              </div>
+
+              <!-- Manual ID Input (Hidden by default) -->
+              <div id="groupWelcomeManual" class="input-icon-wrap discord-icon-wrap hidden">
                 <input id="cfgWelcome" placeholder="e.g. 1122334455667788" autocomplete="off" />
                 <i class="fas fa-door-open prefix-icon"></i>
               </div>
@@ -1624,6 +1670,8 @@ let SERVERS = [];
 let CURRENT_TAB = 'dashboard';
 let pollTimer = null;
 let YT_CHANNEL_DATA = null;
+let resolvedConfigDropdowns = false;
+let inputModes = { YtNotify: 'dropdown', Welcome: 'dropdown' };
 
 /* ===== VISIBILITY TOGGLE ===== */
 function togglePasswordVisibility(inputId, iconEl) {
@@ -1639,6 +1687,113 @@ function togglePasswordVisibility(inputId, iconEl) {
     iconEl.classList.remove('fa-eye-slash');
     iconEl.classList.add('fa-eye');
     iconEl.style.color = 'var(--text-muted)';
+  }
+}
+
+/* ===== CHANNEL SELECTOR SYSTEM ===== */
+function toggleInputMode(type) {
+  const modeBtn = document.getElementById(`btnToggle${type}Mode`);
+  const dropdownGroup = document.getElementById(`group${type}Dropdown`);
+  const manualGroup = document.getElementById(`group${type}Manual`);
+  const inputEl = document.getElementById(type === 'YtNotify' ? 'cfgYtNotifyChannel' : 'cfgWelcome');
+  const selectEl = document.getElementById(type === 'YtNotify' ? 'cfgYtNotifySelect' : 'cfgWelcomeSelect');
+  
+  if (inputModes[type] === 'dropdown') {
+    // Switch to manual mode
+    inputModes[type] = 'manual';
+    dropdownGroup.classList.add('hidden');
+    manualGroup.classList.remove('hidden');
+    modeBtn.innerHTML = '<i class="fas fa-list"></i> Select List';
+  } else {
+    // Switch to dropdown mode
+    inputModes[type] = 'dropdown';
+    manualGroup.classList.add('hidden');
+    dropdownGroup.classList.remove('hidden');
+    modeBtn.innerHTML = '<i class="fas fa-keyboard"></i> Manual ID';
+    
+    // Sync the select dropdown back to match the input value if possible
+    resolveDropdownFromSavedVal(type);
+  }
+}
+
+function populateChannelsDropdown(guildSelectId, channelSelectId) {
+  const guildSel = document.getElementById(guildSelectId);
+  const chanSel = document.getElementById(channelSelectId);
+  if (!guildSel || !chanSel) return;
+  
+  const guildId = guildSel.value;
+  const guild = SERVERS.find(s => s.id === guildId);
+  
+  if (!guild) {
+    chanSel.innerHTML = '<option value="">Select Channel...</option>';
+    return;
+  }
+  
+  chanSel.innerHTML = '<option value="">Select Channel...</option>' + 
+    guild.channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join('');
+}
+
+function syncChannelIdVal(selectId, inputId) {
+  const sel = document.getElementById(selectId);
+  const inp = document.getElementById(inputId);
+  if (sel && inp) {
+    inp.value = sel.value;
+  }
+}
+
+function resolveDropdownFromSavedVal(type) {
+  const inputId = type === 'YtNotify' ? 'cfgYtNotifyChannel' : 'cfgWelcome';
+  const guildSelectId = type === 'YtNotify' ? 'cfgYtNotifyGuild' : 'cfgWelcomeGuild';
+  const chanSelectId = type === 'YtNotify' ? 'cfgYtNotifySelect' : 'cfgWelcomeSelect';
+  
+  const inputEl = document.getElementById(inputId);
+  const guildSel = document.getElementById(guildSelectId);
+  const chanSel = document.getElementById(chanSelectId);
+  
+  if (!inputEl || !guildSel || !chanSel) return;
+  
+  const savedId = inputEl.value.trim();
+  
+  // 1. Populate Guild Server Options
+  guildSel.innerHTML = '<option value="">Select Server...</option>' +
+    SERVERS.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('');
+  
+  if (!savedId) {
+    guildSel.value = '';
+    chanSel.innerHTML = '<option value="">Select Channel...</option>';
+    return;
+  }
+  
+  // 2. Search for the guild containing this channel ID
+  let foundGuild = null;
+  let foundChannel = null;
+  
+  for (const s of SERVERS) {
+    const c = s.channels.find(ch => ch.id === savedId);
+    if (c) {
+      foundGuild = s;
+      foundChannel = c;
+      break;
+    }
+  }
+  
+  if (foundGuild && foundChannel) {
+    // Match found! Select them in dropdowns
+    guildSel.value = foundGuild.id;
+    populateChannelsDropdown(guildSelectId, chanSelectId);
+    chanSel.value = foundChannel.id;
+    
+    // Ensure dropdown view is active
+    inputModes[type] = 'dropdown';
+    document.getElementById(`group${type}Dropdown`).classList.remove('hidden');
+    document.getElementById(`group${type}Manual`).classList.add('hidden');
+    document.getElementById(`btnToggle${type}Mode`).innerHTML = '<i class="fas fa-keyboard"></i> Manual ID';
+  } else {
+    // No match found - default to Manual Input mode so user sees their saved value
+    inputModes[type] = 'manual';
+    document.getElementById(`group${type}Dropdown`).classList.add('hidden');
+    document.getElementById(`group${type}Manual`).classList.remove('hidden');
+    document.getElementById(`btnToggle${type}Mode`).innerHTML = '<i class="fas fa-list"></i> Select List';
   }
 }
 
@@ -1736,6 +1891,14 @@ async function refreshAll() {
     SERVERS = servers;
     renderStats(stats);
     renderServerOptions();
+    
+    // Auto-resolve configuration channel ID dropdowns on initial boot/refresh
+    if (SERVERS.length > 0 && !resolvedConfigDropdowns && document.getElementById('cfgYtNotifyGuild')) {
+      resolveDropdownFromSavedVal('YtNotify');
+      resolveDropdownFromSavedVal('Welcome');
+      resolvedConfigDropdowns = true;
+    }
+    
     if (CURRENT_TAB === 'youtube') loadYouTube();
     if (CURRENT_TAB === 'logs') loadLogs();
     if (CURRENT_TAB === 'presence') refreshPresenceLive();
@@ -2228,6 +2391,14 @@ async function loadConfig() {
     const ovSys = document.getElementById('ov-system-status');
     if (ovSys) {
       ovSys.textContent = `Prefix: ${c.PREFIX || '$'}`;
+    }
+    
+    // Re-resolve channel selections
+    resolvedConfigDropdowns = false;
+    if (SERVERS.length > 0) {
+      resolveDropdownFromSavedVal('YtNotify');
+      resolveDropdownFromSavedVal('Welcome');
+      resolvedConfigDropdowns = true;
     }
   } catch (e) { console.error(e); }
 }
