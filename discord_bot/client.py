@@ -29,6 +29,29 @@ def build_bot() -> commands.Bot:
             state.add_log(f"Synced {len(synced)} slash commands", "success")
         except Exception as e:
             state.add_log(f"Slash sync failed: {e}", "error")
+        # Eagerly fetch default channel stats on startup if configured
+        if Config.YOUTUBE_CHANNEL_ID and Config.YOUTUBE_API_KEY:
+            async def resolve_default():
+                from youtube import api as yt_api
+                try:
+                    info = await yt_api.resolve_channel(Config.YOUTUBE_CHANNEL_ID)
+                    if info:
+                        live = await yt_api.live_stream(Config.YOUTUBE_CHANNEL_ID)
+                        state.YT_CHANNEL_CACHE[Config.YOUTUBE_CHANNEL_ID] = {
+                            "title": info["title"],
+                            "subscriber_count": info["subscriber_count"],
+                            "view_count": info.get("view_count", 0),
+                            "video_count": info.get("video_count", 0),
+                            "hidden_subs": info.get("hidden_subs", False),
+                            "url": f"https://www.youtube.com/channel/{Config.YOUTUBE_CHANNEL_ID}",
+                            "live_url": live["url"] if live else None,
+                            "live_title": live["title"] if live else None,
+                        }
+                        state.add_log(f"Successfully cached main channel: {info['title']}", "success")
+                except Exception as e:
+                    state.add_log(f"Failed eager resolution of main channel: {e}", "error")
+            bot.loop.create_task(resolve_default())
+
         start_presence(bot)
         poller = setup_poller(bot)
         if not poller.is_running():

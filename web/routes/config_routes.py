@@ -57,6 +57,7 @@ def get_config():
         "PREFIX": Config.PREFIX,
         "WELCOME_CHANNEL_ID": Config.WELCOME_CHANNEL_ID or "",
         "YOUTUBE_API_KEY_SET": bool(Config.YOUTUBE_API_KEY),
+        "YOUTUBE_CHANNEL_ID": Config.YOUTUBE_CHANNEL_ID or "",
         "YOUTUBE_POLL_INTERVAL": Config.YOUTUBE_POLL_INTERVAL,
     })
 
@@ -73,6 +74,8 @@ def set_config():
             Config.update_env("ADMIN_PASSWORD", str(data["ADMIN_PASSWORD"]))
         if "YOUTUBE_API_KEY" in data and data["YOUTUBE_API_KEY"]:
             Config.update_env("YOUTUBE_API_KEY", str(data["YOUTUBE_API_KEY"]))
+        if "YOUTUBE_CHANNEL_ID" in data:
+            Config.update_env("YOUTUBE_CHANNEL_ID", str(data["YOUTUBE_CHANNEL_ID"]))
         state.add_log(f"Configuration updated", "success")
         return jsonify({"status": "success", "token": Config.ADMIN_PASSWORD})
     except Exception as e:

@@ -16,6 +16,8 @@ def setup_poller(client: discord.Client):
 
         # Build unique channel set, then refresh cache + check uploads.
         unique_channels = {}
+        if Config.YOUTUBE_CHANNEL_ID:
+            unique_channels[Config.YOUTUBE_CHANNEL_ID] = "Main Channel"
         for guild_id, subs in all_subs.items():
             for sub in subs:
                 unique_channels.setdefault(sub["yt_channel_id"], sub["yt_channel_title"])

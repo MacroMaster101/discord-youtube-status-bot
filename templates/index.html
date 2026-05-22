@@ -969,6 +969,11 @@ a:hover { color: var(--brand); }
               <label for="cfgWelcome">Welcome Channel ID</label>
               <input id="cfgWelcome" placeholder="Channel ID" />
             </div>
+            <div class="field">
+              <label for="cfgYtChannel">Primary YouTube Channel ID (Single Channel Bot)</label>
+              <input id="cfgYtChannel" placeholder="e.g. UC_x5XG1OV2P6uZZ5FSM9Ttw" />
+              <div class="hint">Configuring this sets a default fallback/single tracked channel in environment.</div>
+            </div>
           </div>
           <hr class="divider" />
           <div class="field" style="max-width:400px">
@@ -1359,6 +1364,7 @@ async function loadConfig() {
     const c = await api('/config');
     document.getElementById('cfgPrefix').value = c.PREFIX || '$';
     document.getElementById('cfgWelcome').value = c.WELCOME_CHANNEL_ID || '';
+    document.getElementById('cfgYtChannel').value = c.YOUTUBE_CHANNEL_ID || '';
   } catch (e) { console.error(e); }
 }
 
@@ -1366,6 +1372,7 @@ async function saveConfig() {
   const payload = {
     PREFIX: document.getElementById('cfgPrefix').value || '$',
     WELCOME_CHANNEL_ID: document.getElementById('cfgWelcome').value,
+    YOUTUBE_CHANNEL_ID: document.getElementById('cfgYtChannel').value.trim(),
   };
   const ytKey = document.getElementById('cfgYtKey').value.trim();
   if (ytKey) payload.YOUTUBE_API_KEY = ytKey;
