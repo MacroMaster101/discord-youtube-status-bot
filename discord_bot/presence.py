@@ -206,7 +206,8 @@ def _pick(client: discord.Client):
     if not hasattr(_pick, "_idx"):
         _pick._idx = 0
     idx = _pick._idx % len(rotation_items)
-    _pick._idx += 1
+    if getattr(_pick, "_advance", True):
+        _pick._idx += 1
 
     item = rotation_items[idx]
     formatted = _format_status_text(item["text"], client, item["channel_info"])
@@ -219,12 +220,21 @@ def _pick(client: discord.Client):
             {"activity_type": item["activity_type"], "text": formatted, "url": url})
 
 
+def _peek(client: discord.Client):
+    """Return current presence without advancing the rotation index."""
+    _pick._advance = False
+    try:
+        return _pick(client)
+    finally:
+        _pick._advance = True
+
+
 def start_presence(client: discord.Client):
     # Guard against on_ready firing multiple times (reconnects) spawning duplicate loops
     if getattr(client, "_rotate_task", None) and client._rotate_task.is_running():
         return
 
-    @tasks.loop(seconds=12)
+    @tasks.loop(seconds=30)
     async def rotate():
         if not state.PRESENCE_ROTATION_ENABLED:
             return

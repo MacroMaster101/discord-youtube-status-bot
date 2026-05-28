@@ -90,8 +90,8 @@ def build_bot() -> commands.Bot:
                         
                         # Instantly update presence to reflect the cached channel stats
                         try:
-                            from discord_bot.presence import _pick, _STATUS_MAP
-                            activity, preview = _pick(bot)
+                            from discord_bot.presence import _peek, _STATUS_MAP
+                            activity, preview = _peek(bot)
                             status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
                             await bot.change_presence(status=status, activity=activity)
                             state.CURRENT_PRESENCE = preview

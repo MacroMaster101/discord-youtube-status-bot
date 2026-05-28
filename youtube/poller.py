@@ -78,8 +78,8 @@ def setup_poller(client: discord.Client):
         # Immediately update presence when live status changes
         if was_live != is_live:
             try:
-                from discord_bot.presence import _pick, _STATUS_MAP
-                activity, preview = _pick(client)
+                from discord_bot.presence import _peek, _STATUS_MAP
+                activity, preview = _peek(client)
                 status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
                 await client.change_presence(status=status, activity=activity)
                 state.CURRENT_PRESENCE = preview
