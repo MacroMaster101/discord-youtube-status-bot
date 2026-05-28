@@ -4,7 +4,7 @@ Priority order:
 1. If any tracked YouTube channel is LIVE → Streaming activity with stream URL.
 2. If user has added custom presence entries via the dashboard → rotate those.
 3. Otherwise rotate through tracked YT channels (name + sub count) as Streaming.
-4. Fallback: '/yt subscribe to start' hint.
+4. Fallback: help hint.
 
 Also writes the active activity to state.CURRENT_PRESENCE so the dashboard
 can show a live preview.
@@ -26,6 +26,10 @@ _ACT_MAP = {
     "listening": discord.ActivityType.listening,
     "streaming": discord.ActivityType.streaming,
 }
+
+# Module-level client reference set by start_presence()
+_client: discord.Client | None = None
+_rotation_index = 0
 
 
 def _format_subs(n: int) -> str:
@@ -60,7 +64,6 @@ def _format_status_text(text: str, client: discord.Client, channel_info: dict | 
 
     cache = state.YT_CHANNEL_CACHE
 
-    # Fallback to the first cached channel's statistics when single-channel variables are queried globally
     if not channel_info and cache:
         channel_info = list(cache.values())[0]
 
@@ -121,8 +124,31 @@ def _build_activity(activity_type: str, text: str, url: str | None):
     return discord.Activity(type=_ACT_MAP.get(activity_type, discord.ActivityType.watching), name=text)
 
 
-def _pick(client: discord.Client):
-    """Return (activity, preview_dict) for the next rotation tick."""
+def _build_rotation_items(channel_info: dict | None) -> list:
+    items = []
+
+    if channel_info:
+        items.append({"activity_type": "streaming", "text": "📺 {title} · {subs} subs", "url": channel_info["url"], "channel_info": channel_info})
+        items.append({"activity_type": "streaming", "text": "📺 {title} · {views} views", "url": channel_info["url"], "channel_info": channel_info})
+        items.append({"activity_type": "streaming", "text": "📺 {title} · {videos} videos", "url": channel_info["url"], "channel_info": channel_info})
+        if channel_info.get("upcoming_title"):
+            items.append({"activity_type": "streaming", "text": "📅 Upcoming: {upcoming_title}", "url": channel_info["upcoming_url"], "channel_info": channel_info})
+        if channel_info.get("latest_video_title"):
+            items.append({"activity_type": "streaming", "text": "🆕 New: {latest_video_title}", "url": channel_info["latest_video_url"], "channel_info": channel_info})
+
+    items.append({"activity_type": "watching", "text": "💡 Type {prefix}help for commands", "url": None, "channel_info": channel_info})
+
+    for e in storage.presence_list():
+        items.append({"activity_type": e["activity_type"], "text": e["text"], "url": e.get("url"), "channel_info": channel_info})
+
+    return items
+
+
+def _pick(advance: bool = True) -> tuple:
+    """Return (activity, preview_dict) for the current rotation position."""
+    global _rotation_index, _client
+
+    client = _client
     cache = state.YT_CHANNEL_CACHE
     from config import Config
 
@@ -132,7 +158,7 @@ def _pick(client: discord.Client):
     if not channel_info and cache:
         channel_info = list(cache.values())[0]
 
-    # If channel is live, pin the live status — don't rotate away from it
+    # Pin live status
     if channel_info and channel_info.get("live_url"):
         text = "🔴 LIVE: {live_title}"
         formatted = _format_status_text(text, client, channel_info)
@@ -141,73 +167,16 @@ def _pick(client: discord.Client):
         preview = {"activity_type": "streaming", "text": formatted, "url": url}
         return activity, preview
 
-    # Build rotation items
-    rotation_items = []
+    rotation_items = _build_rotation_items(channel_info)
 
-    if channel_info:
-        rotation_items.append({
-            "activity_type": "streaming",
-            "text": "📺 {title} · {subs} subs",
-            "url": channel_info["url"],
-            "channel_info": channel_info
-        })
-        rotation_items.append({
-            "activity_type": "streaming",
-            "text": "📺 {title} · {views} views",
-            "url": channel_info["url"],
-            "channel_info": channel_info
-        })
-        rotation_items.append({
-            "activity_type": "streaming",
-            "text": "📺 {title} · {videos} videos",
-            "url": channel_info["url"],
-            "channel_info": channel_info
-        })
-        if channel_info.get("upcoming_title"):
-            rotation_items.append({
-                "activity_type": "streaming",
-                "text": "📅 Upcoming: {upcoming_title}",
-                "url": channel_info["upcoming_url"],
-                "channel_info": channel_info
-            })
-        if channel_info.get("latest_video_title"):
-            rotation_items.append({
-                "activity_type": "streaming",
-                "text": "🆕 New: {latest_video_title}",
-                "url": channel_info["latest_video_url"],
-                "channel_info": channel_info
-            })
-
-    # Add help command reminder to rotation (always present)
-    rotation_items.append({
-        "activity_type": "watching",
-        "text": "💡 Type {prefix}help for commands",
-        "url": None,
-        "channel_info": channel_info
-    })
-
-    # Custom entries from the dashboard
-    custom = storage.presence_list()
-    for e in custom:
-        rotation_items.append({
-            "activity_type": e["activity_type"],
-            "text": e["text"],
-            "url": e.get("url"),
-            "channel_info": channel_info
-        })
-
-    # Empty fallback
     if not rotation_items:
         status_text = "📺 Setup YouTube Bot in Dashboard"
         return (_build_activity("watching", status_text, None),
                 {"activity_type": "watching", "text": status_text, "url": None})
 
-    # Cycle through the rotation items
-    if not hasattr(_pick, "_idx"):
-        _pick._idx = 0
-    idx = _pick._idx % len(rotation_items)
-    if getattr(_pick, "_advance", True):
-        _pick._idx += 1
+    idx = _rotation_index % len(rotation_items)
+    if advance:
+        _rotation_index += 1
 
     item = rotation_items[idx]
     formatted = _format_status_text(item["text"], client, item["channel_info"])
@@ -220,50 +189,45 @@ def _pick(client: discord.Client):
             {"activity_type": item["activity_type"], "text": formatted, "url": url})
 
 
-def _peek(client: discord.Client):
+def _peek() -> tuple:
     """Return current presence without advancing the rotation index."""
-    _pick._advance = False
+    return _pick(advance=False)
+
+
+# Module-level loop — defined once, safe to check .is_running() across reconnects
+@tasks.loop(seconds=15)
+async def _rotate():
+    if not state.PRESENCE_ROTATION_ENABLED or _client is None:
+        return
+    activity, preview = _pick(advance=True)
+    status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
     try:
-        return _pick(client)
-    finally:
-        _pick._advance = True
+        await _client.change_presence(status=status, activity=activity)
+        state.CURRENT_PRESENCE = preview
+    except Exception as e:
+        state.add_log(f"presence change failed: {e}", "error")
+
+
+@_rotate.before_loop
+async def _before_rotate():
+    if _client is not None:
+        await _client.wait_until_ready()
 
 
 def start_presence(client: discord.Client):
-    # Guard against on_ready firing multiple times (reconnects) spawning duplicate loops
-    if getattr(client, "_rotate_task", None) and client._rotate_task.is_running():
-        return
-
-    @tasks.loop(seconds=30)
-    async def rotate():
-        if not state.PRESENCE_ROTATION_ENABLED:
-            return
-        activity, preview = _pick(client)
-        status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
-        try:
-            await client.change_presence(status=status, activity=activity)
-            state.CURRENT_PRESENCE = preview
-        except Exception as e:
-            state.add_log(f"presence change failed: {e}", "error")
-
-    @rotate.before_loop
-    async def before():
-        await client.wait_until_ready()
-
-    rotate.start()
-    client._rotate_task = rotate
+    global _client
+    _client = client
+    if not _rotate.is_running():
+        _rotate.start()
 
 
 async def force_presence(bot, status: str, activity_type: str, text: str, prefix: str = ""):
     """One-shot presence change used by the dashboard when rotation is disabled."""
     ds = _STATUS_MAP.get(status, discord.Status.online)
     formatted = _format_status_text(text, bot)
-
     act = _build_activity(activity_type, formatted, None)
     try:
         await bot.change_presence(status=ds, activity=act)
         state.CURRENT_PRESENCE = {"activity_type": activity_type, "text": formatted, "url": None}
     except Exception as e:
         state.add_log(f"force_presence failed: {e}", "error")
-
-

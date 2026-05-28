@@ -79,7 +79,7 @@ def setup_poller(client: discord.Client):
         if was_live != is_live:
             try:
                 from discord_bot.presence import _peek, _STATUS_MAP
-                activity, preview = _peek(client)
+                activity, preview = _peek()
                 status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
                 await client.change_presence(status=status, activity=activity)
                 state.CURRENT_PRESENCE = preview
