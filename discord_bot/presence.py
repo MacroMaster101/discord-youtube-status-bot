@@ -220,6 +220,10 @@ def _pick(client: discord.Client):
 
 
 def start_presence(client: discord.Client):
+    # Guard against on_ready firing multiple times (reconnects) spawning duplicate loops
+    if getattr(client, "_rotate_task", None) and client._rotate_task.is_running():
+        return
+
     @tasks.loop(seconds=12)
     async def rotate():
         if not state.PRESENCE_ROTATION_ENABLED:
@@ -236,8 +240,7 @@ def start_presence(client: discord.Client):
     async def before():
         await client.wait_until_ready()
 
-    if not rotate.is_running():
-        rotate.start()
+    rotate.start()
     client._rotate_task = rotate
 
 
