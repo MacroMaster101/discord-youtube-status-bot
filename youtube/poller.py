@@ -55,6 +55,9 @@ def setup_poller(client: discord.Client):
         except Exception as e:
             state.add_log(f"YT cache check latest failed: {e}", "warning")
 
+        was_live = bool(state.YT_CHANNEL_CACHE.get(channel_id, {}).get("live_url"))
+        is_live = bool(live)
+
         state.YT_CHANNEL_CACHE[channel_id] = {
             "title": info["title"],
             "description": info.get("description", ""),
@@ -71,6 +74,21 @@ def setup_poller(client: discord.Client):
             "latest_video_title": latest["title"] if latest else None,
             "latest_video_url": latest["url"] if latest else None,
         }
+
+        # Immediately update presence when live status changes
+        if was_live != is_live:
+            try:
+                from discord_bot.presence import _pick, _STATUS_MAP
+                activity, preview = _pick(client)
+                status = _STATUS_MAP.get(state.CUSTOM_PRESENCE_STATUS, discord.Status.online)
+                await client.change_presence(status=status, activity=activity)
+                state.CURRENT_PRESENCE = preview
+                if is_live:
+                    state.add_log(f"Channel went live — pinned streaming status: {live['title']}", "info")
+                else:
+                    state.add_log("Channel no longer live — resumed rotating presence", "info")
+            except Exception as e:
+                state.add_log(f"Presence update on live change failed: {e}", "warning")
 
         if latest:
             if not Config.YOUTUBE_LAST_VIDEO_ID:

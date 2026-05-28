@@ -132,11 +132,19 @@ def _pick(client: discord.Client):
     if not channel_info and cache:
         channel_info = list(cache.values())[0]
 
+    # If channel is live, pin the live status — don't rotate away from it
+    if channel_info and channel_info.get("live_url"):
+        text = "🔴 LIVE: {live_title}"
+        formatted = _format_status_text(text, client, channel_info)
+        url = channel_info["live_url"]
+        activity = _build_activity("streaming", formatted, url)
+        preview = {"activity_type": "streaming", "text": formatted, "url": url}
+        return activity, preview
+
     # Build rotation items
     rotation_items = []
 
     if channel_info:
-        # Static default entries:
         rotation_items.append({
             "activity_type": "streaming",
             "text": "📺 {title} · {subs} subs",
@@ -155,13 +163,6 @@ def _pick(client: discord.Client):
             "url": channel_info["url"],
             "channel_info": channel_info
         })
-        if channel_info.get("live_url"):
-            rotation_items.append({
-                "activity_type": "streaming",
-                "text": "🔴 LIVE: {title} — {live_title}",
-                "url": channel_info["live_url"],
-                "channel_info": channel_info
-            })
         if channel_info.get("upcoming_title"):
             rotation_items.append({
                 "activity_type": "streaming",
@@ -209,7 +210,7 @@ def _pick(client: discord.Client):
 
     item = rotation_items[idx]
     formatted = _format_status_text(item["text"], client, item["channel_info"])
-    
+
     url = item.get("url")
     if item["activity_type"] == "streaming" and not url:
         url = "https://www.youtube.com"
@@ -219,7 +220,7 @@ def _pick(client: discord.Client):
 
 
 def start_presence(client: discord.Client):
-    @tasks.loop(seconds=20)
+    @tasks.loop(seconds=12)
     async def rotate():
         if not state.PRESENCE_ROTATION_ENABLED:
             return
