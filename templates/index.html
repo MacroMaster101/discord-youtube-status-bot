@@ -1617,37 +1617,8 @@ a:hover { color: var(--brand); }
               <div class="hint">The target channel where new uploads are automatically broadcasted.</div>
             </div>
 
-            <div class="field" style="margin-top: 24px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                <label for="cfgWelcome">Welcome Discord Channel</label>
-                <button type="button" class="btn btn-ghost btn-sm" id="btnToggleWelcomeMode" onclick="toggleInputMode('Welcome')" style="padding: 2px 8px; font-size: 11px; border-radius: 4px;">
-                  <i class="fas fa-keyboard"></i> Manual ID
-                </button>
-              </div>
-
-              <!-- Dropdown Selector Group (Default) -->
-              <div id="groupWelcomeDropdown" class="field-row" style="gap: 10px; width: 100%;">
-                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1;">
-                  <select id="cfgWelcomeGuild" onchange="populateChannelsDropdown('cfgWelcomeGuild', 'cfgWelcomeSelect'); syncChannelIdVal('cfgWelcomeSelect', 'cfgWelcome')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
-                    <option value="">Select Server...</option>
-                  </select>
-                  <i class="fas fa-server prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
-                </div>
-                <div class="input-icon-wrap discord-icon-wrap" style="flex: 1.2;">
-                  <select id="cfgWelcomeSelect" onchange="syncChannelIdVal('cfgWelcomeSelect', 'cfgWelcome')" style="padding-left: 42px !important; width: 100%; height: 46px; border-radius: var(--r-md); background: rgba(6, 8, 14, 0.6); border: 1px solid var(--border); color: var(--text-primary); outline: none;">
-                    <option value="">Select Channel...</option>
-                  </select>
-                  <i class="fas fa-hashtag prefix-icon" style="position: absolute; left: 14px; color: var(--text-muted); pointer-events: none;"></i>
-                </div>
-              </div>
-
-              <!-- Manual ID Input (Hidden by default) -->
-              <div id="groupWelcomeManual" class="input-icon-wrap discord-icon-wrap hidden">
-                <input id="cfgWelcome" placeholder="e.g. 1122334455667788" autocomplete="off" />
-                <i class="fas fa-door-open prefix-icon"></i>
-              </div>
-              <div class="hint">Optional channel ID to send welcome/leave notifications.</div>
-            </div>
+            <!-- Welcome settings completely disabled & hidden -->
+            <input type="hidden" id="cfgWelcome" value="" />
           </div>
         </div>
 

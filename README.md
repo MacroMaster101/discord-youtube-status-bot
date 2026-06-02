@@ -23,7 +23,6 @@ A Discord bot that tracks YouTube channels and posts new uploads to your server,
 - `/roll` `/flip` `/8ball` `/rps` `/poll`
 
 ### 🤝 Quality of life
-- Welcome embed when a new member joins
 - Friendly GG reactions
 
 ### 🖥️ Web dashboard
@@ -31,7 +30,7 @@ A Discord bot that tracks YouTube channels and posts new uploads to your server,
 - **YouTube panel**: subscribe / unsubscribe channels, view tracked list, see recent uploads posted
 - Broadcast: send plain or embed messages to any channel
 - Presence: customize bot status with dynamic variables
-- Configuration: edit prefix, welcome channel, YouTube API key, admin password
+- Configuration: edit prefix, YouTube API key, admin password
 - Live logs
 
 ---
@@ -49,7 +48,7 @@ youtube/
   poller.py               # background upload-check loop
 discord_bot/
   client.py               # bot factory + slash sync
-  events.py               # welcome embed + GG response
+  events.py               # GG response
   presence.py             # rotating status
   cogs/                   # info, fun, youtube_cog
 web/
@@ -77,7 +76,6 @@ DISCORD_TOKEN=your_discord_bot_token
 ADMIN_PASSWORD=change_me
 YOUTUBE_API_KEY=your_youtube_data_api_v3_key
 PREFIX=$
-WELCOME_CHANNEL_ID=
 YOUTUBE_POLL_INTERVAL=300
 PORT=8080
 ```
@@ -88,7 +86,6 @@ PORT=8080
 | `ADMIN_PASSWORD` | ✅ | Dashboard password (default `admin123` — change it) |
 | `YOUTUBE_API_KEY` | ✅ | Required for `/yt` and the upload poller. Get one from [Google Cloud Console](https://console.cloud.google.com/) → enable **YouTube Data API v3** → create an API key |
 | `PREFIX` | ❌ | Editable from dashboard. Default `$` (legacy commands only — primary interface is slash) |
-| `WELCOME_CHANNEL_ID` | ❌ | Falls back to system channel |
 | `YOUTUBE_POLL_INTERVAL` | ❌ | Seconds between upload checks (default 300) |
 | `PORT` | ❌ | Dashboard port (default 8080) |
 
@@ -114,17 +111,48 @@ When inviting the bot, include the `applications.commands` scope so slash comman
 
 `data/youtube_subs.json` — tracked YouTube channels per server, with last-seen video IDs.
 
-On Fly.io, mount a volume at `/app/data` to persist across deploys.
+We map a local directory `./data` to `/app/data` inside the Docker container to ensure data is preserved across container updates and system restarts.
 
 ---
 
-## ☁️ Deploy to Fly.io
+## ☁️ Deploy to AWS EC2 (Docker Compose & GitHub Actions)
 
+This repository is configured to deploy to an AWS EC2 instance running Docker and Docker Compose.
+
+### 1. Initial Host Setup
+Connect to your EC2 instance via SSH:
 ```bash
-flyctl launch
-flyctl secrets set DISCORD_TOKEN=xxx ADMIN_PASSWORD=xxx YOUTUBE_API_KEY=xxx
-flyctl deploy
+ssh -i /path/to/bot-key.pem ubuntu@13.212.35.227
 ```
+
+In the user's home directory, clone this repository:
+```bash
+git clone https://github.com/MacroMaster101/discord-youtube-status-bot.git
+cd discord-youtube-status-bot
+```
+
+Create a local `.env` file containing your configurations:
+```env
+DISCORD_TOKEN=your_token_here
+ADMIN_PASSWORD=your_admin_password_here
+YOUTUBE_API_KEY=your_youtube_api_key_here
+PORT=8080
+```
+
+Start the container manually for the first time:
+```bash
+docker compose up -d --build
+```
+
+The web dashboard will be accessible externally on port **8081** (mapped to the internal container port **8080**). Ensure that you open port **8081** in your AWS Security Group.
+
+### 2. Automated CI/CD Setup with GitHub Actions
+Pushing to the `main` branch triggers an automated deployment via GitHub Actions.
+
+Configure the following **GitHub Secrets** under your repository's **Settings -> Secrets and variables -> Actions**:
+- `EC2_HOST`: `13.212.35.227`
+- `EC2_USERNAME`: `ubuntu`
+- `EC2_SSH_KEY`: The complete contents of your `bot-key.pem` SSH key file.
 
 ---
 

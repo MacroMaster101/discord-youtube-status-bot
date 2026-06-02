@@ -94,7 +94,7 @@ def setup_poller(client: discord.Client):
             if not Config.YOUTUBE_LAST_VIDEO_ID:
                 Config.update_env("YOUTUBE_LAST_VIDEO_ID", latest["id"])
             elif Config.YOUTUBE_LAST_VIDEO_ID != latest["id"]:
-                channel_id = Config.YOUTUBE_NOTIFY_CHANNEL_ID or Config.WELCOME_CHANNEL_ID
+                channel_id = Config.YOUTUBE_NOTIFY_CHANNEL_ID
                 if channel_id:
                     posted = False
                     for guild in client.guilds:

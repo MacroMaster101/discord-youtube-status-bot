@@ -30,7 +30,7 @@ def channel_hub():
         "configured_id": Config.YOUTUBE_CHANNEL_ID,
         "api_configured": bool(Config.YOUTUBE_API_KEY),
         "notify_channel_id": Config.YOUTUBE_NOTIFY_CHANNEL_ID,
-        "welcome_channel_id": Config.WELCOME_CHANNEL_ID,
+        "welcome_channel_id": "",
         "events": state.get_yt_events(),
     })
 
@@ -52,7 +52,7 @@ def subscriptions():
         out.append({
             "guild_id": "all",
             "guild_name": "Primary Channel",
-            "discord_channel_id": Config.YOUTUBE_NOTIFY_CHANNEL_ID or Config.WELCOME_CHANNEL_ID or "N/A",
+            "discord_channel_id": Config.YOUTUBE_NOTIFY_CHANNEL_ID or "N/A",
             "discord_channel_name": "Notify Channel",
             "yt_channel_id": Config.YOUTUBE_CHANNEL_ID,
             "yt_channel_title": channel_info["title"],
