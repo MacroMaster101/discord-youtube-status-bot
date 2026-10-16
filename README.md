@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI"></a>
-  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14">
   <img src="https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.4+">
   <img src="https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white" alt="YouTube Data API v3">
   <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker">
@@ -66,7 +66,7 @@ Password-protected control panel:
 
 ## 🚀 Quick start (local)
 
-**You need:** Python 3.12, a [Discord bot token](https://discord.com/developers/applications) with the **Message Content**, **Server Members** and **Presence** intents enabled, and a [YouTube Data API v3 key](https://console.cloud.google.com/apis/library/youtube.googleapis.com).
+**You need:** Python 3.12+, a [Discord bot token](https://discord.com/developers/applications) with the **Message Content**, **Server Members** and **Presence** intents enabled, and a [YouTube Data API v3 key](https://console.cloud.google.com/apis/library/youtube.googleapis.com).
 
 ```bash
 git clone https://github.com/MacroMaster101/discord-youtube-status-bot.git
