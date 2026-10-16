@@ -1849,8 +1849,8 @@ async function doLogin() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pw })
     });
-    if (!r.ok) throw new Error('Invalid password credential');
-    const j = await r.json();
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.message || 'Invalid password credential');
     TOKEN = j.token;
     localStorage.setItem('botToken', TOKEN);
     bootApp();
@@ -1861,9 +1861,13 @@ async function doLogin() {
 }
 
 function doLogout() {
+  // End the session on the server too, then reload to the login screen.
+  const end = TOKEN
+    ? fetch(`${API}/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` } }).catch(() => {})
+    : Promise.resolve();
   TOKEN = '';
   localStorage.removeItem('botToken');
-  location.reload();
+  end.finally(() => location.reload());
 }
 
 function api(path, opts = {}) {

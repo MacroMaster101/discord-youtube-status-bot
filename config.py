@@ -16,7 +16,8 @@ class Config:
     # Initial default values from environment variables
     DISCORD_TOKEN = os.getenv("DISCORD_TOKEN", "")
     PREFIX = os.getenv("PREFIX", "$")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+    # No default: the dashboard refuses logins until a strong password is set (see web/auth.py).
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
     YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
     YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "")
     YOUTUBE_NOTIFY_CHANNEL_ID = os.getenv("YOUTUBE_NOTIFY_CHANNEL_ID", "")

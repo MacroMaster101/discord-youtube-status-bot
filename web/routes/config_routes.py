@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, current_app
 from config import Config
 from core import state
 from discord_bot.presence import force_presence
-from web.auth import require_auth
+from web.auth import require_auth, password_problem, create_session, revoke_all_sessions
 
 bp = Blueprint("config", __name__, url_prefix="/api")
 
@@ -67,13 +67,22 @@ def get_config():
 @bp.route("/config", methods=["POST"])
 @require_auth
 def set_config():
-    data = request.get_json() or {}
+    data = request.get_json(silent=True) or {}
+    new_password = str(data.get("ADMIN_PASSWORD") or "")
+    if new_password:
+        problem = password_problem(new_password)
+        if problem:
+            return jsonify({"message": f"Password not saved: {problem.replace('ADMIN_PASSWORD', 'the password')}."}), 400
     try:
         for key in ("PREFIX", "YOUTUBE_NOTIFY_CHANNEL_ID"):
             if key in data:
                 Config.update_env(key, str(data[key]))
-        if data.get("ADMIN_PASSWORD"):
-            Config.update_env("ADMIN_PASSWORD", str(data["ADMIN_PASSWORD"]))
+        new_token = None
+        if new_password:
+            Config.update_env("ADMIN_PASSWORD", new_password)
+            # Changing the password logs out every other session; this one gets a fresh token.
+            revoke_all_sessions()
+            new_token = create_session()
         if "YOUTUBE_API_KEY" in data and data["YOUTUBE_API_KEY"]:
             Config.update_env("YOUTUBE_API_KEY", str(data["YOUTUBE_API_KEY"]))
         if "DISCORD_TOKEN" in data and data["DISCORD_TOKEN"]:
@@ -81,7 +90,10 @@ def set_config():
         if "YOUTUBE_CHANNEL_ID" in data:
             Config.update_env("YOUTUBE_CHANNEL_ID", str(data["YOUTUBE_CHANNEL_ID"]))
         state.add_log("Configuration updated", "success")
-        return jsonify({"status": "success", "token": Config.ADMIN_PASSWORD})
+        result = {"status": "success"}
+        if new_token:
+            result["token"] = new_token
+        return jsonify(result)
     except Exception as e:
         state.add_log(f"Config save failed: {e}", "error")
         return jsonify({"message": str(e)}), 500

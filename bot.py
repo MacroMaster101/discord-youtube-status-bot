@@ -3,6 +3,7 @@ from config import Config
 from core import state
 from discord_bot.client import build_bot, setup_cogs
 from web.app import keep_alive
+from web.auth import password_problem
 
 
 def main():
@@ -14,8 +15,9 @@ def main():
 
     keep_alive(bot)
 
-    if Config.ADMIN_PASSWORD in ("", "admin123", "change_me"):
-        state.add_log("WARNING: ADMIN_PASSWORD is a default value. Set a strong password in .env before exposing the dashboard.", "warning")
+    problem = password_problem(Config.ADMIN_PASSWORD)
+    if problem:
+        state.add_log(f"WARNING: {problem}. Dashboard login is disabled until you set a strong ADMIN_PASSWORD in .env.", "warning")
 
     token = Config.DISCORD_TOKEN
     if not token or token == "your_discord_bot_token_here":
