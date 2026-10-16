@@ -1,144 +1,182 @@
-# Discord YouTube Tracker Bot 📺
+<p align="center">
+  <img src="assets/logo.png" alt="Discord YouTube Status Bot logo" width="160">
+</p>
 
-A premium, modern Discord companion that keeps your community actively updated with real-time YouTube uploads and channel stats, powered by an elegant web dashboard.
+<h1 align="center">Discord YouTube Status Bot</h1>
 
-![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
-![discord.py](https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white)
-![YouTube](https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white)
-![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?logo=amazon-aws&logoColor=white)
-![Amazon EC2](https://img.shields.io/badge/Amazon_EC2-FF9900?logo=amazonec2&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?logo=github-actions&logoColor=white)
+<p align="center">
+  A Discord bot that follows a YouTube channel: it posts new uploads and live streams to your server,<br>
+  shows the channel's live stats in the bot's status, and comes with a web dashboard to control everything.
+</p>
+
+<p align="center">
+  <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.4+">
+  <img src="https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white" alt="YouTube Data API v3">
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> ·
+  <a href="#-quick-start-local">Quick start</a> ·
+  <a href="#-docker">Docker</a> ·
+  <a href="#-contributing">Contributing</a>
+</p>
 
 ---
 
 ## ✨ Features
 
-### 📺 Smart YouTube Monitoring
-- **Automatic Upload Alerts** — Subscribes any server channel to a YouTube channel; polls the API in the background and posts rich embeds for new uploads.
-- **Dynamic Status Presence** — Displays live stats in the bot's status rotation (e.g. `📺 5 YT channels`).
-- **Interactive Slash Commands**:
-  - `/yt subscribe <channel> [channel]` — Link a Discord channel to your YouTube creator stream.
-  - `/yt unsubscribe <channel>` — Remove subscription mapping.
-  - `/yt list` — List all monitored YouTube channels.
-  - `/yt stats <channel>` — Display real-time subscribers, view counts, and latest videos.
+### 📺 YouTube alerts
+- Posts an embed to your chosen Discord channel when the channel **uploads a video** or **goes live** ("🔴 is live now!").
+- Scheduled streams aren't posted until they actually start, and a finished stream isn't posted a second time.
+- Uses only cheap API calls (about 3 quota units per check), so the free 10,000-unit daily quota lasts all day even with frequent checks.
 
-### 📊 Community Fun & Utilities
-- **Activity & Info** — `/stats`, `/userinfo`, `/avatar`, `/servericon`, `/ping`, `/uptime`, `/help`.
-- **Engagement Tools** — `/roll`, `/flip`, `/8ball`, `/rps`, `/poll`.
-- **QoL Interactions** — Auto-responds with friendly GG reactions (`GG`, `GG WP`, `good game`).
+### 🟢 Live bot status
+The bot's Discord status rotates every 15 seconds through the channel's subscribers, views, video count, upcoming stream and newest upload. While the channel is live, it's pinned to `🔴 LIVE: <title>` with a Streaming badge linking to the stream. You can add your own rotation entries with placeholders like `{subs}`, `{views}` and `{latest_video_title}`.
 
-### 🖥️ Web Control Panel
-- **Real-Time Statistics** — Live tracking of servers, active members, connection latency, and YouTube feed statuses.
-- **YouTube Hub** — Manage active tracking lists, channel subscriptions, and recent uploads feed directly from the UI.
-- **Announcement Dispatcher** — Broadcast raw messages or styled embeds directly to any selected server channel.
-- **Presence Controller** — Customize your bot's Discord activity status, presence color, and rotation playlist.
-- **Security & Logs** — Full live operational operations logger and protected administrator dashboard credentials.
+### 💬 Commands
+Commands use a prefix (default `$`, changeable from the dashboard).
 
----
+| Command | What it does |
+|---|---|
+| `$yt stats [channel]` | Subscribers, views, video count and latest video. Uses the main channel if none is given. |
+| `$yt link` | Link to the main YouTube channel |
+| `$stats` | Server statistics |
+| `$userinfo [@user]` | Info about a member |
+| `$avatar [@user]` | A member's avatar |
+| `$servericon` | The server's icon |
+| `$ping` / `$uptime` | Bot latency / how long it's been online |
+| `$help` | Full command list |
 
-## 🏗️ Architecture
+The bot also replies to "gg", "gg wp" or "good game" with a GG and a 🏆 reaction.
 
-```
-bot.py                    # Application Entry Point
-config.py                 # Central configurations & dotenv parser
-core/
-  state.py                # Volatile logs + event state buffers
-  storage.py              # Persistent subscribers manager (youtube_subs.json)
-youtube/
-  api.py                  # Async Google YouTube Data v3 client
-  poller.py               # Background feed poller
-discord_bot/
-  client.py               # Gateway initialization & Slash syncing
-  events.py               # Message interceptors & GG reactions
-  presence.py             # Status rotator
-  cogs/                   # Bot slash commands cogs
-web/
-  app.py                  # Flask web-server initialization
-  auth.py                 # Protected decorator handlers
-  routes/                 # Configuration and statistics API endpoints
-templates/index.html      # Responsive Single Page dashboard
-data/                     # Auto-created directory for JSON storage
-```
+### 🖥️ Web dashboard
+Password-protected control panel:
+- Bot stats: servers, members, latency
+- Live log viewer
+- YouTube hub: channel stats, live status and recent alerts
+- Broadcast a message or embed to any channel
+- Presence controller: status, rotation entries and a live preview
+- Settings: API key (with a test button), channel, alert channel, prefix, password, restart
 
 ---
 
-## 💾 Storage & Volumes
+## 🚀 Quick start (local)
 
-All persistent databases (subscriptions, logs, custom presences) are written to the `./data` folder. Under our Docker architecture, this folder is mounted as a volume `./data:/app/data`, securing your data across rebuilds and server reboots.
+**You need:** Python 3.12, a [Discord bot token](https://discord.com/developers/applications) with the **Message Content**, **Server Members** and **Presence** intents enabled, and a [YouTube Data API v3 key](https://console.cloud.google.com/apis/library/youtube.googleapis.com).
 
----
-
-## ☁️ Production Deployment (AWS EC2)
-
-This repository is optimized for deployment to an AWS EC2 instance running Ubuntu Server and Docker.
-
-### 1. Security Group Setup
-Before deploying, log into your AWS Management Console and add an **Inbound Rule** to your security group (e.g. `launch-wizard-1`):
-- **Type**: `Custom TCP`
-- **Port Range**: `8081`
-- **Source**: `Anywhere-IPv4` (`0.0.0.0/0`) or `My IP` for security.
-
-### 2. Manual Host Initialization
-SSH into your Singapore AWS EC2 instance from the directory containing your key:
-```bash
-ssh -i "bot-key.pem" ubuntu@13.212.35.227
-```
-
-In your home directory, clone this repository:
 ```bash
 git clone https://github.com/MacroMaster101/discord-youtube-status-bot.git
 cd discord-youtube-status-bot
+pip install -r requirements.txt
+cp .env.example .env
 ```
 
-Create your production environment file:
+Fill in `.env`:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DISCORD_TOKEN` | ✅ | Your bot token |
+| `ADMIN_PASSWORD` | ✅ | Dashboard password, 8+ characters. Login stays disabled while it's empty or a default like `admin123`. |
+| `YOUTUBE_API_KEY` | ✅ | YouTube Data API v3 key |
+| `YOUTUBE_CHANNEL_ID` | ✅ | `@handle`, channel URL or `UC…` ID |
+| `YOUTUBE_NOTIFY_CHANNEL_ID` | | Discord channel ID for alerts (can be set in the dashboard) |
+| `YOUTUBE_POLL_INTERVAL` | | Seconds between checks (default `300`) |
+| `PREFIX` | | Command prefix (default `$`) |
+| `PORT` | | Dashboard port (default `8080`) |
+| `DASHBOARD_BIND_ADDRESS` | | Docker only: `127.0.0.1` keeps the dashboard off the public internet (default `0.0.0.0`) |
+| `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
+
+Run it:
+
 ```bash
-nano .env
-```
-Paste and fill in the following configurations:
-```env
-DISCORD_TOKEN=your_token_here
-ADMIN_PASSWORD=your_dashboard_password_here
-YOUTUBE_API_KEY=your_youtube_api_key_here
-PREFIX=$
-YOUTUBE_POLL_INTERVAL=300
-PORT=8080
-```
-*(Press `Ctrl+O` -> `Enter` to save, and `Ctrl+X` to exit nano)*
-
-Create the persistence folder:
-```bash
-mkdir -p data
+python bot.py
 ```
 
-Start the bot container:
-```bash
-docker compose up -d --build
-```
-
-Your premium dashboard is now accessible at: `http://13.212.35.227:8081`
-
-### 3. Automated Git Deployments (CI/CD)
-The project includes a pre-configured GitHub Actions workflow at `.github/workflows/deploy.yml` that automatically pulls new changes and rebuilds the container on pushes to `main`.
-
-To enable this, add the following **GitHub Secrets** under **Settings -> Secrets and variables -> Actions**:
-- `EC2_HOST`: `13.212.35.227`
-- `EC2_USERNAME`: `ubuntu`
-- `EC2_SSH_KEY`: (Contents of your `bot-key.pem` SSH key file)
+The dashboard is at http://localhost:8080. If the Discord token is missing or wrong, the dashboard still starts so you can read the logs.
 
 ---
 
-## 🚀 Local Development
+## 🐳 Docker
 
-For quick testing or local configuration:
+```bash
+mkdir -p data
+docker compose up -d --build
+```
 
-1. Clone the repository and install requirements:
+- The dashboard is published on host port **8081**.
+- `./data` is mounted into the container, so dashboard settings, custom presence entries and the last-posted video survive rebuilds.
+
+---
+
+## ☁️ Deploying to a server (e.g. AWS EC2)
+
+1. On an Ubuntu server with Docker installed:
    ```bash
-   pip install -r requirements.txt
+   git clone https://github.com/MacroMaster101/discord-youtube-status-bot.git
+   cd discord-youtube-status-bot
+   nano .env          # same variables as above
+   mkdir -p data
+   docker compose up -d --build
    ```
-2. Set up local configurations in your `.env` file.
-3. Run the development daemon:
-   ```bash
-   python bot.py
-   ```
-4. Access local dashboard at: `http://localhost:8080`
+2. Choose how to reach the dashboard. It serves plain HTTP, so don't leave it open to everyone:
+   - **HTTPS with Cloudflare Tunnel (recommended):** create a tunnel in Cloudflare Zero Trust → Networks → Tunnels and point its public hostname at `http://bot:8080`. Then add to `.env`:
+     ```env
+     COMPOSE_PROFILES=tunnel
+     TUNNEL_TOKEN=<your tunnel token>
+     DASHBOARD_BIND_ADDRESS=127.0.0.1
+     ```
+     Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
+   - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
+
+Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
+
+### Automatic deploys
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) SSHes into the server on every push to `main`, pulls the code and rebuilds the container. Add these repository secrets under **Settings → Secrets and variables → Actions**:
+
+| Secret | Value |
+|---|---|
+| `EC2_HOST` | Your server's public IP |
+| `EC2_USERNAME` | e.g. `ubuntu` |
+| `EC2_SSH_KEY` | Contents of the server's private SSH key (`.pem`) |
+
+---
+
+## 🏗️ Project structure
+
+```
+bot.py                  Entry point: starts the dashboard and the bot
+config.py               Settings from .env, plus dashboard changes saved to data/config.json
+core/
+  state.py              In-memory logs, alert history and presence state
+  storage.py            JSON storage for custom presence entries
+youtube/
+  api.py                Async YouTube Data API v3 client (uploads playlist, quota-friendly)
+  poller.py             Background checks: stats cache, live status, new upload/live alerts
+discord_bot/
+  client.py             Bot setup and startup
+  events.py             GG auto-reply
+  presence.py           Rotating status
+  cogs/                 Commands (info, youtube)
+web/
+  app.py                Flask app (runs in a background thread)
+  auth.py               Dashboard password check
+  routes/               Dashboard API endpoints
+templates/index.html    Single-page dashboard
+tests/                  pytest suite
+```
+
+---
+
+## 🤝 Contributing
+
+Work flows `feature/*` → `dev` → `main`, and every merge into `main` deploys. See [CONTRIBUTING.md](CONTRIBUTING.md). CI runs lint (`ruff`), tests (`pytest`) and a Docker build on every push to `dev` and every pull request.
+
+Found a security issue? Please report it privately; see [SECURITY.md](SECURITY.md).
+
+## 📄 License
+
+[MIT](LICENSE)

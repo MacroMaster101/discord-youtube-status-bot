@@ -1,7 +1,7 @@
 name: Branch Flow
 
 # Enforces the branch flow: feature/* -> dev -> main.
-# The rulesets on main and dev require this check to pass before merging.
+# The ruleset on main requires this check to pass before merging.
 
 on:
   pull_request:
@@ -23,8 +23,8 @@ jobs:
             echo "::error::Only dev can be merged into main (got '$HEAD')."
             exit 1
           fi
-          if [ "$BASE" = "dev" ] && [[ "$HEAD" != feature/* ]]; then
-            echo "::error::Only feature/* branches can be merged into dev (got '$HEAD')."
+          if [ "$BASE" = "dev" ] && [[ "$HEAD" != feature/* && "$HEAD" != dependabot/* ]]; then
+            echo "::error::Only feature/* (or Dependabot) branches can be merged into dev (got '$HEAD')."
             exit 1
           fi
           echo "Branch flow OK"
