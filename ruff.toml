@@ -1,0 +1,6 @@
+target-version = "py312"
+line-length = 120
+
+[lint]
+# Pyflakes (unused imports/variables, undefined names) plus syntax errors and bugbear basics.
+select = ["E9", "F", "B006", "B008"]
