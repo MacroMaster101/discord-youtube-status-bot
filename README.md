@@ -132,7 +132,7 @@ docker compose up -d --build
      Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
    - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
 
-Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them.
+Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
 
 ### Automatic deploys
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) SSHes into the server on every push to `main`, pulls the code and rebuilds the container. Add these repository secrets under **Settings → Secrets and variables → Actions**:

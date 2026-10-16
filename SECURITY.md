@@ -20,4 +20,5 @@ Include what you found, how to reproduce it, and what an attacker could do with 
 - Never commit `.env` or anything in `data/`. Both are already in `.gitignore`.
 - The dashboard serves plain HTTP. Use the built-in Cloudflare Tunnel option (`COMPOSE_PROFILES=tunnel`, see the README) with `DASHBOARD_BIND_ADDRESS=127.0.0.1`, or limit port 8081 to your own IP in your firewall or cloud security group.
 - Logging in returns a random session token (valid for 12 hours). The password itself is never stored in the browser.
+- Changing the password from the dashboard saves only a salted scrypt hash (in `data/config.json`), which then takes priority over `ADMIN_PASSWORD` in `.env`. To go back to the `.env` password, delete `ADMIN_PASSWORD_HASH` from `data/config.json` and restart.
 - If a Discord token or YouTube API key leaks, regenerate it right away in the Discord Developer Portal or Google Cloud Console.

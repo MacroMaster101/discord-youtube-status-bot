@@ -8,7 +8,7 @@ from flask import Blueprint, request, jsonify, current_app
 from config import Config
 from core import state
 from discord_bot.presence import force_presence
-from web.auth import require_auth, password_problem, create_session, revoke_all_sessions
+from web.auth import require_auth, strength_issue, create_session, revoke_all_sessions
 
 bp = Blueprint("config", __name__, url_prefix="/api")
 
@@ -70,16 +70,16 @@ def set_config():
     data = request.get_json(silent=True) or {}
     new_password = str(data.get("ADMIN_PASSWORD") or "")
     if new_password:
-        problem = password_problem(new_password)
-        if problem:
-            return jsonify({"message": f"Password not saved: {problem.replace('ADMIN_PASSWORD', 'the password')}."}), 400
+        issue = strength_issue(new_password)
+        if issue:
+            return jsonify({"message": f"Password not saved: {issue}."}), 400
     try:
         for key in ("PREFIX", "YOUTUBE_NOTIFY_CHANNEL_ID"):
             if key in data:
                 Config.update_env(key, str(data[key]))
         new_token = None
         if new_password:
-            Config.update_env("ADMIN_PASSWORD", new_password)
+            Config.set_admin_password(new_password)
             # Changing the password logs out every other session; this one gets a fresh token.
             revoke_all_sessions()
             new_token = create_session()

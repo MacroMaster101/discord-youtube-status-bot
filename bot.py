@@ -3,7 +3,7 @@ from config import Config
 from core import state
 from discord_bot.client import build_bot, setup_cogs
 from web.app import keep_alive
-from web.auth import password_problem
+from web.auth import login_block_reason
 
 
 def main():
@@ -15,9 +15,8 @@ def main():
 
     keep_alive(bot)
 
-    problem = password_problem(Config.ADMIN_PASSWORD)
-    if problem:
-        state.add_log(f"WARNING: {problem}. Dashboard login is disabled until you set a strong ADMIN_PASSWORD in .env.", "warning")
+    if login_block_reason():
+        state.add_log("WARNING: dashboard login is disabled until a strong ADMIN_PASSWORD (8+ characters, not a default) is set in .env.", "warning")
 
     token = Config.DISCORD_TOKEN
     if not token or token == "your_discord_bot_token_here":

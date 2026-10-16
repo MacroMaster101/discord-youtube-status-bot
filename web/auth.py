@@ -10,6 +10,7 @@ import time
 from functools import wraps
 from flask import request, jsonify
 from config import Config
+from core.passwords import verify_password
 
 SESSION_TTL_SECONDS = 12 * 60 * 60
 MIN_PASSWORD_LENGTH = 8
@@ -19,20 +20,30 @@ _sessions: dict[str, float] = {}  # token -> expiry (epoch seconds)
 _lock = threading.Lock()
 
 
-def password_problem(password) -> str | None:
-    """Return why a password is unsafe to use for the dashboard, or None if it's fine."""
-    password = str(password or "")
-    if not password:
-        return "ADMIN_PASSWORD is not set"
-    if password in DEFAULT_PASSWORDS:
-        return "ADMIN_PASSWORD is still a default value"
-    if len(password) < MIN_PASSWORD_LENGTH:
-        return f"ADMIN_PASSWORD must be at least {MIN_PASSWORD_LENGTH} characters"
+def strength_issue(value) -> str | None:
+    """Return why a candidate dashboard password is unsafe, or None if it's fine."""
+    value = str(value or "")
+    if not value:
+        return "it is empty"
+    if value in DEFAULT_PASSWORDS:
+        return "it is a default value"
+    if len(value) < MIN_PASSWORD_LENGTH:
+        return f"it must be at least {MIN_PASSWORD_LENGTH} characters"
     return None
 
 
+def login_block_reason() -> str | None:
+    """Why dashboard login is disabled right now, or None when it's allowed."""
+    if Config.ADMIN_PASSWORD_HASH:
+        return None  # set from the dashboard, already checked by strength_issue()
+    issue = strength_issue(Config.ADMIN_PASSWORD)
+    return f"ADMIN_PASSWORD is not safe ({issue})" if issue else None
+
+
 def check_password(candidate: str) -> bool:
-    """Constant-time comparison against the admin password."""
+    """Check a login attempt against the dashboard password (hash first, then .env value)."""
+    if Config.ADMIN_PASSWORD_HASH:
+        return verify_password(str(candidate or ""), Config.ADMIN_PASSWORD_HASH)
     return hmac.compare_digest(str(candidate or "").encode(), str(Config.ADMIN_PASSWORD).encode())
 
 

@@ -1,19 +1,29 @@
 """Dashboard login, session tokens and password rules, through the real Flask routes."""
+import json
 import secrets
 
 import pytest
 
 from config import Config
+from core.passwords import hash_password, verify_password
 from web import auth
 from web.app import create_app
+
+
+@pytest.fixture(autouse=True)
+def isolated_config(tmp_path, monkeypatch):
+    """Never read or write the real data/config.json or .env."""
+    monkeypatch.setattr(Config, "PERSISTENT_CONFIG_FILE", str(tmp_path / "config.json"))
+    monkeypatch.setattr(Config, "ADMIN_PASSWORD_HASH", "")
+    monkeypatch.setattr(Config, "update_env", classmethod(lambda cls, k, v: setattr(cls, k, v)))
+    auth.revoke_all_sessions()
+    return tmp_path / "config.json"
 
 
 @pytest.fixture
 def password(monkeypatch):
     value = secrets.token_urlsafe(12)
     monkeypatch.setattr(Config, "ADMIN_PASSWORD", value)
-    monkeypatch.setattr(Config, "update_env", classmethod(lambda cls, k, v: setattr(cls, k, v)))
-    auth.revoke_all_sessions()
     return value
 
 
@@ -31,12 +41,21 @@ def _auth(token):
 
 
 @pytest.mark.parametrize("value", ["", "admin123", "change_me", "short"])
-def test_password_problem_rejects_weak_values(value):
-    assert auth.password_problem(value)
+def test_strength_issue_rejects_weak_values(value):
+    assert auth.strength_issue(value)
 
 
-def test_password_problem_accepts_strong_value():
-    assert auth.password_problem(secrets.token_urlsafe(12)) is None
+def test_strength_issue_accepts_strong_value():
+    assert auth.strength_issue(secrets.token_urlsafe(12)) is None
+
+
+def test_hash_roundtrip_and_salting():
+    value = secrets.token_urlsafe(12)
+    first, second = hash_password(value), hash_password(value)
+    assert first != second and value not in first  # salted, never contains the password
+    assert verify_password(value, first) and verify_password(value, second)
+    assert not verify_password(value + "x", first)
+    assert not verify_password(value, "not-a-hash")
 
 
 def test_login_returns_random_token_not_the_password(client, password):
@@ -97,3 +116,26 @@ def test_weak_new_password_is_refused(client, password):
     r = client.post("/api/config", headers=_auth(token), json={"ADMIN_PASSWORD": "admin123"})
     assert r.status_code == 400
     assert Config.ADMIN_PASSWORD == password
+
+
+def test_dashboard_password_change_stores_only_a_hash(client, password, isolated_config):
+    token = _login(client, password).get_json()["token"]
+    new_password = secrets.token_urlsafe(12)
+    client.post("/api/config", headers=_auth(token), json={"ADMIN_PASSWORD": new_password})
+
+    saved = isolated_config.read_text(encoding="utf-8")
+    assert new_password not in saved
+    assert json.loads(saved)["ADMIN_PASSWORD_HASH"].startswith("scrypt$")
+    assert _login(client, password).status_code == 401  # old .env password no longer works
+
+
+def test_legacy_plaintext_password_is_migrated_to_hash(password, isolated_config, monkeypatch):
+    legacy = secrets.token_urlsafe(12)
+    isolated_config.write_text(json.dumps({"ADMIN_PASSWORD": legacy, "PREFIX": "!"}), encoding="utf-8")
+    monkeypatch.setattr(Config, "PREFIX", "$")
+
+    Config.load_persistent()
+
+    saved = json.loads(isolated_config.read_text(encoding="utf-8"))
+    assert "ADMIN_PASSWORD" not in saved and saved["PREFIX"] == "!"
+    assert auth.check_password(legacy)

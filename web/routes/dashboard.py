@@ -5,7 +5,7 @@ from flask import Blueprint, request, jsonify, current_app
 from config import Config
 from core import state, storage
 from web.auth import (
-    require_auth, check_password, password_problem, create_session, revoke_session, bearer_token,
+    require_auth, check_password, login_block_reason, create_session, revoke_session, bearer_token,
 )
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
@@ -17,9 +17,9 @@ def _bot() -> discord.Client:
 
 @bp.route("/login", methods=["POST"])
 def login():
-    problem = password_problem(Config.ADMIN_PASSWORD)
-    if problem:
-        return jsonify({"message": f"Dashboard login is disabled: {problem}. Set a strong ADMIN_PASSWORD in .env and restart the bot."}), 503
+    blocked = login_block_reason()
+    if blocked:
+        return jsonify({"message": f"Dashboard login is disabled: {blocked}. Set a strong ADMIN_PASSWORD in .env and restart the bot."}), 503
     data = request.get_json(silent=True) or {}
     if check_password(data.get("password")):
         return jsonify({"token": create_session()}), 200
