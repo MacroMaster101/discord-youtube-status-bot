@@ -1,13 +1,29 @@
-# Discord YouTube Status Bot 📺
+<p align="center">
+  <img src="assets/logo.svg" alt="Discord YouTube Status Bot logo" width="140">
+</p>
 
-A Discord bot that follows a YouTube channel: it posts new uploads and live streams to your server, shows the channel's live stats in the bot's status, and comes with a web dashboard to control everything.
+<h1 align="center">Discord YouTube Status Bot</h1>
 
-[![CI](https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![discord.py](https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white)
-![YouTube](https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<p align="center">
+  A Discord bot that follows a YouTube channel: it posts new uploads and live streams to your server,<br>
+  shows the channel's live stats in the bot's status, and comes with a web dashboard to control everything.
+</p>
+
+<p align="center">
+  <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white" alt="Python 3.12">
+  <img src="https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.4+">
+  <img src="https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white" alt="YouTube Data API v3">
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
+</p>
+
+<p align="center">
+  <a href="#-features">Features</a> ·
+  <a href="#-quick-start-local">Quick start</a> ·
+  <a href="#-docker">Docker</a> ·
+  <a href="#-contributing">Contributing</a>
+</p>
 
 ---
 

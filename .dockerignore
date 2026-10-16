@@ -14,3 +14,4 @@ requirements-dev.txt
 ruff.toml
 pytest.ini
 data/
+assets/
