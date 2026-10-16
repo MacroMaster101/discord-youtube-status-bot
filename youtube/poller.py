@@ -41,19 +41,9 @@ def setup_poller(client: discord.Client):
             return
 
         try:
-            live = await yt_api.live_stream(channel_id)
+            live, upcoming, latest = await yt_api.channel_activity(channel_id)
         except Exception as e:
-            state.add_log(f"YT cache check live failed: {e}", "warning")
-
-        try:
-            upcoming = await yt_api.upcoming_stream(channel_id)
-        except Exception as e:
-            state.add_log(f"YT cache check upcoming failed: {e}", "warning")
-
-        try:
-            latest = await yt_api.latest_video(channel_id)
-        except Exception as e:
-            state.add_log(f"YT cache check latest failed: {e}", "warning")
+            state.add_log(f"YT cache check uploads failed: {e}", "warning")
 
         was_live = bool(state.YT_CHANNEL_CACHE.get(channel_id, {}).get("live_url"))
         is_live = bool(live)
@@ -97,20 +87,27 @@ def setup_poller(client: discord.Client):
                 channel_id = Config.YOUTUBE_NOTIFY_CHANNEL_ID
                 if channel_id:
                     posted = False
+                    channel_title = info['title'] if info else latest.get('channel_title')
+                    if latest.get("status") == "live":
+                        content = f"🔴 **{channel_title}** is live now!"
+                        description = f"🔴 Live now on **{channel_title}**"
+                    else:
+                        content = f"🔔 **{channel_title}** just uploaded a new video!"
+                        description = f"📺 New upload from **{channel_title}**"
                     for guild in client.guilds:
                         channel = guild.get_channel(int(channel_id))
                         if channel:
                             embed = discord.Embed(
                                 title=latest["title"],
                                 url=latest["url"],
-                                description=f"📺 New upload from **{info['title'] if info else latest.get('channel_title')}**",
+                                description=description,
                                 color=0xFF0000,
                             )
                             if latest.get("thumbnail"):
                                 embed.set_image(url=latest["thumbnail"])
                             embed.set_footer(text="YouTube", icon_url="https://www.youtube.com/s/desktop/12d6b690/img/favicon_144x144.png")
                             try:
-                                await channel.send(content=f"🔔 **{info['title'] if info else latest.get('channel_title')}** just uploaded a new video!", embed=embed)
+                                await channel.send(content=content, embed=embed)
                                 posted = True
                             except discord.Forbidden:
                                 state.add_log(f"YT post forbidden in #{channel.name} ({guild.name})", "error")
