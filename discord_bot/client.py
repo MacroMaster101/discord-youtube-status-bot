@@ -59,15 +59,7 @@ def build_bot() -> commands.Bot:
                     if info:
                         live, upcoming, latest = None, None, None
                         try:
-                            live = await yt_api.live_stream(channel_id)
-                        except Exception:
-                            pass
-                        try:
-                            upcoming = await yt_api.upcoming_stream(channel_id)
-                        except Exception:
-                            pass
-                        try:
-                            latest = await yt_api.latest_video(channel_id)
+                            live, upcoming, latest = await yt_api.channel_activity(channel_id)
                         except Exception:
                             pass
                         state.YT_CHANNEL_CACHE[channel_id] = {

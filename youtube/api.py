@@ -88,64 +88,71 @@ async def resolve_channel(query: str) -> Optional[dict]:
         }
 
 
-async def live_stream(yt_channel_id: str) -> Optional[dict]:
-    """If the channel is currently live, return {id, title, url}. Else None."""
+# Quota note: search.list costs 100 units per call, playlistItems.list and videos.list cost 1.
+# The daily quota is 10,000 units, so everything below reads the channel's uploads playlist
+# (which includes live and scheduled streams) instead of calling search.
+
+def _uploads_playlist_id(yt_channel_id: str) -> str:
+    # Every channel's uploads playlist is its channel ID with "UC" swapped for "UU".
+    return "UU" + yt_channel_id[2:]
+
+
+async def recent_uploads(yt_channel_id: str, limit: int = 5) -> list:
+    """Return the channel's newest uploads (newest first), each as
+    {id, title, thumbnail, channel_title, published_at, url, status}
+    where status is "live", "upcoming" or "none". Costs 2 quota units.
+    """
     async with aiohttp.ClientSession() as session:
-        data = await _get(session, "search", {
-            "part": "snippet", "channelId": yt_channel_id, "eventType": "live",
-            "type": "video", "maxResults": 1,
+        data = await _get(session, "playlistItems", {
+            "part": "contentDetails", "playlistId": _uploads_playlist_id(yt_channel_id),
+            "maxResults": limit,
         })
-        items = data.get("items", [])
-        if not items:
-            return None
-        it = items[0]
-        vid = it["id"]["videoId"]
+        ids = [it["contentDetails"]["videoId"] for it in data.get("items", [])]
+        if not ids:
+            return []
+        data = await _get(session, "videos", {"part": "snippet", "id": ",".join(ids)})
+
+    by_id = {it["id"]: it for it in data.get("items", [])}
+    out = []
+    for vid in ids:  # keep playlist order (newest first)
+        it = by_id.get(vid)
+        if not it:
+            continue  # private or deleted
         sn = it["snippet"]
-        return {
+        thumbs = sn.get("thumbnails", {})
+        out.append({
             "id": vid,
             "title": sn["title"],
-            "url": f"https://www.youtube.com/watch?v={vid}",
-        }
-
-
-async def upcoming_stream(yt_channel_id: str) -> Optional[dict]:
-    """If the channel has an upcoming scheduled live stream, return {id, title, url}. Else None."""
-    async with aiohttp.ClientSession() as session:
-        data = await _get(session, "search", {
-            "part": "snippet", "channelId": yt_channel_id, "eventType": "upcoming",
-            "type": "video", "maxResults": 1,
-        })
-        items = data.get("items", [])
-        if not items:
-            return None
-        it = items[0]
-        vid = it["id"]["videoId"]
-        sn = it["snippet"]
-        return {
-            "id": vid,
-            "title": sn["title"],
-            "url": f"https://www.youtube.com/watch?v={vid}",
-        }
-
-
-async def latest_video(yt_channel_id: str) -> Optional[dict]:
-    """Returns {id, title, thumbnail, published_at, url} for the most recent upload, or None."""
-    async with aiohttp.ClientSession() as session:
-        data = await _get(session, "search", {
-            "part": "snippet", "channelId": yt_channel_id, "order": "date",
-            "type": "video", "maxResults": 1,
-        })
-        items = data.get("items", [])
-        if not items:
-            return None
-        it = items[0]
-        vid = it["id"]["videoId"]
-        sn = it["snippet"]
-        return {
-            "id": vid,
-            "title": sn["title"],
-            "thumbnail": sn.get("thumbnails", {}).get("high", {}).get("url"),
+            "thumbnail": (thumbs.get("maxres") or thumbs.get("high") or {}).get("url"),
             "channel_title": sn.get("channelTitle"),
             "published_at": sn.get("publishedAt"),
             "url": f"https://www.youtube.com/watch?v={vid}",
-        }
+            "status": sn.get("liveBroadcastContent", "none"),
+        })
+    return out
+
+
+async def channel_activity(yt_channel_id: str) -> tuple:
+    """Return (live, upcoming, latest) from one recent_uploads call.
+    latest is the newest video that is not just scheduled, so a stream counts as soon as it goes live.
+    """
+    uploads = await recent_uploads(yt_channel_id)
+    live = next((v for v in uploads if v["status"] == "live"), None)
+    upcoming = next((v for v in uploads if v["status"] == "upcoming"), None)
+    latest = next((v for v in uploads if v["status"] != "upcoming"), None)
+    return live, upcoming, latest
+
+
+async def live_stream(yt_channel_id: str) -> Optional[dict]:
+    """If the channel is currently live, return {id, title, url, ...}. Else None."""
+    return (await channel_activity(yt_channel_id))[0]
+
+
+async def upcoming_stream(yt_channel_id: str) -> Optional[dict]:
+    """If the channel has an upcoming scheduled live stream, return {id, title, url, ...}. Else None."""
+    return (await channel_activity(yt_channel_id))[1]
+
+
+async def latest_video(yt_channel_id: str) -> Optional[dict]:
+    """Returns {id, title, thumbnail, published_at, url, status} for the most recent upload, or None."""
+    return (await channel_activity(yt_channel_id))[2]
