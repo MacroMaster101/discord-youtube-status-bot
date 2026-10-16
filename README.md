@@ -80,13 +80,15 @@ Fill in `.env`:
 | Variable | Required | Description |
 |---|---|---|
 | `DISCORD_TOKEN` | ✅ | Your bot token |
-| `ADMIN_PASSWORD` | ✅ | Dashboard password. Use a strong one. |
+| `ADMIN_PASSWORD` | ✅ | Dashboard password, 8+ characters. Login stays disabled while it's empty or a default like `admin123`. |
 | `YOUTUBE_API_KEY` | ✅ | YouTube Data API v3 key |
 | `YOUTUBE_CHANNEL_ID` | ✅ | `@handle`, channel URL or `UC…` ID |
 | `YOUTUBE_NOTIFY_CHANNEL_ID` | | Discord channel ID for alerts (can be set in the dashboard) |
 | `YOUTUBE_POLL_INTERVAL` | | Seconds between checks (default `300`) |
 | `PREFIX` | | Command prefix (default `$`) |
 | `PORT` | | Dashboard port (default `8080`) |
+| `DASHBOARD_BIND_ADDRESS` | | Docker only: `127.0.0.1` keeps the dashboard off the public internet (default `0.0.0.0`) |
+| `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
 
 Run it:
 
@@ -120,8 +122,17 @@ docker compose up -d --build
    mkdir -p data
    docker compose up -d --build
    ```
-2. Open port **8081** in your firewall or security group, ideally **only to your own IP**. The dashboard uses plain HTTP.
-3. Visit `http://<your-server-ip>:8081`.
+2. Choose how to reach the dashboard. It serves plain HTTP, so don't leave it open to everyone:
+   - **HTTPS with Cloudflare Tunnel (recommended):** create a tunnel in Cloudflare Zero Trust → Networks → Tunnels and point its public hostname at `http://bot:8080`. Then add to `.env`:
+     ```env
+     COMPOSE_PROFILES=tunnel
+     TUNNEL_TOKEN=<your tunnel token>
+     DASHBOARD_BIND_ADDRESS=127.0.0.1
+     ```
+     Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
+   - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
+
+Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them.
 
 ### Automatic deploys
 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) SSHes into the server on every push to `main`, pulls the code and rebuilds the container. Add these repository secrets under **Settings → Secrets and variables → Actions**:

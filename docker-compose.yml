@@ -1,12 +1,27 @@
-version: '3.8'
-
 services:
   bot:
     build: .
     container_name: discord-youtube-status-bot
     restart: unless-stopped
     ports:
-      - "8081:8080"
+      # The dashboard is plain HTTP. Set DASHBOARD_BIND_ADDRESS=127.0.0.1 in .env to keep it off the
+      # public internet (reach it through the Cloudflare Tunnel below or an SSH tunnel instead).
+      - "${DASHBOARD_BIND_ADDRESS:-0.0.0.0}:8081:8080"
     volumes:
       - ./data:/app/data
       - ./.env:/app/.env
+
+  # Optional HTTPS access through Cloudflare Tunnel. Enable it by adding to .env:
+  #   COMPOSE_PROFILES=tunnel
+  #   TUNNEL_TOKEN=<token from Cloudflare Zero Trust → Networks → Tunnels>
+  # and point the tunnel's public hostname at http://bot:8080
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.1
+    container_name: cloudflared-youtube-status-bot
+    restart: unless-stopped
+    profiles: ["tunnel"]
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    depends_on:
+      - bot
