@@ -1,23 +1,15 @@
 """YouTube channel hub management endpoints."""
-import asyncio
-import discord
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify
 from core import state
 from config import Config
 from web.auth import require_auth
 
 bp = Blueprint("youtube", __name__, url_prefix="/api/youtube")
 
-
-def _bot() -> discord.Client:
-    return current_app.config["BOT"]
-
-
 @bp.route("/channel-hub")
 @require_auth
 def channel_hub():
     """Get the primary channel stats and live status, recent events, and configuration."""
-    bot = _bot()
     cache = state.YT_CHANNEL_CACHE
     channel_info = None
     if Config.YOUTUBE_CHANNEL_ID:
@@ -39,7 +31,6 @@ def channel_hub():
 @require_auth
 def subscriptions():
     """Fallback stub to support legacy calls if any."""
-    bot = _bot()
     cache = state.YT_CHANNEL_CACHE
     channel_info = None
     if Config.YOUTUBE_CHANNEL_ID:

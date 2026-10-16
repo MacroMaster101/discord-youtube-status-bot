@@ -1,5 +1,4 @@
 """Entry point. Loads config, builds the bot, starts the Flask dashboard, runs the bot."""
-import asyncio
 from config import Config
 from core import state
 from discord_bot.client import build_bot, setup_cogs
@@ -14,6 +13,9 @@ def main():
     bot.setup_hook = setup_hook
 
     keep_alive(bot)
+
+    if Config.ADMIN_PASSWORD in ("", "admin123", "change_me"):
+        state.add_log("WARNING: ADMIN_PASSWORD is a default value. Set a strong password in .env before exposing the dashboard.", "warning")
 
     token = Config.DISCORD_TOKEN
     if not token or token == "your_discord_bot_token_here":

@@ -1,9 +1,6 @@
-"""Server events: welcome new members + friendly GG auto-response."""
-import datetime
+"""Server events: friendly GG auto-response."""
 import discord
 from discord.ext import commands
-from config import Config
-from core import state
 
 
 def register(bot: commands.Bot):

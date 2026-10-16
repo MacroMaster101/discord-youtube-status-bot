@@ -1,5 +1,5 @@
 """Central configuration. All env vars loaded here, all mutable runtime config exposed via Config.
-Supports saving/loading configurations from a persistent config.json inside the mounted Fly volume to survive restarts.
+Settings changed from the dashboard are saved to data/config.json so they survive restarts and redeploys.
 """
 import os
 import json
@@ -24,12 +24,11 @@ class Config:
     YOUTUBE_POLL_INTERVAL = int(os.getenv("YOUTUBE_POLL_INTERVAL", "300"))
     PORT = int(os.getenv("PORT", "8080"))
 
-    YOUTUBE_SUBS_FILE = os.path.join(DATA_DIR, "youtube_subs.json")
     CUSTOM_PRESENCE_FILE = os.path.join(DATA_DIR, "custom_presence.json")
 
     @classmethod
     def load_persistent(cls):
-        """Load persistent configurations from config.json (persisted across Fly deploys/restarts)"""
+        """Load settings saved from the dashboard (data/config.json)."""
         if os.path.exists(cls.PERSISTENT_CONFIG_FILE):
             try:
                 with open(cls.PERSISTENT_CONFIG_FILE, "r", encoding="utf-8") as f:
@@ -54,7 +53,7 @@ class Config:
         # 1. Update in memory
         setattr(cls, key, value)
 
-        # 2. Persist to persistent config.json (mounted in Fly volume)
+        # 2. Persist to data/config.json (mounted as a Docker volume)
         persistent_data = {}
         if os.path.exists(cls.PERSISTENT_CONFIG_FILE):
             try:

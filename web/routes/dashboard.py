@@ -4,7 +4,7 @@ import discord
 from flask import Blueprint, request, jsonify, current_app
 from config import Config
 from core import state, storage
-from web.auth import require_auth
+from web.auth import require_auth, check_password
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
 
@@ -16,7 +16,7 @@ def _bot() -> discord.Client:
 @bp.route("/login", methods=["POST"])
 def login():
     data = request.get_json() or {}
-    if data.get("password") == Config.ADMIN_PASSWORD:
+    if check_password(data.get("password")):
         return jsonify({"token": Config.ADMIN_PASSWORD}), 200
     return jsonify({"message": "Invalid password"}), 401
 

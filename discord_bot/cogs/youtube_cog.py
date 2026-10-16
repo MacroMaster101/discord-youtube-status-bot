@@ -1,7 +1,6 @@
 """YouTube commands group: yt stats, link."""
 import discord
 from discord.ext import commands
-from core import state
 from youtube import api as yt_api
 from config import Config
 

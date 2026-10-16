@@ -26,3 +26,7 @@ desktop.ini
 # Bot data (warnings, runtime state)
 data/
 *.json.tmp
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/

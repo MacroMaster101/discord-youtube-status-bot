@@ -35,7 +35,7 @@ class Info(commands.Cog):
         total_members = guild.member_count
         online = sum(1 for m in guild.members if m.status != discord.Status.offline and not m.bot)
         bots = sum(1 for m in guild.members if m.bot)
-        yt_count = len(storage.yt_list_for_guild(guild.id))
+        yt_count = storage.yt_total_subscriptions()
 
         embed = discord.Embed(title=f"📊 {guild.name} — Server Stats",
                               color=0x5865F2, timestamp=datetime.datetime.utcnow())

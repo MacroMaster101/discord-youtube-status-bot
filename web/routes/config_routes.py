@@ -80,7 +80,7 @@ def set_config():
             Config.update_env("DISCORD_TOKEN", str(data["DISCORD_TOKEN"]))
         if "YOUTUBE_CHANNEL_ID" in data:
             Config.update_env("YOUTUBE_CHANNEL_ID", str(data["YOUTUBE_CHANNEL_ID"]))
-        state.add_log(f"Configuration updated", "success")
+        state.add_log("Configuration updated", "success")
         return jsonify({"status": "success", "token": Config.ADMIN_PASSWORD})
     except Exception as e:
         state.add_log(f"Config save failed: {e}", "error")
