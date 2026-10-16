@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.svg" alt="Discord YouTube Status Bot logo" width="140">
+  <img src="assets/logo.png" alt="Discord YouTube Status Bot logo" width="160">
 </p>
 
 <h1 align="center">Discord YouTube Status Bot</h1>
