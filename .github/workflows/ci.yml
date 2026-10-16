@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - run: pip install ruff
       - run: ruff check . --output-format github
 
@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.14"
           cache: pip
           cache-dependency-path: |
             requirements.txt
@@ -50,3 +50,5 @@ jobs:
       - uses: actions/checkout@v7
       - name: Build image
         run: docker build -t discord-youtube-status-bot:ci .
+      - name: Import the bot inside the image
+        run: docker run --rm discord-youtube-status-bot:ci python -c "import bot, web.app, discord_bot.client, youtube.poller; print('imports ok')"
