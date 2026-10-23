@@ -16,7 +16,7 @@ services:
   #   TUNNEL_TOKEN=<token from Cloudflare Zero Trust → Networks → Tunnels>
   # and point the tunnel's public hostname at http://bot:8080
   cloudflared:
-    image: cloudflare/cloudflared:2026.10.1
+    image: cloudflare/cloudflared:2026.10.2
     container_name: cloudflared-youtube-status-bot
     restart: unless-stopped
     profiles: ["tunnel"]
