@@ -10,6 +10,12 @@ services:
     volumes:
       - ./data:/app/data
       - ./.env:/app/.env
+    # This bot shares its host with a sibling Discord bot on 1 GB of RAM. With
+    # no cap, a memory spike here does not get this container killed -- the
+    # kernel OOM killer scores every process and may pick cloudflared, the other
+    # bot, or sshd instead, so the thing that misbehaved keeps running and
+    # something unrelated dies. Idle use is around 60 MiB.
+    mem_limit: 256m
 
   # Optional HTTPS access through Cloudflare Tunnel. Enable it by adding to .env:
   #   COMPOSE_PROFILES=tunnel
@@ -23,5 +29,6 @@ services:
     command: tunnel --no-autoupdate run
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    mem_limit: 128m
     depends_on:
       - bot
