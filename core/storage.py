@@ -41,7 +41,7 @@ def presence_list() -> list:
 
 def presence_add(activity_type: str, text: str, url: str = "") -> dict:
     entry = {
-        "id": int(datetime.datetime.utcnow().timestamp() * 1000),
+        "id": int(datetime.datetime.now(datetime.timezone.utc).timestamp() * 1000),
         "activity_type": activity_type,
         "text": text,
         "url": url or None,
