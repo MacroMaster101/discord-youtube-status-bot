@@ -45,7 +45,7 @@ def send_message():
         return jsonify({"status": "success"})
     except Exception as e:
         state.add_log(f"Broadcast failed: {e}", "error")
-        return jsonify({"message": str(e)}), 500
+        return jsonify({"message": "Broadcast failed. Check the dashboard logs for details."}), 500
 
 
 @bp.route("/restart", methods=["POST"])

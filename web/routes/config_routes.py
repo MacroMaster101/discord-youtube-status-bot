@@ -43,7 +43,8 @@ def test_yt_key():
             pass
         return jsonify({"ok": False, "message": msg}), 400
     except Exception as e:
-        return jsonify({"ok": False, "message": str(e)}), 500
+        state.add_log(f"YouTube API key test failed: {e}", "error")
+        return jsonify({"ok": False, "message": "Could not reach the YouTube API. Check the dashboard logs for details."}), 500
 
 
 def _bot() -> discord.Client:
@@ -96,7 +97,7 @@ def set_config():
         return jsonify(result)
     except Exception as e:
         state.add_log(f"Config save failed: {e}", "error")
-        return jsonify({"message": str(e)}), 500
+        return jsonify({"message": "Could not save the configuration. Check the dashboard logs for details."}), 500
 
 
 @bp.route("/presence", methods=["GET", "POST"])

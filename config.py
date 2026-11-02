@@ -22,6 +22,8 @@ class Config:
     # Set when the password is changed from the dashboard; it then replaces ADMIN_PASSWORD.
     # Only this salted hash is saved (in data/config.json), never the password itself.
     ADMIN_PASSWORD_HASH = ""
+    # Keys that must never be persisted in clear text by update_env().
+    SECRET_KEYS = frozenset({"ADMIN_PASSWORD", "ADMIN_PASSWORD_HASH"})
     YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
     YOUTUBE_CHANNEL_ID = os.getenv("YOUTUBE_CHANNEL_ID", "")
     YOUTUBE_NOTIFY_CHANNEL_ID = os.getenv("YOUTUBE_NOTIFY_CHANNEL_ID", "")
@@ -82,6 +84,11 @@ class Config:
     @classmethod
     def update_env(cls, key: str, value: str):
         """Update the configuration value in memory, persist it to config.json, and write to .env for fallback compatibility."""
+        # The dashboard password never goes to .env or config.json in clear text:
+        # set_admin_password() stores only a salted hash. This is the backstop.
+        if key in cls.SECRET_KEYS:
+            raise ValueError(f"{key} cannot be written by update_env(); use set_admin_password()")
+
         # 1. Update in memory
         setattr(cls, key, value)
 
