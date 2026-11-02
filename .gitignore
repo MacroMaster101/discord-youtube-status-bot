@@ -30,3 +30,25 @@ data/
 # Tooling caches
 .pytest_cache/
 .ruff_cache/
+
+# AI assistant / agent artifacts. None of these belong in the repository, and
+# some (session transcripts, MCP configs) can carry tokens or private context.
+.claude/
+.codex/
+.cursor/
+.cursorrules
+.windsurf/
+.continue/
+.aider*
+.serena/
+.mcp.json
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+graphify-out/
+
+# Local scratch notes and drafts that are not project documentation
+scratch/
+notes/
+*.local.md
+*.log
