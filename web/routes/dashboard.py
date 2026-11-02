@@ -4,8 +4,10 @@ import discord
 from flask import Blueprint, request, jsonify, current_app
 from config import Config
 from core import state, storage
+from web import access, oauth
 from web.auth import (
     require_auth, check_password, login_block_reason, create_session, revoke_session, bearer_token,
+    current_identity, SESSION_COOKIE,
 )
 
 bp = Blueprint("dashboard", __name__, url_prefix="/api")
@@ -26,10 +28,33 @@ def login():
     return jsonify({"message": "Invalid password"}), 401
 
 
+@bp.route("/session")
+def session_state():
+    """How (and whether) this request is signed in, plus which doors are open.
+
+    Unauthenticated by design: the login screen calls it on load to find out
+    whether it should show itself at all. It only reports on the credentials the
+    caller already sent, so it cannot be used to test guesses.
+    """
+    identity = current_identity()
+    return jsonify({
+        "authenticated": identity is not None,
+        "via": identity["via"] if identity else None,
+        "who": identity["who"] if identity else None,
+        "methods": {
+            "password": login_block_reason() is None,
+            "discord": oauth.is_configured(),
+            "cloudflare": access.is_configured(),
+        },
+    }), 200
+
+
 @bp.route("/logout", methods=["POST"])
 def logout():
     revoke_session(bearer_token())
-    return jsonify({"status": "success"}), 200
+    response = jsonify({"status": "success"})
+    response.delete_cookie(SESSION_COOKIE, path="/")
+    return response, 200
 
 
 @bp.route("/stats")
