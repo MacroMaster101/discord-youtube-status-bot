@@ -87,7 +87,7 @@ Fill in `.env`:
 | `YOUTUBE_POLL_INTERVAL` | | Seconds between checks (default `300`) |
 | `PREFIX` | | Command prefix (default `$`) |
 | `PORT` | | Dashboard port (default `8080`) |
-| `DASHBOARD_BIND_ADDRESS` | | Docker only: `127.0.0.1` keeps the dashboard off the public internet (default `0.0.0.0`) |
+| `DASHBOARD_BIND_ADDRESS` | | Docker only: host address the dashboard is published on (default `127.0.0.1`, which keeps it off the public internet). Set `0.0.0.0` only to expose it deliberately |
 | `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
 
 Run it:
@@ -127,10 +127,9 @@ docker compose up -d --build
      ```env
      COMPOSE_PROFILES=tunnel
      TUNNEL_TOKEN=<your tunnel token>
-     DASHBOARD_BIND_ADDRESS=127.0.0.1
      ```
-     Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
-   - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
+     Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed, and the dashboard is bound to loopback by default so nothing reaches it except the tunnel.
+   - **Direct:** add `DASHBOARD_BIND_ADDRESS=0.0.0.0` to `.env` and open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`. Note that Docker publishes the port ahead of `ufw`, so the security group is what actually restricts it.
 
 Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
 
