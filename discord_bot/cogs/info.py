@@ -38,7 +38,7 @@ class Info(commands.Cog):
         yt_count = storage.yt_total_subscriptions()
 
         embed = discord.Embed(title=f"📊 {guild.name} — Server Stats",
-                              color=0x5865F2, timestamp=datetime.datetime.utcnow())
+                              color=0x5865F2, timestamp=datetime.datetime.now(datetime.timezone.utc))
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)
         embed.add_field(name="👥 Members", value=f"{total_members:,}", inline=True)
@@ -58,7 +58,7 @@ class Info(commands.Cog):
         member = member or ctx.author
         roles = [r.mention for r in member.roles if r.name != "@everyone"]
         embed = discord.Embed(title=f"👤 {member}", color=member.color or 0x5865F2,
-                              timestamp=datetime.datetime.utcnow())
+                              timestamp=datetime.datetime.now(datetime.timezone.utc))
         embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="ID", value=f"`{member.id}`", inline=True)
         embed.add_field(name="Nickname", value=member.nick or "None", inline=True)
@@ -103,7 +103,7 @@ class Info(commands.Cog):
                 f"Here is a detailed list of all available commands and their parameters:"
             ),
             color=0xFF0000,
-            timestamp=datetime.datetime.utcnow()
+            timestamp=datetime.datetime.now(datetime.timezone.utc)
         )
         
         if self.bot.user:

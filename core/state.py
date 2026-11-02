@@ -28,8 +28,8 @@ _log_lock = threading.Lock()
 
 
 def add_log(message: str, level: str = "info"):
-    now_utc = datetime.datetime.utcnow()
-    timestamp_iso = now_utc.isoformat() + "Z"
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    timestamp_iso = now_utc.isoformat().replace("+00:00", "Z")
     console_ts = now_utc.strftime("%H:%M:%S") + " UTC"
     entry = {"timestamp": timestamp_iso, "message": message, "level": level}
     with _log_lock:
@@ -63,10 +63,10 @@ def get_yt_events():
 
 def set_start_time():
     global BOT_START_TIME
-    BOT_START_TIME = datetime.datetime.utcnow()
+    BOT_START_TIME = datetime.datetime.now(datetime.timezone.utc)
 
 
 def uptime_seconds() -> int:
     if not BOT_START_TIME:
         return 0
-    return int((datetime.datetime.utcnow() - BOT_START_TIME).total_seconds())
+    return int((datetime.datetime.now(datetime.timezone.utc) - BOT_START_TIME).total_seconds())

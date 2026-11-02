@@ -33,7 +33,7 @@ def send_message():
         if use_embed:
             embed = discord.Embed(
                 title="📢 Broadcast Announcement", description=content,
-                color=0x5865F2, timestamp=datetime.datetime.utcnow(),
+                color=0x5865F2, timestamp=datetime.datetime.now(datetime.timezone.utc),
             )
             embed.set_footer(text="Sent via Bot Dashboard",
                              icon_url=bot.user.display_avatar.url if bot.user.avatar else None)
