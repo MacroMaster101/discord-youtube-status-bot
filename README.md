@@ -112,7 +112,7 @@ docker compose up -d --build
 
 ---
 
-## ☁️ Deploying to a server (e.g. AWS EC2)
+## ☁️ Deploying to a server (Ubuntu + Docker)
 
 1. On an Ubuntu server with Docker installed:
    ```bash
@@ -130,6 +130,11 @@ docker compose up -d --build
      DASHBOARD_BIND_ADDRESS=127.0.0.1
      ```
      Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
+   - **SSH tunnel (no ports opened):** set `DASHBOARD_BIND_ADDRESS=127.0.0.1` in `.env`, run `docker compose up -d`, then from your own machine:
+     ```bash
+     ssh -i /path/to/key -L 8081:127.0.0.1:8081 user@your-server
+     ```
+     Leave it running and open `http://localhost:8081`. Only port 22 needs to be reachable.
    - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
 
 Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
@@ -139,9 +144,11 @@ Dashboard sessions are random tokens that expire after 12 hours. Logging out, re
 
 | Secret | Value |
 |---|---|
-| `EC2_HOST` | Your server's public IP |
-| `EC2_USERNAME` | e.g. `ubuntu` |
-| `EC2_SSH_KEY` | Contents of the server's private SSH key (`.pem`) |
+| `EC2_HOST` | The server's public IP or hostname |
+| `EC2_USERNAME` | The SSH user, e.g. `ubuntu` |
+| `EC2_SSH_KEY` | Contents of the private SSH key for that user |
+
+> The `EC2_*` names are historical, from the original AWS deployment. They are only secret names: the workflow deploys to any server reachable over SSH.
 
 ---
 
