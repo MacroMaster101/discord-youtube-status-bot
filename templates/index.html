@@ -1106,19 +1106,32 @@ a:hover { color: var(--brand); }
 <div id="loginScreen" class="login-wrap">
   <form class="login-card" onsubmit="event.preventDefault(); doLogin()">
     <h1><span class="logo-icon"><i class="fab fa-youtube"></i></span> Control Center</h1>
-    <p class="subtitle">Enter your admin password to access the panel.</p>
-    <div class="field">
-      <label for="loginPassword">Password</label>
-      <div class="input-icon-wrap">
-        <input id="loginPassword" type="password" class="secret-input" autocomplete="current-password" placeholder="••••••••" required />
-        <i class="fas fa-lock prefix-icon"></i>
-        <i class="fas fa-eye eye-icon" onclick="togglePasswordVisibility('loginPassword', this)" title="Toggle Visibility"></i>
+    <p class="subtitle" id="loginSubtitle">Sign in to access the panel.</p>
+
+    <div id="loginPasswordSection">
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <div class="input-icon-wrap">
+          <input id="loginPassword" type="password" class="secret-input" autocomplete="current-password" placeholder="••••••••" />
+          <i class="fas fa-lock prefix-icon"></i>
+          <i class="fas fa-eye eye-icon" onclick="togglePasswordVisibility('loginPassword', this)" title="Toggle Visibility"></i>
+        </div>
       </div>
+      <div style="height:20px"></div>
+      <button class="btn btn-primary btn-full btn-lg" type="submit" id="loginBtn">
+        <i class="fas fa-arrow-right-to-bracket"></i> Sign In
+      </button>
     </div>
-    <div style="height:20px"></div>
-    <button class="btn btn-primary btn-full btn-lg" type="submit" id="loginBtn">
-      <i class="fas fa-arrow-right-to-bracket"></i> Sign In
-    </button>
+
+    <div id="loginDivider" class="hidden" style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-muted);font-size:12px;font-weight:600;letter-spacing:.08em">
+      <span style="flex:1;height:1px;background:rgba(255,255,255,.1)"></span>OR<span style="flex:1;height:1px;background:rgba(255,255,255,.1)"></span>
+    </div>
+
+    <a id="loginDiscordBtn" class="btn btn-full btn-lg hidden" href="/auth/discord"
+       style="background:#5865F2;color:#fff;border:none;text-decoration:none;justify-content:center">
+      <i class="fab fa-discord"></i> Sign in with Discord
+    </a>
+
     <p id="loginError" class="hidden" style="color:var(--neon-red);margin-top:16px;font-size:13.5px;text-align:center;font-weight:600"></p>
   </form>
 </div>
@@ -1832,11 +1845,71 @@ function resolveDropdownFromSavedVal(type) {
 
 /* ===== BOOTSTRAPPING ===== */
 window.addEventListener('DOMContentLoaded', () => {
-  if (TOKEN) bootApp();
+  initAuth();
   document.querySelectorAll('.nav-btn[data-tab]').forEach(el => {
     el.addEventListener('click', () => switchTab(el.dataset.tab));
   });
 });
+
+/* Each tab push a history entry, so the browser's Back and Forward buttons are
+   the natural way to move between them. Without this listener the hash changed
+   but nothing redrew, which looked like Back was broken. */
+window.addEventListener('hashchange', () => {
+  if (document.getElementById('appScreen').classList.contains('hidden')) return;
+  const tab = location.hash.slice(1);
+  if (!VALID_TABS.includes(tab) || tab === CURRENT_TAB) return;
+  switchTab(tab);
+});
+
+const AUTH_ERRORS = {
+  not_configured: 'Discord sign-in is not configured on this server.',
+  bad_state:      'That sign-in link expired or was already used. Try again.',
+  denied:         'Discord sign-in was cancelled.',
+  no_code:        'Discord did not return an authorisation code.',
+  discord_error:  'Could not complete sign-in with Discord. Check the logs.',
+  not_authorised: 'That account does not administer a server this bot is in.'
+};
+
+/* Ask the server how we stand before deciding whether to show the login card.
+   Cloudflare Access and the Discord cookie both authenticate the request itself,
+   so there may be nothing for the user to do. */
+async function initAuth() {
+  const params = new URLSearchParams(location.search);
+  const failure = params.get('auth_error');
+  if (failure) {
+    const err = document.getElementById('loginError');
+    err.textContent = AUTH_ERRORS[failure] || 'Sign-in failed.';
+    err.classList.remove('hidden');
+    history.replaceState(null, '', location.pathname + location.hash);
+  }
+
+  let session = null;
+  try {
+    session = await fetch(`${API}/session`).then(r => r.json());
+  } catch (_) { /* offline or still starting: fall back to the login card */ }
+
+  if (session && session.authenticated) {
+    // A cookie or Access header is carrying this session, so the stale
+    // localStorage token (if any) is not what got us in.
+    if (session.via !== 'password') { TOKEN = ''; localStorage.removeItem('botToken'); }
+    bootApp();
+    return;
+  }
+
+  const methods = (session && session.methods) || { password: true };
+  document.getElementById('loginPasswordSection').classList.toggle('hidden', !methods.password);
+  document.getElementById('loginDiscordBtn').classList.toggle('hidden', !methods.discord);
+  document.getElementById('loginDivider').classList.toggle('hidden', !(methods.password && methods.discord));
+
+  const subtitle = document.getElementById('loginSubtitle');
+  if (!methods.password && !methods.discord) {
+    subtitle.textContent = 'No sign-in method is configured. Set ADMIN_PASSWORD or Discord OAuth in .env.';
+  } else if (!methods.password) {
+    subtitle.textContent = 'Sign in with Discord to access the panel.';
+  } else {
+    subtitle.textContent = 'Enter your admin password to access the panel.';
+  }
+}
 
 /* ===== AUTHORIZATION ===== */
 async function doLogin() {
@@ -1861,10 +1934,12 @@ async function doLogin() {
 }
 
 function doLogout() {
-  // End the session on the server too, then reload to the login screen.
-  const end = TOKEN
-    ? fetch(`${API}/logout`, { method: 'POST', headers: { 'Authorization': `Bearer ${TOKEN}` } }).catch(() => {})
-    : Promise.resolve();
+  // Always call the server, even with no local token: after a Discord sign-in
+  // the session lives in an HttpOnly cookie that only the server can clear.
+  const end = fetch(`${API}/logout`, {
+    method: 'POST',
+    headers: TOKEN ? { 'Authorization': `Bearer ${TOKEN}` } : {}
+  }).catch(() => {});
   TOKEN = '';
   localStorage.removeItem('botToken');
   end.finally(() => location.reload());
@@ -1892,8 +1967,10 @@ function bootApp() {
   
   // Restore previously active tab from hash or localStorage
   const savedTab = window.location.hash.slice(1) || localStorage.getItem('activeTab') || 'dashboard';
-  const validTabs = ['dashboard', 'youtube', 'broadcast', 'presence', 'config', 'logs'];
-  const activeTab = validTabs.includes(savedTab) ? savedTab : 'dashboard';
+  const activeTab = VALID_TABS.includes(savedTab) ? savedTab : 'dashboard';
+  // replaceState, not a hash assignment: the first tab shown is where you
+  // arrived, so Back should leave the dashboard rather than undo this step.
+  history.replaceState(null, '', `${location.pathname}#${activeTab}`);
   switchTab(activeTab);
 
   refreshAll();
@@ -1904,9 +1981,14 @@ function bootApp() {
 }
 
 /* ===== TAB NAVIGATION ===== */
+const VALID_TABS = ['dashboard', 'youtube', 'broadcast', 'presence', 'config', 'logs'];
+
 function switchTab(tab) {
   CURRENT_TAB = tab;
-  window.location.hash = tab;
+  // Only write the hash when it actually differs. Assigning it unconditionally
+  // adds a history entry even when we got here *from* a hashchange, which made
+  // one Back press need two to go anywhere.
+  if (window.location.hash.slice(1) !== tab) window.location.hash = tab;
   localStorage.setItem('activeTab', tab);
   
   document.querySelectorAll('.nav-btn[data-tab]').forEach(el =>
