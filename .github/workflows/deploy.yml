@@ -1,4 +1,4 @@
-name: Deploy Bot to AWS EC2
+name: Deploy Bot to Server
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 # Never run two deploys at once; a newer push waits for the current one.
 concurrency:
-  group: deploy-ec2
+  group: deploy-server
   cancel-in-progress: false
 
 jobs:
