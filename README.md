@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI"></a>
+  <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/deploy.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy"></a>
   <img src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14">
   <img src="https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.4+">
   <img src="https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white" alt="YouTube Data API v3">
@@ -22,6 +23,7 @@
   <a href="#-features">Features</a> ·
   <a href="#-quick-start-local">Quick start</a> ·
   <a href="#-docker">Docker</a> ·
+  <a href="#-deploying-to-a-server-ubuntu--docker">Deploy</a> ·
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -139,7 +141,10 @@ docker compose up -d --build
 Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
 
 ### Automatic deploys
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) SSHes into the server on every push to `main`, pulls the code and rebuilds the container. Add these repository secrets under **Settings → Secrets and variables → Actions**:
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) deploys on every push to `main`: it SSHes into the server, runs `git pull origin main`, then `docker compose up -d --build`. A run takes roughly 25 seconds, nearly all of it the container restart. The **Deploy** badge at the top of this page shows the result of the most recent run.
+
+Add these repository secrets under **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 |---|---|
@@ -148,6 +153,47 @@ Dashboard sessions are random tokens that expire after 12 hours. Logging out, re
 | `EC2_SSH_KEY` | Contents of the private SSH key for that user |
 
 > The `EC2_*` names are historical, from the original AWS deployment. They are only secret names: the workflow deploys to any server reachable over SSH.
+
+#### How a change reaches the server
+
+[`branch-flow.yml`](.github/workflows/branch-flow.yml) enforces `feature/* -> dev -> main`, so deploying is the last step of that flow:
+
+1. Branch off `dev` as `feature/<name>` and open a PR into `dev`. CI runs lint, tests, a Docker build and CodeQL.
+2. Merge into `dev`. Nothing deploys — `dev` is the staging branch.
+3. Open a PR from `dev` into `main`. Only `dev` may merge into `main`.
+4. Merge it. That push to `main` is what triggers the deploy.
+
+Dependabot branches may merge straight into `dev`.
+
+#### Watching and verifying a deploy
+
+From the **Actions** tab, or on the command line:
+
+```bash
+gh run watch "$(gh run list --workflow=deploy.yml --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+```
+
+A green run means the commands exited 0, not that the bot came back up. Confirm that separately:
+
+```bash
+ssh -i /path/to/key user@your-server \
+  'cd ~/discord-youtube-status-bot && git log --oneline -1 && docker compose ps && docker compose logs --since 2m bot | tail -5'
+```
+
+The bot logs `Logged in as ...` once it reaches Discord.
+
+#### First deploy on a new server
+
+The workflow pulls into an existing checkout, so create one before the first automated deploy:
+
+```bash
+git clone https://github.com/MacroMaster101/discord-youtube-status-bot.git ~/discord-youtube-status-bot
+cd ~/discord-youtube-status-bot
+nano .env && chmod 600 .env    # variables as in the table above
+docker compose up -d --build
+```
+
+If the workflow was disabled, re-enable it with `gh workflow enable deploy.yml`.
 
 ---
 
