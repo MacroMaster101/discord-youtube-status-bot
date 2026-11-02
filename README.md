@@ -87,7 +87,7 @@ Fill in `.env`:
 | `YOUTUBE_POLL_INTERVAL` | | Seconds between checks (default `300`) |
 | `PREFIX` | | Command prefix (default `$`) |
 | `PORT` | | Dashboard port (default `8080`) |
-| `DASHBOARD_BIND_ADDRESS` | | Docker only: `127.0.0.1` keeps the dashboard off the public internet (default `0.0.0.0`) |
+| `DASHBOARD_BIND_ADDRESS` | | Docker only: host address the dashboard is published on (default `127.0.0.1`, which keeps it off the public internet). Set `0.0.0.0` only to expose it deliberately |
 | `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
 
 Run it:
@@ -127,15 +127,14 @@ docker compose up -d --build
      ```env
      COMPOSE_PROFILES=tunnel
      TUNNEL_TOKEN=<your tunnel token>
-     DASHBOARD_BIND_ADDRESS=127.0.0.1
      ```
      Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
-   - **SSH tunnel (no ports opened):** set `DASHBOARD_BIND_ADDRESS=127.0.0.1` in `.env`, run `docker compose up -d`, then from your own machine:
+   - **SSH tunnel (no ports opened):** run `docker compose up -d` -- the dashboard is on loopback by default -- then from your own machine:
      ```bash
      ssh -i /path/to/key -L 8081:127.0.0.1:8081 user@your-server
      ```
      Leave it running and open `http://localhost:8081`. Only port 22 needs to be reachable.
-   - **Direct:** open port **8081** in your firewall or security group **to your own IP only**, then visit `http://<your-server-ip>:8081`.
+   - **Direct:** add `DASHBOARD_BIND_ADDRESS=0.0.0.0` to `.env`, then open port **8081** in your cloud security group **to your own IP only** and visit `http://<your-server-ip>:8081`. A `ufw` rule will not restrict it -- Docker's iptables chain is evaluated first, so the security group is what actually limits access.
 
 Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
 
