@@ -158,3 +158,54 @@ def test_callback_rejects_a_mismatched_state(client, monkeypatch):
     r = client.get("/auth/discord/callback?code=x&state=forged")
     assert r.status_code == 302
     assert "auth_error=bad_state" in r.headers["Location"]
+
+
+# --- the explicit user allowlist ---------------------------------------------------
+
+ADMIN_OF_OURS = [{"id": "1", "permissions": ADMIN}]
+
+
+def test_without_an_allowlist_the_guild_rule_still_governs(monkeypatch):
+    monkeypatch.delenv("DASHBOARD_ALLOWED_USERS", raising=False)
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], "999") is True
+
+
+def test_a_listed_admin_may_sign_in(monkeypatch):
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "42")
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], "42") is True
+
+
+def test_an_unlisted_admin_is_refused(monkeypatch):
+    """The whole point: being a server admin is no longer enough on its own."""
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "42")
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], "999") is False
+
+
+def test_a_listed_non_admin_is_still_refused(monkeypatch):
+    """Both gates apply, so a demotion revokes access even while listed."""
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "42")
+    member_only = [{"id": "1", "permissions": "0"}]
+    assert oauth.may_sign_in(member_only, ["1"], "42") is False
+
+
+def test_a_missing_user_id_is_refused_when_the_list_is_in_use(monkeypatch):
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "42")
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], None) is False
+
+
+def test_the_list_tolerates_spaces_and_separators(monkeypatch):
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", " 7 , 42 ; 99 ")
+    assert oauth.allowed_user_ids() == frozenset({"7", "42", "99"})
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], "42") is True
+
+
+def test_an_empty_list_is_treated_as_not_in_use(monkeypatch):
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "   ")
+    assert oauth.allowed_user_ids() == frozenset()
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], "999") is True
+
+
+def test_ids_are_compared_as_strings_not_numbers(monkeypatch):
+    """Discord ids exceed 2^53, so they travel as strings throughout."""
+    monkeypatch.setenv("DASHBOARD_ALLOWED_USERS", "1507300707613806694")
+    assert oauth.may_sign_in(ADMIN_OF_OURS, ["1"], 1507300707613806694) is True
