@@ -13,7 +13,7 @@
   <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI"></a>
   <a href="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/deploy.yml"><img src="https://github.com/MacroMaster101/discord-youtube-status-bot/actions/workflows/deploy.yml/badge.svg?branch=main" alt="Deploy"></a>
   <img src="https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white" alt="Python 3.14">
-  <img src="https://img.shields.io/badge/discord.py-2.4+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.4+">
+  <img src="https://img.shields.io/badge/discord.py-2.7+-5865F2?logo=discord&logoColor=white" alt="discord.py 2.7+">
   <img src="https://img.shields.io/badge/YouTube_Data_API-v3-FF0000?logo=youtube&logoColor=white" alt="YouTube Data API v3">
   <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white" alt="Docker">
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT"></a>
@@ -83,7 +83,7 @@ Fill in `.env`:
 | Variable | Required | Description |
 |---|---|---|
 | `DISCORD_TOKEN` | ✅ | Your bot token |
-| `ADMIN_PASSWORD` | ✅ | Dashboard password, 8+ characters. Login stays disabled while it's empty or a default like `admin123`. |
+| `ADMIN_PASSWORD` | ✅ | Dashboard password, 8+ characters. Optional once Discord or Cloudflare sign-in works, but keep it: it is the only one that works over the SSH tunnel. Login stays disabled while it's empty or a default like `admin123`. |
 | `YOUTUBE_API_KEY` | ✅ | YouTube Data API v3 key |
 | `YOUTUBE_CHANNEL_ID` | ✅ | `@handle`, channel URL or `UC…` ID |
 | `YOUTUBE_NOTIFY_CHANNEL_ID` | | Discord channel ID for alerts (can be set in the dashboard) |
@@ -92,6 +92,10 @@ Fill in `.env`:
 | `PORT` | | Dashboard port (default `8080`) |
 | `DASHBOARD_BIND_ADDRESS` | | Docker only: host address the dashboard is published on (default `127.0.0.1`, which keeps it off the public internet). Set `0.0.0.0` only to expose it deliberately |
 | `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
+| `DISCORD_CLIENT_ID` / `_SECRET` | | Discord OAuth sign-in; see [Signing in](#-signing-in) |
+| `OAUTH_REDIRECT_URI` | | Must match the redirect set on the Discord application exactly |
+| `FLASK_SECRET_KEY` | | Signs the short-lived OAuth state cookie; generated per start if unset |
+| `CF_ACCESS_TEAM_DOMAIN` / `CF_ACCESS_AUD` | | Cloudflare Access sign-in; both are needed or it stays off |
 
 Run it:
 
