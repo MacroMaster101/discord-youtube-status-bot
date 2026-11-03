@@ -5,7 +5,10 @@ import threading
 import discord
 from flask import Flask, render_template
 from config import Config
-from web.routes import dashboard, broadcast, youtube_routes, config_routes, presence_routes, auth_routes
+from web.routes import (
+    dashboard, broadcast, youtube_routes, config_routes, presence_routes, auth_routes,
+    public_routes,
+)
 
 
 def _secret_key() -> str:
@@ -30,12 +33,22 @@ def create_app(bot: discord.Client) -> Flask:
 
     @app.route("/")
     def home():
+        """The public landing page. Shows only what the channel already shows."""
+        return render_template("public.html")
+
+    @app.route("/dashboard")
+    @app.route("/dashboard/")
+    def console():
+        """The control centre. The page is served to anyone; everything it then
+        calls is behind require_auth, and it shows a login card until one of
+        those calls succeeds."""
         return render_template("index.html")
 
     @app.route("/health")
     def health():
         return "OK", 200
 
+    app.register_blueprint(public_routes.bp)
     app.register_blueprint(auth_routes.bp)
     app.register_blueprint(dashboard.bp)
     app.register_blueprint(broadcast.bp)
