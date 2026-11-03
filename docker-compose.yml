@@ -20,6 +20,20 @@ services:
     # bot, or sshd instead, so the thing that misbehaved keeps running and
     # something unrelated dies. Idle use is around 60 MiB.
     mem_limit: 256m
+    cpus: "0.75"
+    # Nothing here needs elevated privileges: it is a Python process talking out
+    # to Discord and YouTube and listening on an unprivileged port.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      # restart: unless-stopped plus the default unbounded json-file driver means
+      # a crash loop fills the disk.
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Optional HTTPS access through Cloudflare Tunnel. Enable it by adding to .env:
   #   COMPOSE_PROFILES=tunnel
@@ -34,5 +48,14 @@ services:
     environment:
       - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
     mem_limit: 128m
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - bot

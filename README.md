@@ -24,6 +24,7 @@
   <a href="#-quick-start-local">Quick start</a> ·
   <a href="#-docker">Docker</a> ·
   <a href="#-deploying-to-a-server-ubuntu--docker">Deploy</a> ·
+  <a href="#-signing-in">Signing in</a> ·
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -197,6 +198,60 @@ If the workflow was disabled, re-enable it with `gh workflow enable deploy.yml`.
 
 ---
 
+## 🔐 Signing in
+
+The dashboard has three doors. Any one of them is enough, and they can be used together.
+
+| Door | Set up with | Good for |
+|---|---|---|
+| Admin password | `ADMIN_PASSWORD` | Local access over the SSH tunnel; the fallback that always works |
+| Discord OAuth | `DISCORD_CLIENT_ID` / `_SECRET` / `OAUTH_REDIRECT_URI` | Signing in as yourself, no shared secret |
+| Cloudflare Access | `CF_ACCESS_TEAM_DOMAIN` / `CF_ACCESS_AUD` | A public hostname where you never see a login form |
+
+Keep `ADMIN_PASSWORD` set even after adding the other two. If Cloudflare is down or the OAuth app is misconfigured, it is the only way back in — and over the SSH tunnel there is no Access header and no public redirect URI, so it is the *only* door that works there.
+
+### Discord OAuth
+
+Anyone who holds **Manage Server** or **Administrator** on a server this bot is in may sign in. Both halves are checked: administering some unrelated server is not enough, and being an ordinary member of this one is not either.
+
+1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and pick the application this bot already uses.
+2. Under **OAuth2**, copy the **Client ID** and **Client Secret**.
+3. Add a redirect: `https://<your-hostname>/auth/discord/callback`. It must match `OAUTH_REDIRECT_URI` exactly, including the scheme and any trailing path.
+4. Put all three in `.env`, plus a `FLASK_SECRET_KEY` (any long random string — `openssl rand -base64 32`). Without it the key is regenerated on every restart, which interrupts sign-ins that are mid-flight.
+
+### Cloudflare Tunnel
+
+The tunnel gives the dashboard an HTTPS hostname without opening a single inbound port — the connection is made outward from the server.
+
+1. In **Cloudflare Zero Trust → Networks → Tunnels**, create a tunnel and choose **Docker** as the connector. Copy the token out of the command it shows you (the long string after `--token`).
+2. Add a **public hostname** to the tunnel: pick the hostname you want, and point its service at `http://bot:8080`. That is the bot's address *on the compose network*, which is why no host port has to be published.
+3. In `.env`:
+   ```env
+   COMPOSE_PROFILES=tunnel
+   TUNNEL_TOKEN=<the token from step 1>
+   ```
+4. `docker compose up -d`. The `cloudflared` container only starts when `COMPOSE_PROFILES=tunnel` is set, so until then nothing changes.
+
+Port 8081 can stay bound to loopback throughout: the tunnel does not use it.
+
+### Cloudflare Access
+
+Access puts Cloudflare's own sign-in in front of the hostname, so unauthenticated requests never reach the bot.
+
+1. In **Zero Trust → Access → Applications**, add a **Self-hosted** application for the hostname from the previous step.
+2. Add a policy — for a personal dashboard, *Allow* with an **Emails** rule listing your own address.
+3. Open the application's **Overview** and copy the **Application Audience (AUD) Tag**.
+4. In `.env`:
+   ```env
+   CF_ACCESS_TEAM_DOMAIN=yourteam.cloudflareaccess.com
+   CF_ACCESS_AUD=<the AUD tag>
+   ```
+5. Restart the bot.
+
+Every request then has to carry a `Cf-Access-Jwt-Assertion` that verifies against your team's public keys. The `Cf-Access-Authenticated-User-Email` header is deliberately ignored: any client can send it, and it is only meaningful on requests that actually came through Access. If either variable is missing, Access sign-in stays off rather than half-trusting that header.
+
+---
+
 ## 🏗️ Project structure
 
 ```
@@ -215,8 +270,10 @@ discord_bot/
   cogs/                 Commands (info, youtube)
 web/
   app.py                Flask app (runs in a background thread)
-  auth.py               Dashboard password check
-  routes/               Dashboard API endpoints
+  auth.py               Who is signed in: password, Discord or Cloudflare Access
+  oauth.py              Discord OAuth2 sign-in (urllib only, no event loop)
+  access.py             Cloudflare Access JWT verification
+  routes/               Dashboard API endpoints and the OAuth redirects
 templates/index.html    Single-page dashboard
 tests/                  pytest suite
 ```

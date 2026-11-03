@@ -42,6 +42,7 @@ data/
 # AI assistant tooling: local config, instruction files and scratch output.
 # None of it belongs in the repo.
 .claude/
+.codex/
 .cursor/
 .cursorrules
 .cursorignore
@@ -74,8 +75,10 @@ CONVENTIONS.md
 .github/instructions/
 .github/prompts/
 ai-docs/
+graphify-out/
 *.ai.md
 *.plan.md
+*.local.md
 
 # Scratch and backup files. Matched by suffix or directory rather than by title,
 # because a repo may legitimately want to track a NOTES.md or TODO.md.
@@ -85,3 +88,4 @@ scratch/
 *.orig
 *.rej
 *~
+*.log
