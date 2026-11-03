@@ -16,6 +16,7 @@ Include what you found, how to reproduce it, and what an attacker could do with 
 
 ## Running your own copy safely
 
+- `/` and `/api/public/stats` are unauthenticated by design. They publish only what the YouTube channel already shows publicly — title, avatar, counts, live status and video links — plus whether the bot is online. A hidden subscriber count is returned as null rather than the real figure. No logs, configuration, Discord server details or bot internals are exposed there, and `tests/test_public.py` asserts the response contains exactly that set of fields so the endpoint cannot quietly grow one.
 - Set a strong `ADMIN_PASSWORD` (8+ characters) in `.env`. The dashboard has full control of the bot, and it refuses logins while the password is empty or a known default.
 - Never commit `.env` or anything in `data/`. Both are already in `.gitignore`.
 - The dashboard serves plain HTTP, so under Docker it is published on `127.0.0.1` by default and is not reachable from the network until you change that. Use the built-in Cloudflare Tunnel option (`COMPOSE_PROFILES=tunnel`, see the README) to reach it over HTTPS, or an SSH tunnel. If you set `DASHBOARD_BIND_ADDRESS=0.0.0.0`, limit port 8081 to your own IP in your cloud security group -- a `ufw` rule will not do it, because Docker's iptables chain is evaluated first.

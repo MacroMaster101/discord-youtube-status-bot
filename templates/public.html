@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>YouTube Status Bot</title>
+<meta name="description" content="Live YouTube channel stats, posted to Discord on every upload and stream." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050609;
+  --panel: rgba(255,255,255,.035);
+  --line: rgba(255,255,255,.08);
+  --text: #f2f4f8;
+  --muted: #8b93a7;
+  --red: #ff0033;
+  --green: #22c55e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 16px;
+  /* Two soft pools of colour instead of a flat void; cheap and no images. */
+  background-image:
+    radial-gradient(60rem 40rem at 15% -10%, rgba(255,0,51,.10), transparent 60%),
+    radial-gradient(50rem 35rem at 100% 0%, rgba(88,101,242,.07), transparent 55%);
+  background-repeat: no-repeat;
+}
+.wrap { width: 100%; max-width: 760px; }
+header { text-align: center; margin-bottom: 40px; }
+.avatar {
+  width: 104px; height: 104px; border-radius: 50%;
+  border: 2px solid var(--line); object-fit: cover; margin-bottom: 20px;
+  background: var(--panel);
+}
+h1 { font-family: Outfit, sans-serif; font-size: clamp(28px, 6vw, 42px); font-weight: 800; letter-spacing: -.02em; }
+.tagline { color: var(--muted); margin-top: 10px; font-size: 15px; }
+.badge {
+  display: none; align-items: center; gap: 8px; margin: 18px auto 0;
+  width: fit-content; padding: 7px 16px; border-radius: 999px;
+  background: rgba(255,0,51,.12); border: 1px solid rgba(255,0,51,.35);
+  color: #ff5c7a; font-weight: 700; font-size: 13px; letter-spacing: .04em;
+}
+.badge.on { display: flex; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); animation: pulse 1.6s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px; }
+.stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  padding: 22px 16px; text-align: center;
+}
+.stat .n { font-family: Outfit, sans-serif; font-size: clamp(20px, 4.5vw, 28px); font-weight: 800; }
+.stat .l { color: var(--muted); font-size: 12px; margin-top: 6px; letter-spacing: .06em; text-transform: uppercase; }
+
+.card {
+  display: none; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 16px; padding: 20px 22px; margin-bottom: 14px;
+  text-decoration: none; color: inherit;
+}
+.card.on { display: block; }
+.card:hover { border-color: rgba(255,255,255,.18); }
+.card .k { color: var(--muted); font-size: 11px; letter-spacing: .09em; text-transform: uppercase; }
+.card .v { margin-top: 7px; font-weight: 600; font-size: 16px; line-height: 1.45; }
+.card.live { border-color: rgba(255,0,51,.35); background: rgba(255,0,51,.06); }
+.card.live .k { color: #ff5c7a; }
+
+.cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 28px; }
+.btn {
+  padding: 12px 22px; border-radius: 12px; font-weight: 600; font-size: 14px;
+  text-decoration: none; border: 1px solid var(--line); color: var(--text);
+}
+.btn.primary { background: var(--red); border-color: var(--red); color: #fff; }
+.btn:hover { filter: brightness(1.12); }
+
+footer {
+  margin-top: 36px; display: flex; align-items: center; justify-content: center;
+  gap: 9px; color: var(--muted); font-size: 13px;
+}
+.status { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.status.up { background: var(--green); }
+
+#empty { display: none; text-align: center; color: var(--muted); padding: 32px 0; font-size: 15px; }
+#empty.on { display: block; }
+
+@media (max-width: 520px) { .stats { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img id="avatar" class="avatar" alt="" />
+    <h1 id="title">YouTube Status Bot</h1>
+    <p class="tagline">New uploads and live streams, announced in Discord the moment they happen.</p>
+    <div id="liveBadge" class="badge"><span class="dot"></span> LIVE NOW</div>
+  </header>
+
+  <div id="empty">Channel statistics aren't available yet — the bot collects them on its first check.</div>
+
+  <section id="content" hidden>
+    <div class="stats">
+      <div class="stat"><div class="n" id="subs">—</div><div class="l">Subscribers</div></div>
+      <div class="stat"><div class="n" id="views">—</div><div class="l">Views</div></div>
+      <div class="stat"><div class="n" id="videos">—</div><div class="l">Videos</div></div>
+    </div>
+
+    <a id="liveCard" class="card live" href="#" target="_blank" rel="noopener noreferrer">
+      <div class="k">Streaming now</div><div class="v" id="liveTitle"></div>
+    </a>
+    <a id="upcomingCard" class="card" href="#" target="_blank" rel="noopener noreferrer">
+      <div class="k">Scheduled stream</div><div class="v" id="upcomingTitle"></div>
+    </a>
+    <a id="latestCard" class="card" href="#" target="_blank" rel="noopener noreferrer">
+      <div class="k">Latest upload</div><div class="v" id="latestTitle"></div>
+    </a>
+  </section>
+
+  <div class="cta">
+    <a id="channelLink" class="btn primary" href="#" target="_blank" rel="noopener noreferrer" hidden>Visit the channel</a>
+    <a class="btn" href="/dashboard">Dashboard</a>
+  </div>
+
+  <footer><span id="statusDot" class="status"></span><span id="statusText">Checking…</span></footer>
+</div>
+
+<script>
+const fmt = n => {
+  if (n === null || n === undefined) return '—';
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, '') + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+  return String(n);
+};
+
+function card(id, titleId, link) {
+  const el = document.getElementById(id);
+  if (!link) { el.classList.remove('on'); return; }
+  document.getElementById(titleId).textContent = link.title;
+  el.href = link.url;
+  el.classList.add('on');
+}
+
+async function load() {
+  let d;
+  try {
+    d = await fetch('/api/public/stats').then(r => r.json());
+  } catch (_) {
+    document.getElementById('statusText').textContent = 'Status unavailable';
+    return;
+  }
+
+  const up = d.bot && d.bot.online;
+  document.getElementById('statusDot').classList.toggle('up', !!up);
+  document.getElementById('statusText').textContent = up ? 'Bot online' : 'Bot offline';
+
+  const c = d.channel;
+  if (!c) { document.getElementById('empty').classList.add('on'); return; }
+
+  document.getElementById('content').hidden = false;
+  if (c.title) {
+    document.getElementById('title').textContent = c.title;
+    document.title = c.title + ' — YouTube Status Bot';
+  }
+  if (c.thumbnail) document.getElementById('avatar').src = c.thumbnail;
+  if (c.url) {
+    const link = document.getElementById('channelLink');
+    link.href = c.url;
+    link.hidden = false;
+  }
+
+  // A hidden subscriber count comes back as null and stays a dash.
+  document.getElementById('subs').textContent = fmt(c.subscribers);
+  document.getElementById('views').textContent = fmt(c.views);
+  document.getElementById('videos').textContent = fmt(c.videos);
+
+  document.getElementById('liveBadge').classList.toggle('on', !!c.live);
+  card('liveCard', 'liveTitle', c.live);
+  card('upcomingCard', 'upcomingTitle', c.upcoming);
+  card('latestCard', 'latestTitle', c.latest);
+}
+
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>

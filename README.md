@@ -56,8 +56,11 @@ Commands use a prefix (default `$`, changeable from the dashboard).
 
 The bot also replies to "gg", "gg wp" or "good game" with a GG and a 🏆 reaction.
 
+### 🌐 Public page
+`/` is a public landing page: channel avatar, subscriber, view and video counts, a live badge while the channel is streaming, and links to the current stream, the next scheduled one and the newest upload. It takes no sign-in and shows nothing that is not already on the channel itself — a hidden subscriber count stays hidden. It reads the poller's cache, so it never spends YouTube API quota no matter how much traffic it gets. `robots.txt` keeps crawlers off everything else.
+
 ### 🖥️ Web dashboard
-Password-protected control panel:
+At `/dashboard`. Sign in with a password, Discord or Cloudflare Access (see [Signing in](#-signing-in)):
 - Bot stats: servers, members, latency
 - Live log viewer
 - YouTube hub: channel stats, live status and recent alerts
@@ -103,7 +106,7 @@ Run it:
 python bot.py
 ```
 
-The dashboard is at http://localhost:8080. If the Discord token is missing or wrong, the dashboard still starts so you can read the logs.
+The public page is at http://localhost:8080 and the dashboard at http://localhost:8080/dashboard. If the Discord token is missing or wrong, the dashboard still starts so you can read the logs.
 
 ---
 
@@ -135,13 +138,13 @@ docker compose up -d --build
      COMPOSE_PROFILES=tunnel
      TUNNEL_TOKEN=<your tunnel token>
      ```
-     Run `docker compose up -d` and open your tunnel's `https://` address. Port 8081 can stay closed.
+     Run `docker compose up -d` and open your tunnel's `https://` address for the public page, or `/dashboard` for the console. Port 8081 can stay closed.
    - **SSH tunnel (no ports opened):** run `docker compose up -d` -- the dashboard is on loopback by default -- then from your own machine:
      ```bash
      ssh -i /path/to/key -L 8081:127.0.0.1:8081 user@your-server
      ```
-     Leave it running and open `http://localhost:8081`. Only port 22 needs to be reachable.
-   - **Direct:** add `DASHBOARD_BIND_ADDRESS=0.0.0.0` to `.env`, then open port **8081** in your cloud security group **to your own IP only** and visit `http://<your-server-ip>:8081`. A `ufw` rule will not restrict it -- Docker's iptables chain is evaluated first, so the security group is what actually limits access.
+     Leave it running and open `http://localhost:8081/dashboard`. Only port 22 needs to be reachable.
+   - **Direct:** add `DASHBOARD_BIND_ADDRESS=0.0.0.0` to `.env`, then open port **8081** in your cloud security group **to your own IP only** and visit `http://<your-server-ip>:8081/dashboard`. A `ufw` rule will not restrict it -- Docker's iptables chain is evaluated first, so the security group is what actually limits access.
 
 Dashboard sessions are random tokens that expire after 12 hours. Logging out, restarting the bot or changing the password ends them. A password changed from the dashboard is stored only as a hash and overrides the one in `.env` (see [SECURITY.md](SECURITY.md) to reset it).
 
@@ -277,8 +280,10 @@ web/
   auth.py               Who is signed in: password, Discord or Cloudflare Access
   oauth.py              Discord OAuth2 sign-in (urllib only, no event loop)
   access.py             Cloudflare Access JWT verification
-  routes/               Dashboard API endpoints and the OAuth redirects
-templates/index.html    Single-page dashboard
+  routes/               Dashboard API endpoints, OAuth redirects and the public stats
+templates/
+  public.html           Public landing page: channel stats, no sign-in
+  index.html            Single-page dashboard
 tests/                  pytest suite
 ```
 

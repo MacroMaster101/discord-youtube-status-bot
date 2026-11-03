@@ -23,7 +23,7 @@ cp .env.example .env   # then fill in your own values
 python bot.py
 ```
 
-The dashboard runs at http://localhost:8080.
+The public page runs at http://localhost:8080 and the dashboard at http://localhost:8080/dashboard.
 
 ## Before opening a pull request
 
