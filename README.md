@@ -93,10 +93,12 @@ Fill in `.env`:
 | `YOUTUBE_POLL_INTERVAL` | | Seconds between checks (default `300`) |
 | `PREFIX` | | Command prefix (default `$`) |
 | `PORT` | | Dashboard port (default `8080`) |
+| `YOUTUBE_LAST_VIDEO_ID` | | Written by the bot; carry it over when moving host or the newest video is re-announced |
 | `DASHBOARD_BIND_ADDRESS` | | Docker only: host address the dashboard is published on (default `127.0.0.1`, which keeps it off the public internet). Set `0.0.0.0` only to expose it deliberately |
 | `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
+| `APP_UID` / `APP_GID` | | Docker only: uid/gid the container runs as; must own `.env` and `data/` (default `1001`) |
 | `DASHBOARD_ALLOWED_USERS` | | Discord user ids allowed to sign in. Unset means any admin of a server the bot is in |
-| `DISCORD_CLIENT_ID` / `_SECRET` | | Discord OAuth sign-in; see [Signing in](#-signing-in) |
+| `DISCORD_CLIENT_ID` / `DISCORD_CLIENT_SECRET` | | Discord OAuth sign-in; see [Signing in](#-signing-in) |
 | `OAUTH_REDIRECT_URI` | | Must match the redirect set on the Discord application exactly |
 | `FLASK_SECRET_KEY` | | Signs the short-lived OAuth state cookie; generated per start if unset |
 | `CF_ACCESS_TEAM_DOMAIN` / `CF_ACCESS_AUD` | | Cloudflare Access sign-in; both are needed or it stays off |
