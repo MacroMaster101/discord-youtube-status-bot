@@ -80,9 +80,15 @@ def discord_callback():
     except oauth.OAuthError as e:
         return _fail("discord_error", str(e))
 
-    if not oauth.may_sign_in(guilds, _bot_guild_ids()):
+    if not oauth.may_sign_in(guilds, _bot_guild_ids(), user["id"]):
+        # The log says which gate refused, because "it just says not authorised"
+        # is miserable to debug. The browser is told neither, so the page cannot
+        # be used to discover whether an id is on the list.
+        allowed = oauth.allowed_user_ids()
+        why = ("not on DASHBOARD_ALLOWED_USERS" if allowed and user["id"] not in allowed
+               else "not an admin of a server this bot is in")
         state.add_log(
-            f"Discord sign-in refused for {user['username']}: not an admin of a server this bot is in.",
+            f"Discord sign-in refused for {user['username']} ({user['id']}): {why}.",
             "warning",
         )
         return _fail("not_authorised")

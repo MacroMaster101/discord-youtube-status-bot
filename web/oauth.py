@@ -128,13 +128,32 @@ def runs_guild(guild: dict) -> bool:
     return bool(permissions & (MANAGE_GUILD | ADMINISTRATOR))
 
 
-def may_sign_in(user_guilds: list, bot_guild_ids) -> bool:
-    """True when the account runs at least one guild the bot is actually in.
+def allowed_user_ids() -> frozenset:
+    """Discord user ids explicitly permitted to sign in, if the list is in use.
 
-    Both halves matter: the permission check alone would let an admin of any
-    unrelated server in, and the membership check alone would let any ordinary
-    member of our own server in.
+    Empty means "not in use", which leaves the guild rule as the only gate.
     """
+    raw = os.getenv("DASHBOARD_ALLOWED_USERS", "")
+    return frozenset(part.strip() for part in raw.replace(";", ",").split(",") if part.strip())
+
+
+def may_sign_in(user_guilds: list, bot_guild_ids, user_id=None) -> bool:
+    """True when this account may open the dashboard.
+
+    The guild rule on its own is broader than it looks: it admits anyone holding
+    Manage Server or Administrator on a server the bot is in, so promoting a
+    moderator in Discord would hand them the dashboard -- which can broadcast as
+    the bot, rewrite its tokens and restart it. Setting DASHBOARD_ALLOWED_USERS
+    adds a second gate so that only named accounts get in.
+
+    Both gates must pass. Keeping the guild rule means access still disappears
+    when someone is demoted, rather than resting on the list alone, and an id
+    left behind on the list after a demotion does not stay privileged.
+    """
+    allowed = allowed_user_ids()
+    if allowed and str(user_id or "") not in allowed:
+        return False
+
     present = {str(g) for g in bot_guild_ids}
     return any(
         str(guild.get("id", "")) in present and runs_guild(guild)

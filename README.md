@@ -95,6 +95,7 @@ Fill in `.env`:
 | `PORT` | | Dashboard port (default `8080`) |
 | `DASHBOARD_BIND_ADDRESS` | | Docker only: host address the dashboard is published on (default `127.0.0.1`, which keeps it off the public internet). Set `0.0.0.0` only to expose it deliberately |
 | `COMPOSE_PROFILES` / `TUNNEL_TOKEN` | | Docker only: set `COMPOSE_PROFILES=tunnel` and a Cloudflare Tunnel token for HTTPS access |
+| `DASHBOARD_ALLOWED_USERS` | | Discord user ids allowed to sign in. Unset means any admin of a server the bot is in |
 | `DISCORD_CLIENT_ID` / `_SECRET` | | Discord OAuth sign-in; see [Signing in](#-signing-in) |
 | `OAUTH_REDIRECT_URI` | | Must match the redirect set on the Discord application exactly |
 | `FLASK_SECRET_KEY` | | Signs the short-lived OAuth state cookie; generated per start if unset |
@@ -220,6 +221,8 @@ Keep `ADMIN_PASSWORD` set even after adding the other two. If Cloudflare is down
 ### Discord OAuth
 
 Anyone who holds **Manage Server** or **Administrator** on a server this bot is in may sign in. Both halves are checked: administering some unrelated server is not enough, and being an ordinary member of this one is not either.
+
+That is broader than it first sounds. The dashboard can broadcast as the bot, rewrite its tokens and restart it, so anyone you grant Manage Server to in Discord — a common thing to give a moderator — gets all of that too. To restrict it to named accounts, set `DASHBOARD_ALLOWED_USERS` to a comma-separated list of Discord user ids (enable Developer Mode in Discord, then right-click a user → Copy User ID). Both checks then apply, so a listed account that is later demoted still loses access.
 
 1. Open the [Discord Developer Portal](https://discord.com/developers/applications) and pick the application this bot already uses.
 2. Under **OAuth2**, copy the **Client ID** and **Client Secret**.
