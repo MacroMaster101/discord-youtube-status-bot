@@ -22,7 +22,14 @@ COPY . .
 # Created after COPY so the application files stay root-owned and read-only to
 # the bot: it has no reason to rewrite its own code.
 RUN groupadd --gid "$APP_GID" app \
-    && useradd --uid "$APP_UID" --gid "$APP_GID" --no-create-home --shell /usr/sbin/nologin app
+    && useradd --uid "$APP_UID" --gid "$APP_GID" --no-create-home --shell /usr/sbin/nologin app \
+    && mkdir -p /app/data \
+    && chown "$APP_UID:$APP_GID" /app/data
+
+# config.py creates DATA_DIR when it is imported. Under compose a bind mount
+# already provides it, but the bare image has to work too: CI imports the bot in
+# a container with nothing mounted, and a non-root user cannot mkdir inside
+# root-owned /app. Hence creating and chowning it here.
 
 USER app
 
