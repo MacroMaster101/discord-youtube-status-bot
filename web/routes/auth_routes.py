@@ -40,7 +40,9 @@ def _is_https() -> bool:
 
 def _fail(reason: str, detail: str = ""):
     state.add_log(f"Discord sign-in failed: {reason}{(' - ' + detail) if detail else ''}", "warning")
-    return redirect(f"/?auth_error={reason}")
+    # Back to the console, not the public landing page: that is where the
+    # login card lives and where the error has somewhere to be shown.
+    return redirect(f"/dashboard?auth_error={reason}")
 
 
 @bp.route("/discord")
@@ -88,7 +90,7 @@ def discord_callback():
     dash_token = create_session(via="discord", who=user["username"])
     state.add_log(f"Discord sign-in: {user['username']}", "success")
 
-    response = redirect("/")
+    response = redirect("/dashboard")
     response.set_cookie(
         SESSION_COOKIE, dash_token,
         httponly=True, samesite="Lax", secure=_is_https(), max_age=12 * 60 * 60, path="/",
