@@ -1,5 +1,9 @@
-# Environment variables
+# Environment variables. The glob matters: a .env.bak left by an edit holds the
+# same secrets as .env and would otherwise be untracked, not ignored -- one
+# `git add -A` away from being published.
 .env
+.env.*
+!.env.example
 
 # Python
 __pycache__/
@@ -30,3 +34,58 @@ data/
 # Tooling caches
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+
+# Editor workspace files
+*.code-workspace
+
+# AI assistant tooling: local config, instruction files and scratch output.
+# None of it belongs in the repo.
+.claude/
+.codex/
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.codeium/
+.continue/
+.aider*
+.plandex/
+.specstory/
+.roo/
+.roomodes
+.cline/
+.clinerules
+.gemini/
+.opencode/
+.trae/
+.kiro/
+.augment/
+.qodo/
+.serena/
+.mcp.json
+.agent/
+.agents/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+CONVENTIONS.md
+.github/copilot-instructions.md
+.github/instructions/
+.github/prompts/
+ai-docs/
+graphify-out/
+*.ai.md
+*.plan.md
+*.local.md
+
+# Scratch and backup files. Matched by suffix or directory rather than by title,
+# because a repo may legitimately want to track a NOTES.md or TODO.md.
+scratch/
+.scratch/
+*.bak
+*.orig
+*.rej
+*~
+*.log
