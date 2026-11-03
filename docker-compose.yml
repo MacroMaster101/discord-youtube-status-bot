@@ -21,12 +21,18 @@ services:
     # something unrelated dies. Idle use is around 60 MiB.
     mem_limit: 256m
     cpus: "0.75"
-    # Nothing here needs elevated privileges: it is a Python process talking out
-    # to Discord and YouTube and listening on an unprivileged port.
     security_opt:
       - no-new-privileges:true
-    cap_drop:
-      - ALL
+    # cap_drop: ALL is deliberately NOT set here, unlike on cloudflared below.
+    # The image has no USER, so the bot runs as root, while .env and data/ are
+    # bind-mounted from the host owned by another uid. Root writes those through
+    # CAP_DAC_OVERRIDE; drop it and every write is denied. Config.update_env()
+    # and _write_persistent() swallow their errors, so nothing would look wrong
+    # -- YOUTUBE_LAST_VIDEO_ID would simply stop being saved, and a restart would
+    # re-announce the last video. Verified on the host: identical container,
+    # WRITE_OK with capabilities and WRITE_DENIED without.
+    # The real fix is to run as the owning uid instead of root, which makes
+    # dropping capabilities free; that needs a Dockerfile change and its own test.
     logging:
       # restart: unless-stopped plus the default unbounded json-file driver means
       # a crash loop fills the disk.
